@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>List My India™ — Project Hub</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 :root{
   --bg-primary:#FFFFFF;
@@ -24,73 +25,256 @@
   --green:#1D9E75;
   --green-light:#E1F5EE;
   --green-dark:#085041;
+  --amber:#EF9F27;
+  --amber-light:#FAEEDA;
+  --amber-dark:#854F0B;
+  --red:#E24B4A;
+  --red-light:#FCEBEB;
+  --red-dark:#A32D2D;
+  --blue:#185FA5;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  background:var(--bg-tertiary);
-  color:var(--text-primary);
-  line-height:1.5;
-}
-.topbar{
-  background:var(--lmi-dark-blue);
-  color:white;
-  padding:1.25rem 1.5rem;
-}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg-tertiary);color:var(--text-primary);line-height:1.5}
+
+.topbar{background:var(--lmi-dark-blue);color:white;padding:1.25rem 1.5rem}
 .topbar-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:10px}
 .topbar h1{font-size:18px;font-weight:600}
 .topbar .badge{font-size:11px;background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:20px;font-weight:500}
 
+.module-nav{background:var(--bg-primary);border-bottom:0.5px solid var(--border-tertiary);position:sticky;top:0;z-index:10}
+.module-nav-inner{max-width:980px;margin:0 auto;display:flex;gap:4px;padding:0 1.5rem;overflow-x:auto}
+.module-btn{padding:14px 18px;font-size:13px;font-weight:500;color:var(--text-secondary);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.module-btn:hover{color:var(--text-primary)}
+.module-btn.active{color:var(--lmi-dark-blue);border-bottom-color:var(--green)}
+.module-btn i{font-size:16px}
+
 .wrap{max-width:980px;margin:0 auto;padding:2rem 1.5rem}
+.module-panel{display:none}
+.module-panel.active{display:block}
+
 .intro{margin-bottom:1.75rem}
 .intro h2{font-size:22px;font-weight:600;margin-bottom:6px}
 .intro p{font-size:14px;color:var(--text-secondary)}
-
-.tab-row{display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap;border-bottom:0.5px solid var(--border-tertiary);padding-bottom:1rem}
-.cat-tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-secondary);color:var(--text-secondary);background:var(--bg-primary);transition:all 0.15s}
+.tab-row-home{display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap;border-bottom:0.5px solid var(--border-tertiary);padding-bottom:1rem}
+.cat-tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-secondary);color:var(--text-secondary);background:var(--bg-primary)}
 .cat-tab.active{background:var(--green);color:white;border-color:var(--green)}
-
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
-.card{
-  background:var(--bg-primary);
-  border:0.5px solid var(--border-tertiary);
-  border-radius:var(--radius-lg);
-  padding:1.25rem;
-  text-decoration:none;
-  color:inherit;
-  display:block;
-  transition:border-color 0.15s, transform 0.1s;
-}
+.card{background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);padding:1.25rem;text-decoration:none;color:inherit;display:block;cursor:pointer;transition:border-color 0.15s, transform 0.1s}
 .card:hover{border-color:var(--green);transform:translateY(-1px)}
 .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
-.card-icon{
-  width:38px;height:38px;border-radius:var(--radius-md);
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;
-}
+.card-icon{width:38px;height:38px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:18px}
 .card-status{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:0.02em;text-transform:uppercase}
 .status-live{background:var(--green-light);color:var(--green-dark)}
 .status-draft{background:#FAEEDA;color:#854F0B}
 .card h3{font-size:15px;font-weight:600;margin-bottom:4px}
 .card p{font-size:12.5px;color:var(--text-secondary);margin-bottom:0.75rem}
 .card-meta{font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px}
-
 .icon-blue{background:var(--lmi-soft-blue);color:var(--lmi-blue)}
 .icon-green{background:var(--green-light);color:var(--green-dark)}
 .icon-amber{background:#FAEEDA;color:#854F0B}
 .icon-coral{background:#FAECE7;color:#993C1D}
 .icon-purple{background:#EEEDFE;color:#534AB7}
+.empty-card{border:1px dashed var(--border-secondary);border-radius:var(--radius-lg);padding:1.5rem;text-align:center;color:var(--text-tertiary);font-size:13px}
 
-.empty-card{
-  border:1px dashed var(--border-secondary);
-  border-radius:var(--radius-lg);
-  padding:1.5rem;
-  text-align:center;
-  color:var(--text-tertiary);
-  font-size:13px;
+.module-hdr{padding:0 0 1.25rem;border-bottom:0.5px solid var(--border-tertiary);margin-bottom:1.25rem}
+.module-hdr-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.lmi-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--green-light);color:var(--green-dark)}
+.module-hdr h1{font-size:20px;font-weight:600}
+.module-hdr p{font-size:13px;color:var(--text-secondary);margin-top:4px}
+
+.tab-row{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
+.tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-secondary);color:var(--text-secondary);background:transparent}
+.tab.active{background:var(--green);color:white;border-color:var(--green)}
+
+.plan-group{margin-bottom:1.5rem}
+.plan-head{display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;flex-wrap:wrap}
+.plan-tag{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:0.02em}
+.plan-tag.entrepreneur{background:var(--green-light);color:var(--green-dark)}
+.plan-tag.enterprise{background:#EEEDFE;color:#3C3489}
+.plan-desc{font-size:12px;color:var(--text-secondary)}
+.tiers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:1rem}
+.tier-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary)}
+.tier-card.recommended{border:2px solid var(--green)}
+.tier-head{padding:10px 12px 8px}
+.tier-rank{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:3px}
+.tier-name{font-size:15px;font-weight:600;color:var(--text-primary)}
+.tier-sub{font-size:11px;color:var(--text-secondary);margin-top:1px}
+.rec-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--green-light);color:var(--green-dark);display:inline-block;margin-top:4px;font-weight:600}
+.tier-body{padding:8px 12px 12px;border-top:0.5px solid var(--border-tertiary)}
+.tier-row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:0.5px solid var(--border-tertiary)}
+.tier-row:last-child{border-bottom:none}
+.t-label{font-size:11px;color:var(--text-secondary)}
+.t-val{font-size:12px;font-weight:600;color:var(--text-primary)}
+.fp-share{color:var(--blue)}
+.t1 .tier-head{background:var(--amber-light)}
+.t2 .tier-head{background:var(--green-light)}
+.t3 .tier-head{background:#E6F1FB}
+.t4 .tier-head{background:#FBEAF0}
+.t5 .tier-head{background:#EEEDFE}
+.t6 .tier-head{background:#FAECE7}
+.total-row{border-top:0.5px solid var(--border-secondary);margin-top:4px;padding-top:7px}
+.total-row .t-label{font-weight:600;color:var(--text-primary)}
+.total-val{font-size:13px;font-weight:700;color:var(--lmi-dark-blue)}
+.run-row .t-label,.run-row .t-val{font-size:11px;color:var(--text-tertiary)}
+.run-row{padding-top:2px}
+
+.sec-lbl{font-size:11px;font-weight:600;letter-spacing:0.06em;color:var(--text-tertiary);text-transform:uppercase;margin-bottom:0.75rem;margin-top:1rem}
+.q-block{margin-bottom:1rem;padding:0.875rem 1.1rem;background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg)}
+.q-block.answered{border-color:var(--border-secondary)}
+.q-lbl{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:3px}
+.q-hint{font-size:11px;color:var(--text-secondary);margin-bottom:8px}
+.opts{display:flex;flex-direction:column;gap:5px}
+.opt{display:flex;align-items:center;gap:9px;padding:7px 11px;border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);cursor:pointer;font-size:13px;color:var(--text-primary);background:var(--bg-secondary)}
+.opt:hover{border-color:var(--border-secondary)}
+.opt.sel{border-color:var(--green);background:var(--green-light);color:var(--green-dark)}
+.radio{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.opt.sel .radio{border-color:var(--green);background:var(--green)}
+.opt.sel .radio::after{content:'';width:4px;height:4px;border-radius:50%;background:white;display:block}
+.txt-in{width:100%;padding:8px 10px;font-size:13px;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);background:var(--bg-secondary);color:var(--text-primary);font-family:inherit}
+.txt-in:focus{outline:none;border-color:var(--green)}
+.sub-btn{width:100%;padding:12px;font-size:14px;font-weight:600;background:var(--green);color:white;border:none;border-radius:var(--radius-md);cursor:pointer;margin-top:0.75rem}
+.sub-btn:hover{background:var(--green-dark)}
+.sub-btn:disabled{background:var(--bg-tertiary);color:var(--text-tertiary);cursor:not-allowed}
+.cmp-note{font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:6px}
+.req{color:var(--red);margin-left:2px;font-size:11px}
+
+.res-card{padding:1.25rem;border-radius:var(--radius-lg);border:0.5px solid var(--border-tertiary);margin-top:1.25rem}
+.res-card.shortlisted{border-color:var(--green);background:var(--green-light)}
+.res-card.review{border-color:var(--amber);background:var(--amber-light)}
+.res-card.rejected{border-color:var(--red);background:var(--red-light)}
+.res-title{font-size:17px;font-weight:600;margin-bottom:5px}
+.shortlisted .res-title{color:var(--green-dark)}
+.review .res-title{color:var(--amber-dark)}
+.rejected .res-title{color:var(--red-dark)}
+.res-sub{font-size:13px;margin-bottom:0.75rem}
+.shortlisted .res-sub{color:var(--green-dark)}
+.review .res-sub{color:var(--amber-dark)}
+.rejected .res-sub{color:var(--red-dark)}
+.srow{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.slbl{font-size:12px;color:var(--text-secondary);width:110px;flex-shrink:0}
+.strk{flex:1;height:5px;background:var(--bg-tertiary);border-radius:3px;overflow:hidden}
+.sfill{height:5px;border-radius:3px}
+.sfill.g{background:var(--green)}
+.sfill.a{background:var(--amber)}
+.sfill.r{background:var(--red)}
+.spct{font-size:11px;font-weight:600;color:var(--text-secondary);width:30px;text-align:right}
+.flag{font-size:11px;padding:3px 9px;border-radius:20px;display:inline-block;margin:2px 2px 0 0;font-weight:500}
+.flag.r{background:var(--red-light);color:var(--red-dark)}
+.flag.g{background:var(--green-light);color:var(--green-dark)}
+.flag.a{background:var(--amber-light);color:var(--amber-dark)}
+.rst-btn{font-size:12px;padding:7px 14px;margin-top:0.75rem;background:transparent;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);cursor:pointer;color:var(--text-secondary)}
+.rst-btn:hover{background:var(--bg-secondary)}
+.tier-rec-box{margin-top:0.75rem;padding:10px 12px;border-radius:var(--radius-md);background:var(--bg-primary);border:0.5px solid var(--border-tertiary)}
+.tier-rec-title{font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:3px}
+.tier-rec-sub{font-size:12px;color:var(--text-secondary)}
+.footnote{font-size:11px;color:var(--text-tertiary);margin-top:1rem;line-height:1.6}
+
+.section{margin-bottom:1.75rem}
+.section-title{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:0.25rem;display:flex;align-items:center;gap:6px}
+.section-sub{font-size:12px;color:var(--text-tertiary);margin-bottom:0.9rem}
+.slider-row{margin-bottom:1.1rem}
+.slider-label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.slider-label{font-size:13px;color:var(--text-primary);font-weight:500}
+.slider-hint{font-size:11px;color:var(--text-tertiary)}
+.slider-value{font-size:14px;font-weight:600;color:var(--lmi-dark-blue);min-width:70px;text-align:right}
+input[type=range]{width:100%;accent-color:var(--green)}
+.derived-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-secondary);border-radius:var(--radius-md);margin-bottom:8px;font-size:12.5px}
+.derived-row .lbl{color:var(--text-secondary)}
+.derived-row .val{font-weight:600;color:var(--text-primary)}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:0.5rem}
+.plan-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 12px}
+.plan-card .pname{font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:2px}
+.plan-card .pprice{font-size:11px;color:var(--text-tertiary);margin-bottom:8px}
+.plan-card input[type=range]{margin-bottom:4px}
+.plan-card .pval{font-size:13px;font-weight:600;color:var(--lmi-dark-blue);text-align:right}
+.plan-sum-note{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:2px}
+.plan-sum-note.warn{color:var(--red-dark);font-weight:600}
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1rem}
+.metric-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:1rem;text-align:center}
+.metric-card .mlabel{font-size:11px;color:var(--text-secondary);margin-bottom:4px}
+.metric-card .mval{font-size:20px;font-weight:600;color:var(--lmi-dark-blue)}
+.metric-card .msub{font-size:10px;color:var(--text-tertiary);margin-top:2px}
+.year-tabs{display:flex;gap:6px;margin-bottom:1rem}
+.year-tab{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-secondary);color:var(--text-secondary);background:transparent}
+.year-tab.active{background:var(--green);color:white;border-color:var(--green)}
+.chart-wrap{position:relative;height:240px;margin-bottom:1.25rem}
+.summary-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:1rem}
+.summary-table th{text-align:left;font-weight:600;color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:0.03em;padding:6px 8px;border-bottom:0.5px solid var(--border-secondary)}
+.summary-table td{padding:7px 8px;border-bottom:0.5px solid var(--border-tertiary)}
+.summary-table td.num{text-align:right;font-weight:500}
+.summary-table tr.total td{font-weight:600;border-top:1px solid var(--border-secondary);border-bottom:none}
+.row-income td.num{color:var(--green-dark)}
+.row-expense td.num{color:var(--red-dark)}
+.row-profit td.num{color:var(--lmi-dark-blue);font-weight:600}
+.reset-btn{font-size:12px;padding:7px 14px;margin-top:0.5rem;background:transparent;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);cursor:pointer;color:var(--text-secondary)}
+.reset-btn:hover{background:var(--bg-secondary)}
+
+.summary-banner{background:var(--lmi-dark-blue);border-radius:var(--radius-lg);padding:0.6rem 0.85rem;margin-bottom:0;color:white}
+.summary-banner-head{font-size:10px;font-weight:600;letter-spacing:0.02em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:0.45rem;display:flex;align-items:center;gap:5px}
+.summary-banner-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.summary-banner-item{background:rgba(255,255,255,0.08);border-radius:var(--radius-md);padding:0.4rem 0.4rem;text-align:center}
+.summary-banner-item.total{background:var(--lmi-yellow);color:var(--lmi-dark-blue)}
+.sb-label{font-size:10px;color:rgba(255,255,255,0.75);margin-bottom:2px;font-weight:500}
+.summary-banner-item.total .sb-label{color:rgba(45,58,140,0.75)}
+.sb-val{font-size:14px;font-weight:700}
+
+.assumption-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.assumption-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 12px}
+.ac-label{font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:6px}
+.assumption-card input[type=range]{margin-bottom:4px}
+.ac-val{font-size:13px;font-weight:600;color:var(--lmi-dark-blue);text-align:right}
+
+.vas-toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:0.75rem}
+.vas-switch{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0}
+.vas-switch input{opacity:0;width:0;height:0}
+.vas-slider-ui{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border-secondary);border-radius:22px;transition:0.2s}
+.vas-slider-ui::before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.2s}
+.vas-switch input:checked + .vas-slider-ui{background:var(--green)}
+.vas-switch input:checked + .vas-slider-ui::before{transform:translateX(18px)}
+.vas-toggle-label{font-size:13px;color:var(--text-primary);font-weight:500}
+
+.tier-income-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.tier-income-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary);cursor:pointer;transition:border-color 0.15s,transform 0.1s}
+.tier-income-card:hover{transform:translateY(-1px)}
+.tier-income-card.featured{border:2px solid var(--green)}
+.tic-head{padding:7px 8px 5px}
+.tic-name{font-size:12px;font-weight:600;color:var(--text-primary)}
+.tic-share{font-size:10px;color:var(--text-secondary);margin-top:1px;display:none}
+.tic-body{padding:6px 8px 8px;border-top:0.5px solid var(--border-tertiary)}
+.tic-3yr-label{font-size:9px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.02em;margin-bottom:1px;display:none}
+.tic-3yr-val{font-size:13px;font-weight:700;color:var(--lmi-dark-blue)}
+.t1 .tic-head{background:var(--amber-light)}
+.t2 .tic-head{background:var(--green-light)}
+.t3 .tic-head{background:#E6F1FB}
+.t4 .tic-head{background:#FBEAF0}
+.t5 .tic-head{background:#EEEDFE}
+.t6 .tic-head{background:#FAECE7}
+.tier-income-card.selected{border:2px solid var(--lmi-dark-blue);box-shadow:0 1px 4px rgba(0,0,0,0.12)}
+.tier-income-card.selected .tic-3yr-val{color:var(--lmi-dark-blue)}
+
+.income-sticky-header{position:sticky;top:49px;background:var(--bg-tertiary);z-index:5;padding-top:0.5rem;padding-bottom:0.6rem;border-bottom:0.5px solid var(--border-secondary);margin-bottom:1rem;margin-left:-1.5rem;margin-right:-1.5rem;padding-left:1.5rem;padding-right:1.5rem}
+.income-scroll-body{padding-top:0.25rem}
+
+@media (max-width:650px){
+  .tier-income-grid{gap:5px}
+  .income-sticky-header .tic-head{padding:5px 4px 3px}
+  .income-sticky-header .tic-body{padding:3px 4px 5px}
+  .income-sticky-header .tic-name{font-size:9px;line-height:1.2}
+  .income-sticky-header .tic-3yr-val{font-size:10px}
+  .income-sticky-header{margin-left:-1rem;margin-right:-1rem;padding-left:1rem;padding-right:1rem}
 }
 
+.tier-preview-banner{background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.9rem 1rem;margin:0.75rem 0 1rem;text-align:center}
+.tier-preview-label{font-size:11px;color:var(--text-tertiary);margin-bottom:3px}
+.tier-preview-val{font-size:20px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:6px}
+.tier-preview-link{font-size:12px;color:var(--green-dark);font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.tier-preview-link:hover{text-decoration:underline}
+
 footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-tertiary)}
+
+@media (max-width:650px){
+  .plan-grid,.metric-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -102,74 +286,432 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
   </div>
 </div>
 
+<div class="module-nav">
+  <div class="module-nav-inner">
+    <button class="module-btn active" data-module="home" onclick="goToModule('home')"><i class="ti ti-home" aria-hidden="true"></i>Home</button>
+    <button class="module-btn" data-module="franchise" onclick="goToModule('franchise')"><i class="ti ti-clipboard-check" aria-hidden="true"></i>Franchise Screener</button>
+    <button class="module-btn" data-module="income" onclick="goToModule('income')"><i class="ti ti-cash" aria-hidden="true"></i>Income Potential</button>
+  </div>
+</div>
+
 <div class="wrap">
-  <div class="intro">
-    <h2>All projects</h2>
-    <p>A running collection of internal tools, prototypes, and idea drafts. Each card links to a standalone page.</p>
-  </div>
 
-  <div class="tab-row" id="catTabs">
-    <button class="cat-tab active" data-cat="all" onclick="filterCat('all')">All</button>
-    <button class="cat-tab" data-cat="franchise" onclick="filterCat('franchise')">Franchise</button>
-    <button class="cat-tab" data-cat="finance" onclick="filterCat('finance')">Finance</button>
-    <button class="cat-tab" data-cat="ops" onclick="filterCat('ops')">Operations</button>
-    <button class="cat-tab" data-cat="other" onclick="filterCat('other')">Other</button>
-  </div>
+  <div class="module-panel active" id="panel-home">
+    <div class="intro">
+      <h2>All projects</h2>
+      <p>A running collection of internal tools, prototypes, and idea drafts. Click a card or use the tabs above to open a module.</p>
+    </div>
 
-  <div class="grid" id="projectGrid">
+    <div class="tab-row-home" id="catTabs">
+      <button class="cat-tab active" data-cat="all" onclick="filterCat('all')">All</button>
+      <button class="cat-tab" data-cat="franchise" onclick="filterCat('franchise')">Franchise</button>
+      <button class="cat-tab" data-cat="finance" onclick="filterCat('finance')">Finance</button>
+      <button class="cat-tab" data-cat="ops" onclick="filterCat('ops')">Operations</button>
+      <button class="cat-tab" data-cat="other" onclick="filterCat('other')">Other</button>
+    </div>
 
-    <a class="card" data-cat="franchise" href="franchise-screener.html">
-      <div class="card-top">
-        <div class="card-icon icon-green"><i class="ti ti-clipboard-check"></i></div>
-        <span class="card-status status-live">Live</span>
+    <div class="grid" id="projectGrid">
+
+      <div class="card" data-cat="franchise" onclick="goToModule('franchise')">
+        <div class="card-top">
+          <div class="card-icon icon-green"><i class="ti ti-clipboard-check" aria-hidden="true"></i></div>
+          <span class="card-status status-live">Live</span>
+        </div>
+        <h3>Franchise Partner Screener</h3>
+        <p>All 6 franchise tiers with fee structure, plus a 16-question auto-scoring questionnaire to shortlist or reject applicants.</p>
+        <div class="card-meta"><i class="ti ti-layout-grid" aria-hidden="true"></i> Franchise Screener module</div>
       </div>
-      <h3>Franchise Partner Screener</h3>
-      <p>All 6 franchise tiers with fee structure, plus a 16-question auto-scoring questionnaire to shortlist or reject applicants.</p>
-      <div class="card-meta"><i class="ti ti-file-text"></i> franchise-screener.html</div>
-    </a>
 
-    <a class="card" data-cat="franchise" href="income-potential.html">
-      <div class="card-top">
-        <div class="card-icon icon-amber"><i class="ti ti-cash"></i></div>
-        <span class="card-status status-live">Live</span>
+      <div class="card" data-cat="franchise" onclick="goToModule('income')">
+        <div class="card-top">
+          <div class="card-icon icon-amber"><i class="ti ti-cash" aria-hidden="true"></i></div>
+          <span class="card-status status-live">Live</span>
+        </div>
+        <h3>Income Potential Calculator</h3>
+        <p>EMI-style slider calculator estimating a franchise partner's monthly, year 1, and 3-year income based on population, market capture, and plan mix.</p>
+        <div class="card-meta"><i class="ti ti-layout-grid" aria-hidden="true"></i> Income Potential module</div>
       </div>
-      <h3>Income Potential Calculator</h3>
-      <p>EMI-style slider calculator estimating a franchise partner's monthly, year 1, and 3-year income based on population, market capture, and plan mix.</p>
-      <div class="card-meta"><i class="ti ti-file-text"></i> income-potential.html</div>
-    </a>
 
-    <!--
-      TEMPLATE FOR A NEW PROJECT CARD — copy, edit, paste above this comment.
-      1. Save your new HTML file at the repo root (same level as this index.html).
-      2. Set data-cat to one of: franchise | finance | ops | other (or add a new tab above).
-      3. Pick an icon class: icon-blue, icon-green, icon-amber, icon-coral, icon-purple.
-      4. Pick a Tabler icon name from tabler-icons.io (e.g. ti-chart-bar, ti-users, ti-calculator).
-      5. Set card-status to status-live or status-draft.
+    </div>
 
-    <a class="card" data-cat="other" href="your-new-file.html">
-      <div class="card-top">
-        <div class="card-icon icon-blue"><i class="ti ti-bulb"></i></div>
-        <span class="card-status status-draft">Draft</span>
+    <div class="empty-card" id="emptyNote" style="display:none;margin-top:14px">No projects in this category yet.</div>
+  </div>
+
+  <div class="module-panel" id="panel-franchise">
+    <div class="module-hdr">
+      <div class="module-hdr-top"><span class="lmi-badge">List My India™</span><span style="font-size:11px;color:var(--text-tertiary)">Franchise Partner Portal</span></div>
+      <h1>Franchise Partner Screening</h1>
+      <p>Explore all 6 franchise tiers, then complete the screening questionnaire.</p>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab active" onclick="showTab('tiers')">Franchise Tiers</button>
+      <button class="tab" onclick="showTab('form')">Screening Questionnaire</button>
+    </div>
+
+    <div id="tab-tiers">
+    <div class="plan-group">
+      <div class="plan-head">
+        <span class="plan-tag entrepreneur">Entrepreneur Plan</span>
+        <span class="plan-desc">Low investment · No office required · Work from home or small setup</span>
       </div>
-      <h3>Project Title</h3>
-      <p>One or two line description of what this prototype does.</p>
-      <div class="card-meta"><i class="ti ti-file-text"></i> your-new-file.html</div>
-    </a>
-    -->
+      <div class="tiers-grid">
+
+      <div class="tier-card t1">
+        <div class="tier-head">
+          <div class="tier-rank">Tier 1</div>
+          <div class="tier-name">Quick Start</div>
+          <div class="tier-sub">Lightest entry point</div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹50,000</span></div>
+          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">30%</span></div>
+          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹70,000</span></div>
+          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹6,000/mo</span></div>
+        </div>
+      </div>
+
+      <div class="tier-card t2">
+        <div class="tier-head">
+          <div class="tier-rank">Tier 2</div>
+          <div class="tier-name">Ultra Light</div>
+          <div class="tier-sub">Slightly larger reach</div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹75,000</span></div>
+          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">35%</span></div>
+          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹94,000</span></div>
+          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹9,000/mo</span></div>
+        </div>
+      </div>
+
+      <div class="tier-card t3 recommended">
+        <div class="tier-head">
+          <div class="tier-rank">Tier 3</div>
+          <div class="tier-name">Light</div>
+          <div class="tier-sub">Most popular entry tier</div>
+          <span class="rec-badge">Most popular</span>
+        </div>
+        <div class="tier-body">
+          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹1,00,000</span></div>
+          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">40%</span></div>
+          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹1,49,000</span></div>
+          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹12,000/mo</span></div>
+        </div>
+      </div>
+
+      </div>
+    </div>
+
+    <div class="plan-group">
+      <div class="plan-head">
+        <span class="plan-tag enterprise">Enterprise Plan</span>
+        <span class="plan-desc">Higher investment · Office setup required · Built for scale</span>
+      </div>
+      <div class="tiers-grid">
+
+      <div class="tier-card t4">
+        <div class="tier-head">
+          <div class="tier-rank">Tier 4</div>
+          <div class="tier-name">Bronze</div>
+          <div class="tier-sub">Office-based, entry enterprise</div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹3,00,000</span></div>
+          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">55%</span></div>
+          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹5,66,000</span></div>
+          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹49,500/mo</span></div>
+        </div>
+      </div>
+
+      <div class="tier-card t5">
+        <div class="tier-head">
+          <div class="tier-rank">Tier 5</div>
+          <div class="tier-name">Silver</div>
+          <div class="tier-sub">District-level operation</div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹4,00,000</span></div>
+          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">60%</span></div>
+          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹6,66,000</span></div>
+          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹51,500/mo</span></div>
+        </div>
+      </div>
+
+      <div class="tier-card t6">
+        <div class="tier-head">
+          <div class="tier-rank">Tier 6</div>
+          <div class="tier-name">Gold</div>
+          <div class="tier-sub">Anchor / zone-level partner</div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹5,00,000</span></div>
+          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">65%</span></div>
+          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹7,66,000</span></div>
+          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹54,500/mo</span></div>
+        </div>
+      </div>
+
+      </div>
+    </div>
+
+    <div class="tier-preview-banner">
+      <div class="tier-preview-label">3-year projected income (Light tier, default assumptions)</div>
+      <div class="tier-preview-val" id="tier-preview-3yr">₹0</div>
+      <span class="tier-preview-link" onclick="goToModule('income')"><i class="ti ti-calculator" aria-hidden="true"></i> Check and validate your income potential →</span>
+    </div>
+
+    <p class="footnote">* Franchise fee shown is the Regular Partner (limited period offer) rate; Young/Women entrepreneurs under qualifying age get up to 50% further off. "Total to start" = franchise fee + first-year subscription (₹19,175) + one-time setup fee + office interiors (Enterprise only) — the upfront amount needed on day one. "Running cost" is the ongoing monthly spend (maintenance, marketing, and for Enterprise tiers, rent/utilities/salaries) on top of that. All amounts exclude 18% GST.</p>
+    <button class="sub-btn" style="margin-top:0" onclick="showTab('form')">Proceed to Screening Questionnaire →</button>
+    </div>
+
+    <div id="tab-form" style="display:none">
+    <div class="prog-bar" style="height:4px;background:var(--bg-tertiary);border-radius:2px;margin-bottom:1.25rem"><div class="prog-fill" id="prog" style="width:0%;height:4px;background:var(--green);border-radius:2px"></div></div>
+    <div id="form-area"></div>
+    </div>
+  </div>
+
+  <div class="module-panel" id="panel-income">
+    <div class="income-sticky-header">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.5rem">
+        <span class="lmi-badge">List My India™</span>
+        <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Income potential calculator</span>
+      </div>
+
+      <div class="tier-income-grid" id="tier-income-grid"></div>
+
+      <div class="summary-banner" style="margin-top:8px">
+        <div class="summary-banner-head">
+          <i class="ti ti-chart-bar" aria-hidden="true"></i> <span id="summary-banner-tier-name">Light tier</span> — projected income summary
+        </div>
+        <div class="summary-banner-grid">
+          <div class="summary-banner-item">
+            <div class="sb-label">Year 1</div>
+            <div class="sb-val" id="sb-y1">₹0</div>
+          </div>
+          <div class="summary-banner-item">
+            <div class="sb-label">Year 2</div>
+            <div class="sb-val" id="sb-y2">₹0</div>
+          </div>
+          <div class="summary-banner-item">
+            <div class="sb-label">Year 3</div>
+            <div class="sb-val" id="sb-y3">₹0</div>
+          </div>
+          <div class="summary-banner-item total">
+            <div class="sb-label">3-year total</div>
+            <div class="sb-val" id="sb-total">₹0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="income-scroll-body">
+
+    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:1rem">Tap a tier card above to see its projected income. Adjust the assumptions below to refine the estimate.</p>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-users" aria-hidden="true"></i> Your market</div>
+      <div class="section-sub">Adjust the population for your pincode — everything below recalculates automatically, just like an EMI calculator.</div>
+
+      <div class="slider-row">
+        <div class="slider-label-row">
+          <span class="slider-label">Population in your pincode</span>
+          <span class="slider-value" id="val-pop">1,00,000</span>
+        </div>
+        <input type="range" id="sl-pop" min="10000" max="500000" step="5000" value="100000">
+        <div class="slider-hint">Default 1,00,000 — typical urban pincode</div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label-row">
+          <span class="slider-label">Retail stores (% of population)</span>
+          <span class="slider-value" id="val-retailpct">1.25%</span>
+        </div>
+        <input type="range" id="sl-retailpct" min="0.5" max="3" step="0.05" value="1.25">
+        <div class="slider-hint">Default 1.25% of population — suggested, adjustable</div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label-row">
+          <span class="slider-label">Home-based businesses (× retail stores)</span>
+          <span class="slider-value" id="val-homemult">5.0x</span>
+        </div>
+        <input type="range" id="sl-homemult" min="2" max="10" step="0.5" value="5">
+        <div class="slider-hint">Default 5x the retail store count — suggested, adjustable</div>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label-row">
+          <span class="slider-label">Market capture in first 3 months</span>
+          <span class="slider-value" id="val-capture">20%</span>
+        </div>
+        <input type="range" id="sl-capture" min="5" max="50" step="1" value="20">
+        <div class="slider-hint">% of total businesses you onboard as paid listings by month 3</div>
+      </div>
+
+      <div class="derived-row"><span class="lbl">Retail stores</span><span class="val" id="d-retail">1,250</span></div>
+      <div class="derived-row"><span class="lbl">Home-based businesses</span><span class="val" id="d-home">6,250</span></div>
+      <div class="derived-row"><span class="lbl">Total addressable businesses</span><span class="val" id="d-total">7,500</span></div>
+      <div class="derived-row"><span class="lbl">Captured listings (by month 3)</span><span class="val" id="d-captured">1,500</span></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-chart-pie" aria-hidden="true"></i> Plan distribution</div>
+      <div class="section-sub">How your captured listings split across the 3 starter plans — drag any slider, the others rebalance to keep the total at 100%.</div>
+
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="pname">LMI Social</div>
+          <div class="pprice">₹149/mo</div>
+          <input type="range" id="sl-plan149" min="0" max="100" step="1" value="50">
+          <div class="pval" id="val-plan149">50%</div>
+        </div>
+        <div class="plan-card">
+          <div class="pname">LMI Star Rated</div>
+          <div class="pprice">₹199/mo</div>
+          <input type="range" id="sl-plan199" min="0" max="100" step="1" value="30">
+          <div class="pval" id="val-plan199">30%</div>
+        </div>
+        <div class="plan-card">
+          <div class="pname">LMI Lead Magnet</div>
+          <div class="pprice">₹249/mo</div>
+          <input type="range" id="sl-plan249" min="0" max="100" step="1" value="20">
+          <div class="pval" id="val-plan249">20%</div>
+        </div>
+      </div>
+      <div class="plan-sum-note" id="plan-sum-note">Total: 100%</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-trending-up" aria-hidden="true"></i> Growth rate by year</div>
+      <div class="section-sub">Month-on-month new subscriber growth, set separately for each year. Defaults are realistic and match List My India's actual onboarding curve — adjust if you expect faster or slower uptake.</div>
+
+      <div class="assumption-grid">
+        <div class="assumption-card">
+          <div class="ac-label">Year 1 growth</div>
+          <input type="range" id="sl-growth-y1" min="2" max="15" step="0.5" value="7.5">
+          <div class="ac-val" id="val-growth-y1">7.5%/mo</div>
+        </div>
+        <div class="assumption-card">
+          <div class="ac-label">Year 2 growth</div>
+          <input type="range" id="sl-growth-y2" min="1" max="10" step="0.5" value="4">
+          <div class="ac-val" id="val-growth-y2">4.0%/mo</div>
+        </div>
+        <div class="assumption-card">
+          <div class="ac-label">Year 3 growth</div>
+          <input type="range" id="sl-growth-y3" min="0.5" max="8" step="0.5" value="3">
+          <div class="ac-val" id="val-growth-y3">3.0%/mo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-user-minus" aria-hidden="true"></i> Churn (unsubscription) rate by year</div>
+      <div class="section-sub">% of subscribers who don't renew each month. Typically highest in year 1 as the market settles, then stabilizes.</div>
+
+      <div class="assumption-grid">
+        <div class="assumption-card">
+          <div class="ac-label">Year 1 churn</div>
+          <input type="range" id="sl-churn-y1" min="0.5" max="6" step="0.25" value="2.5">
+          <div class="ac-val" id="val-churn-y1">2.5%/mo</div>
+        </div>
+        <div class="assumption-card">
+          <div class="ac-label">Year 2 churn</div>
+          <input type="range" id="sl-churn-y2" min="0.5" max="5" step="0.25" value="2">
+          <div class="ac-val" id="val-churn-y2">2.0%/mo</div>
+        </div>
+        <div class="assumption-card">
+          <div class="ac-label">Year 3 churn</div>
+          <input type="range" id="sl-churn-y3" min="0.5" max="4" step="0.25" value="1.5">
+          <div class="ac-val" id="val-churn-y3">1.5%/mo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-rocket" aria-hidden="true"></i> Value added services (optional)</div>
+      <div class="section-sub">List My India also offers paid add-ons — WhatsApp broadcast, email broadcast, category sponsorship, banner placement, and pop-up promotions — that subscribers can buy on top of their base plan. These aren't guaranteed income, but a realistic franchise partner typically sees some uptake. Toggle on to include an estimate in your projection.</div>
+
+      <div class="vas-toggle-row">
+        <label class="vas-switch">
+          <input type="checkbox" id="vas-toggle">
+          <span class="vas-slider-ui"></span>
+        </label>
+        <span class="vas-toggle-label">Include value added services in income projection</span>
+      </div>
+
+      <div id="vas-controls" style="display:none">
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <span class="slider-label">% of subscribers opting for at least one VAS</span>
+            <span class="slider-value" id="val-vas-adopt">8%</span>
+          </div>
+          <input type="range" id="sl-vas-adopt" min="1" max="30" step="1" value="8">
+          <div class="slider-hint">Default 8% — based on typical broadcast/sponsor uptake rates</div>
+        </div>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <span class="slider-label">Average VAS spend per opted-in subscriber / month</span>
+            <span class="slider-value" id="val-vas-price">₹350</span>
+          </div>
+          <input type="range" id="sl-vas-price" min="100" max="2000" step="50" value="350">
+          <div class="slider-hint">Blended average across WhatsApp/email broadcast (₹99), category sponsor (₹499-999), banner (₹1,999)</div>
+        </div>
+        <div class="derived-row"><span class="lbl">Estimated additional VAS income (Year 1)</span><span class="val" id="d-vas-y1">₹0</span></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="ti ti-cash" aria-hidden="true"></i> Income breakdown by year</div>
+      <div class="section-sub">Your share as franchise partner for the selected tier, net of estimated monthly running costs.</div>
+
+      <div class="year-tabs">
+        <button class="year-tab active" data-y="1" onclick="setYear(1)">Year 1 income</button>
+        <button class="year-tab" data-y="2" onclick="setYear(2)">Year 2 income</button>
+        <button class="year-tab" data-y="3" onclick="setYear(3)">Year 3 income</button>
+      </div>
+
+      <table class="summary-table">
+        <thead><tr><th>Particulars</th><th style="text-align:right">Amount</th></tr></thead>
+        <tbody id="summary-body"></tbody>
+      </table>
+
+      <button class="reset-btn" onclick="toggleMonthly()" id="monthly-toggle-btn"><i class="ti ti-calendar" aria-hidden="true"></i> View monthly breakup</button>
+
+      <div id="monthly-breakup" style="display:none;margin-top:1rem">
+        <table class="summary-table">
+          <thead><tr><th>Month</th><th style="text-align:right">Gross revenue</th><th style="text-align:right">Your net income</th></tr></thead>
+          <tbody id="monthly-body"></tbody>
+        </table>
+      </div>
+
+      <div class="section-title" style="margin-top:1.5rem"><i class="ti ti-chart-area-line" aria-hidden="true"></i> Income trend chart</div>
+      <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
+
+      <button class="reset-btn" onclick="resetAll()">Reset to defaults</button>
+
+      <p class="footnote">* Estimates only, for illustration. Actual results depend on local market conditions, execution, and franchise tier selected. Running costs are an approximate monthly franchise-tier expense (maintenance, conveyance, marketing) deducted before showing net income. All figures exclude GST.</p>
+    </div>
+
+    </div>
 
   </div>
 
-  <div class="empty-card" id="emptyNote" style="display:none;margin-top:14px">
-    No projects in this category yet.
-  </div>
 </div>
 
 <footer>List My India Growthworks Private Limited &middot; Internal use only</footer>
 
 <script>
+
+function goToModule(name){
+  document.querySelectorAll('.module-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
+  document.querySelectorAll('.module-btn').forEach(b=>b.classList.toggle('active', b.dataset.module===name));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
 function filterCat(cat){
   document.querySelectorAll('.cat-tab').forEach(t=>t.classList.toggle('active', t.dataset.cat===cat));
-  const cards=document.querySelectorAll('.card');
+  const cards=document.querySelectorAll('#projectGrid .card');
   let visible=0;
   cards.forEach(c=>{
     const show = cat==='all' || c.dataset.cat===cat;
@@ -178,6 +720,610 @@ function filterCat(cat){
   });
   document.getElementById('emptyNote').style.display = visible===0 ? 'block' : 'none';
 }
+</script>
+
+<script>
+function showTab(t){
+  document.getElementById('tab-tiers').style.display = t==='tiers'?'block':'none';
+  document.getElementById('tab-form').style.display = t==='form'?'block':'none';
+  document.querySelectorAll('#panel-franchise .tab').forEach((el,i)=>{
+    el.classList.toggle('active', (i===0&&t==='tiers')||(i===1&&t==='form'));
+  });
+  if(t==='form') renderFranchiseForm();
+}
+
+const fsSections=[
+  {label:"Personal background",questions:[
+    {id:"q1",text:"Highest educational qualification",hint:"",type:"radio",options:[
+      {text:"Post-graduate / MBA / Professional degree",score:3},
+      {text:"Graduate (any stream)",score:2},
+      {text:"12th pass / Diploma",score:1},
+      {text:"Below 12th",score:0}]},
+    {id:"q2",text:"Current or most recent occupation",hint:"",type:"radio",options:[
+      {text:"Business owner / Entrepreneur",score:3},
+      {text:"Sales / Marketing professional",score:3},
+      {text:"Corporate / Government employee",score:2},
+      {text:"Retired / Homemaker",score:1},
+      {text:"Fresher / Student",score:0}]},
+    {id:"q3",text:"Age group",hint:"",type:"radio",options:[
+      {text:"26–45 years",score:3},
+      {text:"46–55 years",score:2},
+      {text:"18–25 years",score:1},
+      {text:"Above 55 years",score:1}]}
+  ]},
+  {label:"Business experience",questions:[
+    {id:"q4",text:"Years of experience in sales, marketing, or business development",hint:"",type:"radio",options:[
+      {text:"More than 5 years",score:3},
+      {text:"3–5 years",score:2},
+      {text:"1–3 years",score:1},
+      {text:"Less than 1 year / None",score:0}]},
+    {id:"q5",text:"Have you run a franchise or dealership before?",hint:"",type:"radio",options:[
+      {text:"Yes, successfully for 3+ years",score:3},
+      {text:"Yes, but less than 3 years",score:2},
+      {text:"No, but managed a team or business",score:1},
+      {text:"No prior experience",score:0}]},
+    {id:"q6",text:"Comfort with digital tools (WhatsApp Business, Google Sheets, email)",hint:"",type:"radio",options:[
+      {text:"Very comfortable — use daily",score:3},
+      {text:"Comfortable with basics",score:2},
+      {text:"Know a little, still learning",score:1},
+      {text:"Not comfortable at all",score:0}]}
+  ]},
+  {label:"Financial readiness",questions:[
+    {id:"q7",text:"Which franchise plan are you interested in?",hint:"Based on your capital availability",type:"radio",options:[
+      {text:"Gold (Enterprise) — ₹5L fee, total ~₹7.66L (65% share)",score:3,tier:"Gold"},
+      {text:"Silver (Enterprise) — ₹4L fee, total ~₹6.66L (60% share)",score:3,tier:"Silver"},
+      {text:"Bronze (Enterprise) — ₹3L fee, total ~₹5.66L (55% share)",score:2,tier:"Bronze"},
+      {text:"Light (Entrepreneur) — ₹1L fee, total ~₹1.49L (40% share)",score:2,tier:"Light"},
+      {text:"Ultra Light (Entrepreneur) — ₹75K fee, total ~₹94K (35% share)",score:1,tier:"Ultra Light"},
+      {text:"Quick Start (Entrepreneur) — ₹50K fee, total ~₹70K (30% share)",score:1,tier:"Quick Start"}]},
+    {id:"q8",text:"Investment capital available immediately",hint:"Self-funded or arranged — covers franchise fee + first-year setup",type:"radio",options:[
+      {text:"₹5.7 lakh and above (Enterprise plan ready)",score:3},
+      {text:"₹1.5 lakh – ₹5.7 lakh (Entrepreneur plan, Light tier)",score:2},
+      {text:"₹70,000 – ₹1.5 lakh (Entrepreneur plan, Quick Start/Ultra Light)",score:1},
+      {text:"Below ₹50,000",score:0,reject:true,flag:"Insufficient capital"}]},
+    {id:"q9",text:"Source of investment funds",hint:"",type:"radio",options:[
+      {text:"Own savings / liquid funds ready",score:3},
+      {text:"Family support confirmed",score:2},
+      {text:"Loan / credit expected within 30 days",score:1},
+      {text:"Not yet arranged",score:0}]},
+    {id:"q10",text:"Do you have an existing office or working space?",hint:"Only required for Bronze/Silver/Gold (Enterprise) tiers — optional for Entrepreneur tiers",type:"radio",options:[
+      {text:"Yes, dedicated commercial space",score:3},
+      {text:"Yes, shared or home office",score:2},
+      {text:"No, but can arrange within 30 days",score:1},
+      {text:"No plan yet",score:0}]}
+  ]},
+  {label:"Market & local presence",questions:[
+    {id:"q11",text:"Target territory (city / area)",hint:"Primary area you want to operate",type:"text",placeholder:"e.g. Rohini, Delhi or Nashik City"},
+    {id:"q12",text:"Strength of local business network (SME contacts, trade bodies)",hint:"",type:"radio",options:[
+      {text:"Strong — know 200+ local business owners",score:3},
+      {text:"Moderate — 50–200 contacts",score:2},
+      {text:"Limited — under 50 contacts",score:1},
+      {text:"No meaningful network yet",score:0}]},
+    {id:"q13",text:"Are family members supportive of this business?",hint:"",type:"radio",options:[
+      {text:"Fully supportive — may assist operations",score:3},
+      {text:"Supportive but uninvolved",score:2},
+      {text:"Neutral",score:1},
+      {text:"Not supportive",score:0}]}
+  ]},
+  {label:"Commitment & mindset",questions:[
+    {id:"q14",text:"This will be your primary occupation",hint:"",type:"radio",options:[
+      {text:"Yes, 100% full-time from day one",score:3},
+      {text:"Yes, but keeping a side income initially",score:2},
+      {text:"Part-time now, full-time later",score:1},
+      {text:"Strictly part-time",score:0}]},
+    {id:"q15",text:"Months you can sustain without significant income from this franchise",hint:"Financial runway before needing returns",type:"radio",options:[
+      {text:"12 months or more",score:3},
+      {text:"6–12 months",score:2},
+      {text:"3–6 months",score:1},
+      {text:"Less than 3 months",score:0,flag:"Short runway — high churn risk",warn:true}]},
+    {id:"q16",text:"Primary motivation for joining List My India™",hint:"",type:"radio",options:[
+      {text:"Long-term business ownership & growth",score:3},
+      {text:"Supplemental income with low investment",score:2},
+      {text:"Recommended by someone — exploring",score:1},
+      {text:"Just looking for any franchise",score:0}]}
+  ]}
+];
+
+let fsAnswers={};
+
+function fsAllQCount(){return fsSections.reduce((a,s)=>a+s.questions.length,0)}
+
+function renderFranchiseForm(){
+  const fa=document.getElementById('form-area');
+  let html='';
+  const allQ=fsAllQCount();
+  const ansCount=Object.keys(fsAnswers).length;
+  const pct=Math.round((ansCount/allQ)*100);
+
+  fsSections.forEach(sec=>{
+    html+=`<div class="sec-lbl">${sec.label}</div>`;
+    sec.questions.forEach(q=>{
+      const has=fsAnswers[q.id]!==undefined;
+      html+=`<div class="q-block ${has?'answered':''}" id="block-${q.id}">`;
+      html+=`<div class="q-lbl">${q.text}<span class="req">*</span></div>`;
+      if(q.hint)html+=`<div class="q-hint">${q.hint}</div>`;
+      if(q.type==='radio'){
+        html+='<div class="opts">';
+        q.options.forEach((opt,oi)=>{
+          const sel=fsAnswers[q.id]===oi;
+          html+=`<div class="opt ${sel?'sel':''}" onclick="fsPick('${q.id}',${oi})"><div class="radio"></div>${opt.text}</div>`;
+        });
+        html+='</div>';
+      } else {
+        html+=`<input class="txt-in" type="text" id="inp-${q.id}" placeholder="${q.placeholder||''}" value="${fsAnswers[q.id]||''}" oninput="fsSetTxt('${q.id}',this.value)">`;
+      }
+      html+='</div>';
+    });
+  });
+
+  const allAns=ansCount>=allQ;
+  html+=`<button class="sub-btn" id="sub-btn" onclick="fsEvaluate()" ${allAns?'':'disabled'}>Evaluate Application →</button>`;
+  if(!allAns)html+=`<p class="cmp-note">${ansCount} of ${allQ} answered</p>`;
+
+  fa.innerHTML=html;
+  document.getElementById('prog').style.width=pct+'%';
+}
+
+function fsPick(qid,oi){fsAnswers[qid]=oi;renderFranchiseForm()}
+function fsSetTxt(qid,v){
+  fsAnswers[qid]=v;
+  const allQ=fsAllQCount();
+  const ac=Object.keys(fsAnswers).length;
+  const btn=document.getElementById('sub-btn');
+  if(btn)btn.disabled=ac<allQ;
+  document.getElementById('prog').style.width=Math.round((ac/allQ)*100)+'%';
+}
+
+function fsEvaluate(){
+  let total=0,max=0;
+  let hardReject=false,warnFlags=[],greenFlags=[];
+  let chosenTier='';
+  const cats={Background:{s:0,m:0},Experience:{s:0,m:0},Financial:{s:0,m:0},'Market fit':{s:0,m:0},Commitment:{s:0,m:0}};
+  const catMap=['Background','Background','Background','Experience','Experience','Experience','Financial','Financial','Financial','Financial','Market fit','Market fit','Market fit','Commitment','Commitment','Commitment'];
+  let qi=0;
+
+  fsSections.forEach(sec=>{
+    sec.questions.forEach(q=>{
+      const cat=catMap[qi]||'Commitment';
+      if(q.type==='radio'&&fsAnswers[q.id]!==undefined){
+        const opt=q.options[fsAnswers[q.id]];
+        total+=opt.score; max+=3;
+        cats[cat].s+=opt.score; cats[cat].m+=3;
+        if(opt.reject)hardReject=true;
+        if(opt.flag&&(opt.reject||opt.warn))warnFlags.push({txt:opt.flag,type:opt.reject?'r':'a'});
+        if(opt.tier)chosenTier=opt.tier;
+      }
+      qi++;
+    });
+  });
+
+  const pct=Math.round((total/max)*100);
+
+  const tierData={
+    'Quick Start':{inv:'₹50,000 fee (~₹70K total)',share:'30%'},
+    'Ultra Light':{inv:'₹75,000 fee (~₹94K total)',share:'35%'},
+    'Light':{inv:'₹1,00,000 fee (~₹1.49L total)',share:'40%'},
+    'Bronze':{inv:'₹3,00,000 fee (~₹5.66L total)',share:'55%'},
+    'Silver':{inv:'₹4,00,000 fee (~₹6.66L total)',share:'60%'},
+    'Gold':{inv:'₹5,00,000 fee (~₹7.66L total)',share:'65%'}
+  };
+
+  let verdict,cls,msg;
+  if(hardReject){
+    verdict='Not suitable at this time';cls='rejected';
+    msg='Applicant does not meet minimum capital requirements (₹50,000). Recommend revisiting once adequate funds are arranged.';
+  } else if(pct>=72){
+    verdict='Shortlisted — Proceed to Interview';cls='shortlisted';
+    msg='Strong candidate. Schedule a video or in-person interview and share the Franchise Information Document (FID) for the selected tier.';
+    greenFlags=['Capital confirmed','Business background strong','Motivated applicant'];
+  } else if(pct>=50){
+    verdict='Under Review — Follow-up Required';cls='review';
+    msg='Meets basic criteria but needs verification in one or more areas. Assign to regional coordinator for a follow-up call before proceeding.';
+  } else {
+    verdict='Not suitable at this time';cls='rejected';
+    msg='Applicant does not meet minimum criteria across multiple parameters. Consider placing on a waitlist with specific preparation steps.';
+  }
+
+  let meterHtml='';
+  Object.entries(cats).forEach(([name,val])=>{
+    const p=val.m>0?Math.round((val.s/val.m)*100):0;
+    const col=p>=70?'g':p>=45?'a':'r';
+    meterHtml+=`<div class="srow"><span class="slbl">${name}</span><div class="strk"><div class="sfill ${col}" style="width:${p}%"></div></div><span class="spct">${p}%</span></div>`;
+  });
+
+  let flagsHtml='';
+  greenFlags.forEach(f=>flagsHtml+=`<span class="flag g"><i class="ti ti-check" aria-hidden="true"></i> ${f}</span>`);
+  warnFlags.forEach(f=>flagsHtml+=`<span class="flag ${f.type}"><i class="ti ti-alert-circle" aria-hidden="true"></i> ${f.txt}</span>`);
+
+  const territory=fsAnswers['q11']||'Not specified';
+  const td=chosenTier&&tierData[chosenTier]?tierData[chosenTier]:null;
+
+  let tierBox='';
+  if(td&&cls!=='rejected'){
+    tierBox=`<div class="tier-rec-box">
+      <div class="tier-rec-title">Preferred tier: ${chosenTier}</div>
+      <div class="tier-rec-sub">Investment: ${td.inv} &nbsp;·&nbsp; Revenue to partner: ${td.share}</div>
+    </div>`;
+  }
+
+  const resultHtml=`<div class="res-card ${cls}">
+    <div class="res-title">${verdict}</div>
+    <div class="res-sub">${msg}</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:0.75rem">
+      Score: <strong style="color:var(--text-primary)">${total}/${max} (${pct}%)</strong> &nbsp;·&nbsp; Territory: <strong style="color:var(--text-primary)">${territory}</strong>
+    </div>
+    <div>${meterHtml}</div>
+    ${flagsHtml?`<div style="margin-top:6px">${flagsHtml}</div>`:''}
+    ${tierBox}
+  </div>
+  <button class="rst-btn" onclick="fsRestart()">← New application</button>`;
+
+  document.getElementById('form-area').insertAdjacentHTML('beforeend',resultHtml);
+  document.getElementById('sub-btn').style.display='none';
+  const cn=document.querySelector('.cmp-note');if(cn)cn.style.display='none';
+  document.getElementById('prog').style.width='100%';
+}
+
+function fsRestart(){fsAnswers={};renderFranchiseForm()}
+</script>
+
+<script>
+let incomeChart;
+let currentYear = 1;
+let monthlyVisible = false;
+let selectedTier = 'light';
+
+const planSliders = {
+  149: document.getElementById('sl-plan149'),
+  199: document.getElementById('sl-plan199'),
+  249: document.getElementById('sl-plan249')
+};
+const planVals = {
+  149: document.getElementById('val-plan149'),
+  199: document.getElementById('val-plan199'),
+  249: document.getElementById('val-plan249')
+};
+
+Object.keys(planSliders).forEach(k=>{
+  planSliders[k].addEventListener('input', ()=>{ rebalancePlans(k); });
+});
+
+function rebalancePlans(changedKey){
+  const keys = Object.keys(planSliders);
+  const others = keys.filter(k=>k!==changedKey);
+  let changedVal = parseInt(planSliders[changedKey].value);
+  let remaining = 100 - changedVal;
+  if(remaining < 0){ changedVal = 100; remaining = 0; planSliders[changedKey].value = 100; }
+
+  const otherTotal = others.reduce((s,k)=>s+parseInt(planSliders[k].value),0);
+  if(otherTotal === 0){
+    others.forEach(k=>planSliders[k].value = Math.floor(remaining/others.length));
+  } else {
+    let assigned = 0;
+    others.forEach((k,i)=>{
+      let share;
+      if(i === others.length-1){
+        share = remaining - assigned;
+      } else {
+        share = Math.round((parseInt(planSliders[k].value)/otherTotal) * remaining);
+        assigned += share;
+      }
+      planSliders[k].value = Math.max(0,share);
+    });
+  }
+
+  keys.forEach(k=>{ planVals[k].textContent = planSliders[k].value + '%'; });
+  const total = keys.reduce((s,k)=>s+parseInt(planSliders[k].value),0);
+  const note = document.getElementById('plan-sum-note');
+  note.textContent = 'Total: ' + total + '%';
+  note.className = total === 100 ? 'plan-sum-note' : 'plan-sum-note warn';
+  calculateIncome();
+}
+
+const slPop = document.getElementById('sl-pop');
+const slRetailPct = document.getElementById('sl-retailpct');
+const slHomeMult = document.getElementById('sl-homemult');
+const slCapture = document.getElementById('sl-capture');
+const slGrowthY1 = document.getElementById('sl-growth-y1');
+const slGrowthY2 = document.getElementById('sl-growth-y2');
+const slGrowthY3 = document.getElementById('sl-growth-y3');
+const slChurnY1 = document.getElementById('sl-churn-y1');
+const slChurnY2 = document.getElementById('sl-churn-y2');
+const slChurnY3 = document.getElementById('sl-churn-y3');
+const vasToggle = document.getElementById('vas-toggle');
+const slVasAdopt = document.getElementById('sl-vas-adopt');
+const slVasPrice = document.getElementById('sl-vas-price');
+
+function fmtNum(n){ return Math.round(n).toLocaleString('en-IN'); }
+function fmtCurrency(n){
+  const r = Math.round(n);
+  const sign = r < 0 ? '-' : '';
+  const abs = Math.abs(r);
+  if(abs >= 10000000) return sign + '₹' + (abs/10000000).toFixed(2) + ' Cr';
+  if(abs >= 100000) return sign + '₹' + (abs/100000).toFixed(2) + ' L';
+  return sign + '₹' + abs.toLocaleString('en-IN');
+}
+
+function buildMonthlyRate(y1pct,y2pct,y3pct){
+  const rates = [];
+  for(let m=1;m<=36;m++){
+    if(m<=12) rates.push(y1pct/100);
+    else if(m<=24) rates.push(y2pct/100);
+    else rates.push(y3pct/100);
+  }
+  return rates;
+}
+
+vasToggle.addEventListener('change', ()=>{
+  document.getElementById('vas-controls').style.display = vasToggle.checked ? 'block' : 'none';
+  calculateIncome();
+});
+
+function calculateIncome(){
+  const pop = parseInt(slPop.value);
+  const retailPct = parseFloat(slRetailPct.value)/100;
+  const homeMult = parseFloat(slHomeMult.value);
+  const capturePct = parseInt(slCapture.value)/100;
+
+  const gY1 = parseFloat(slGrowthY1.value), gY2 = parseFloat(slGrowthY2.value), gY3 = parseFloat(slGrowthY3.value);
+  const cY1 = parseFloat(slChurnY1.value), cY2 = parseFloat(slChurnY2.value), cY3 = parseFloat(slChurnY3.value);
+
+  document.getElementById('val-pop').textContent = fmtNum(pop);
+  document.getElementById('val-retailpct').textContent = (retailPct*100).toFixed(2) + '%';
+  document.getElementById('val-homemult').textContent = homeMult.toFixed(1)+'x';
+  document.getElementById('val-capture').textContent = Math.round(capturePct*100)+'%';
+  document.getElementById('val-growth-y1').textContent = gY1.toFixed(1)+'%/mo';
+  document.getElementById('val-growth-y2').textContent = gY2.toFixed(1)+'%/mo';
+  document.getElementById('val-growth-y3').textContent = gY3.toFixed(1)+'%/mo';
+  document.getElementById('val-churn-y1').textContent = cY1.toFixed(2)+'%/mo';
+  document.getElementById('val-churn-y2').textContent = cY2.toFixed(2)+'%/mo';
+  document.getElementById('val-churn-y3').textContent = cY3.toFixed(2)+'%/mo';
+
+  const retailStores = pop * retailPct;
+  const homeBusinesses = retailStores * homeMult;
+  const totalBusinesses = retailStores + homeBusinesses;
+  const capturedListings = totalBusinesses * capturePct;
+
+  document.getElementById('d-retail').textContent = fmtNum(retailStores);
+  document.getElementById('d-home').textContent = fmtNum(homeBusinesses);
+  document.getElementById('d-total').textContent = fmtNum(totalBusinesses);
+  document.getElementById('d-captured').textContent = fmtNum(capturedListings);
+
+  const planPct = {
+    149: parseInt(planSliders[149].value)/100,
+    199: parseInt(planSliders[199].value)/100,
+    249: parseInt(planSliders[249].value)/100
+  };
+
+  const growthRates = buildMonthlyRate(gY1,gY2,gY3);
+  const churnRates = buildMonthlyRate(cY1,cY2,cY3);
+
+  let subsTotal=[];
+  let base = capturedListings;
+
+  for(let m=1;m<=36;m++){
+    if(m<=3){
+      subsTotal.push(base * (m/3));
+    } else {
+      const g = growthRates[m-1];
+      const c = churnRates[m-1];
+      const prev = subsTotal[m-2];
+      const newSubs = prev * g;
+      const churned = prev * (c/100);
+      subsTotal.push(Math.max(0, prev + newSubs - churned));
+    }
+  }
+
+  const subs149 = subsTotal.map(s=>s*planPct[149]);
+  const subs199 = subsTotal.map(s=>s*planPct[199]);
+  const subs249 = subsTotal.map(s=>s*planPct[249]);
+
+  const vasOn = vasToggle.checked;
+  const vasAdoptPct = parseInt(slVasAdopt.value)/100;
+  const vasPrice = parseFloat(slVasPrice.value);
+  document.getElementById('val-vas-adopt').textContent = Math.round(vasAdoptPct*100)+'%';
+  document.getElementById('val-vas-price').textContent = '₹'+Math.round(vasPrice);
+
+  const tierList = [
+    {key:'quickstart',name:'Quick Start',share:0.30,cost:6000,cls:'t1'},
+    {key:'ultralight',name:'Ultra Light',share:0.35,cost:9000,cls:'t2'},
+    {key:'light',name:'Light',share:0.40,cost:13997,cls:'t3'},
+    {key:'bronze',name:'Bronze',share:0.55,cost:49500,cls:'t4'},
+    {key:'silver',name:'Silver',share:0.60,cost:51500,cls:'t5'},
+    {key:'gold',name:'Gold',share:0.65,cost:54500,cls:'t6'}
+  ];
+
+  function computeForTier(revShare, baseCost){
+    let monthlyGross=[], monthlyNet=[], monthlyVas=[];
+    for(let m=1;m<=36;m++){
+      const gross = subs149[m-1]*149 + subs199[m-1]*199 + subs249[m-1]*249;
+      const fpShare = gross * revShare;
+      const vasIncome = vasOn ? subsTotal[m-1]*vasAdoptPct*vasPrice*revShare : 0;
+      const runningCost = baseCost * Math.pow(1.1, Math.floor((m-1)/12));
+      const net = fpShare + vasIncome - runningCost;
+      monthlyGross.push(gross);
+      monthlyVas.push(vasIncome);
+      monthlyNet.push(net);
+    }
+    const y1 = monthlyNet.slice(0,12).reduce((a,b)=>a+b,0);
+    const y2 = monthlyNet.slice(12,24).reduce((a,b)=>a+b,0);
+    const y3 = monthlyNet.slice(24,36).reduce((a,b)=>a+b,0);
+    return {monthlyGross, monthlyNet, monthlyVas, y1, y2, y3, total: y1+y2+y3};
+  }
+
+  const selectedTierObj = tierList.find(t=>t.key===selectedTier) || tierList[2];
+  const selectedData = computeForTier(selectedTierObj.share, selectedTierObj.cost);
+
+  document.getElementById('sb-y1').textContent = fmtCurrency(selectedData.y1);
+  document.getElementById('sb-y2').textContent = fmtCurrency(selectedData.y2);
+  document.getElementById('sb-y3').textContent = fmtCurrency(selectedData.y3);
+  document.getElementById('sb-total').textContent = fmtCurrency(selectedData.total);
+  document.getElementById('summary-banner-tier-name').textContent = selectedTierObj.name + ' tier';
+  document.getElementById('tier-preview-3yr').textContent = fmtCurrency(selectedData.total);
+
+  const vasY1 = vasOn ? subsTotal.slice(0,12).reduce((a,s)=>a+s*vasAdoptPct*vasPrice*selectedTierObj.share,0) : 0;
+  document.getElementById('d-vas-y1').textContent = fmtCurrency(vasY1);
+
+  window._incomeCalcData = {
+    revShare: selectedTierObj.share,
+    revSharePct: Math.round(selectedTierObj.share*100),
+    monthlyGross: selectedData.monthlyGross,
+    monthlyNet: selectedData.monthlyNet,
+    monthlyVas: selectedData.monthlyVas,
+    monthlyRunningCostBase: selectedTierObj.cost
+  };
+
+  renderIncomeChart();
+  renderIncomeTable();
+  renderMonthlyTable();
+  renderTierCards(tierList, computeForTier);
+}
+
+function renderIncomeChart(){
+  const d = window._incomeCalcData;
+  const yearStart = (currentYear-1)*12;
+  const labels = Array.from({length:12},(_,i)=>'M'+(i+1));
+  const grossSlice = d.monthlyGross.slice(yearStart,yearStart+12);
+  const netSlice = d.monthlyNet.slice(yearStart,yearStart+12);
+
+  const ctx = document.getElementById('incomeChart').getContext('2d');
+  if(incomeChart) incomeChart.destroy();
+  incomeChart = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:labels,
+      datasets:[
+        {label:'Gross revenue',data:grossSlice,backgroundColor:'#B5D4F4',borderRadius:4},
+        {label:'Your net income',data:netSlice,backgroundColor:'#1D9E75',borderRadius:4}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:11}}},tooltip:{callbacks:{label:(c)=>c.dataset.label+': '+fmtCurrency(c.parsed.y)}}},
+      scales:{
+        y:{ticks:{callback:(v)=>fmtCurrency(v),font:{size:10}},grid:{color:'rgba(0,0,0,0.05)'}},
+        x:{ticks:{font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+}
+
+function renderIncomeTable(){
+  const d = window._incomeCalcData;
+  const yearStart = (currentYear-1)*12;
+  const grossSlice = d.monthlyGross.slice(yearStart,yearStart+12);
+  const netSlice = d.monthlyNet.slice(yearStart,yearStart+12);
+  const vasSlice = d.monthlyVas.slice(yearStart,yearStart+12);
+  const fpShareSlice = grossSlice.map(g=>g*d.revShare);
+  const expenseSlice = fpShareSlice.map((s,i)=>s+vasSlice[i]-netSlice[i]);
+
+  const grossTotal = grossSlice.reduce((a,b)=>a+b,0);
+  const fpShareTotal = fpShareSlice.reduce((a,b)=>a+b,0);
+  const vasTotal = vasSlice.reduce((a,b)=>a+b,0);
+  const expenseTotal = expenseSlice.reduce((a,b)=>a+b,0);
+  const netTotal = netSlice.reduce((a,b)=>a+b,0);
+
+  const body = document.getElementById('summary-body');
+  let rows = `
+    <tr class="row-income"><td>Gross subscription revenue (Year ${currentYear})</td><td class="num">${fmtCurrency(grossTotal)}</td></tr>
+    <tr class="row-income"><td>Your share (${d.revSharePct}% revenue sharing)</td><td class="num">${fmtCurrency(fpShareTotal)}</td></tr>`;
+  if(vasTotal > 0){
+    rows += `<tr class="row-income"><td>Value added services income</td><td class="num">${fmtCurrency(vasTotal)}</td></tr>`;
+  }
+  rows += `
+    <tr class="row-expense"><td>Running costs (maintenance, conveyance, marketing)</td><td class="num">- ${fmtCurrency(expenseTotal)}</td></tr>
+    <tr class="row-profit total"><td>Net income (Year ${currentYear})</td><td class="num">${fmtCurrency(netTotal)}</td></tr>
+  `;
+  body.innerHTML = rows;
+}
+
+function renderMonthlyTable(){
+  const d = window._incomeCalcData;
+  const yearStart = (currentYear-1)*12;
+  const grossSlice = d.monthlyGross.slice(yearStart,yearStart+12);
+  const netSlice = d.monthlyNet.slice(yearStart,yearStart+12);
+  const body = document.getElementById('monthly-body');
+  let rows = '';
+  for(let i=0;i<12;i++){
+    rows += `<tr><td>Month ${i+1}</td><td class="num">${fmtCurrency(grossSlice[i])}</td><td class="num">${fmtCurrency(netSlice[i])}</td></tr>`;
+  }
+  body.innerHTML = rows;
+}
+
+function renderTierCards(tierList, computeForTier){
+  const grid = document.getElementById('tier-income-grid');
+  let html = '';
+  tierList.forEach(t=>{
+    const data = computeForTier(t.share, t.cost);
+    const isSelected = t.key === selectedTier;
+    html += `<div class="tier-income-card ${t.cls} ${isSelected?'selected':''}" onclick="selectTier('${t.key}')">
+      <div class="tic-head">
+        <div class="tic-name">${t.name}</div>
+        <div class="tic-share">${Math.round(t.share*100)}% revenue share</div>
+      </div>
+      <div class="tic-body">
+        <div class="tic-3yr-label">3-year income</div>
+        <div class="tic-3yr-val">${fmtCurrency(data.total)}</div>
+      </div>
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+
+function selectTier(key){
+  selectedTier = key;
+  calculateIncome();
+}
+
+function setYear(y){
+  currentYear = y;
+  document.querySelectorAll('.year-tab').forEach(t=>t.classList.toggle('active', parseInt(t.dataset.y)===y));
+  renderIncomeChart();
+  renderIncomeTable();
+  if(monthlyVisible) renderMonthlyTable();
+}
+
+function toggleMonthly(){
+  monthlyVisible = !monthlyVisible;
+  document.getElementById('monthly-breakup').style.display = monthlyVisible ? 'block' : 'none';
+  document.getElementById('monthly-toggle-btn').innerHTML = monthlyVisible
+    ? '<i class="ti ti-calendar-off" aria-hidden="true"></i> Hide monthly breakup'
+    : '<i class="ti ti-calendar" aria-hidden="true"></i> View monthly breakup';
+  if(monthlyVisible) renderMonthlyTable();
+}
+
+function resetAll(){
+  selectedTier = 'light';
+  slPop.value = 100000;
+  slRetailPct.value = 1.25;
+  slHomeMult.value = 5;
+  slCapture.value = 20;
+  slGrowthY1.value = 7.5;
+  slGrowthY2.value = 4;
+  slGrowthY3.value = 3;
+  slChurnY1.value = 2.5;
+  slChurnY2.value = 2;
+  slChurnY3.value = 1.5;
+  vasToggle.checked = false;
+  document.getElementById('vas-controls').style.display = 'none';
+  slVasAdopt.value = 8;
+  slVasPrice.value = 350;
+  planSliders[149].value = 50;
+  planSliders[199].value = 30;
+  planSliders[249].value = 20;
+  Object.keys(planSliders).forEach(k=>planVals[k].textContent = planSliders[k].value+'%');
+  document.getElementById('plan-sum-note').textContent = 'Total: 100%';
+  document.getElementById('plan-sum-note').className = 'plan-sum-note';
+  monthlyVisible = false;
+  document.getElementById('monthly-breakup').style.display = 'none';
+  document.getElementById('monthly-toggle-btn').innerHTML = '<i class="ti ti-calendar" aria-hidden="true"></i> View monthly breakup';
+  setYear(1);
+  calculateIncome();
+}
+
+[slPop, slRetailPct, slHomeMult, slCapture, slGrowthY1, slGrowthY2, slGrowthY3, slChurnY1, slChurnY2, slChurnY3, slVasAdopt, slVasPrice].forEach(s=>s.addEventListener('input', calculateIncome));
+
+calculateIncome();
 </script>
 
 </body>
