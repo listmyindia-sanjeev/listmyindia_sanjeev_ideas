@@ -39,13 +39,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .topbar{background:var(--lmi-dark-blue);color:white;padding:1.25rem 1.5rem}
 .topbar-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:10px}
 .topbar h1{font-size:18px;font-weight:600}
-.topbar .badge{font-size:11px;background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:20px;font-weight:500}
+.topbar-logo{height:44px;width:auto;display:block;border-radius:6px}
 
 .module-nav{background:var(--bg-primary);border-bottom:0.5px solid var(--border-tertiary);position:sticky;top:0;z-index:10}
 .module-nav-inner{max-width:980px;margin:0 auto;display:flex;gap:4px;padding:0 1.5rem;overflow-x:auto}
 .module-btn{padding:14px 18px;font-size:13px;font-weight:500;color:var(--text-secondary);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
 .module-btn:hover{color:var(--text-primary)}
-.module-btn.active{color:var(--lmi-dark-blue);border-bottom-color:var(--green)}
+.module-btn.active{color:var(--lmi-dark-blue);border-bottom-color:var(--lmi-blue)}
 .module-btn i{font-size:16px}
 
 .wrap{max-width:980px;margin:0 auto;padding:2rem 1.5rem}
@@ -57,10 +57,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .intro p{font-size:14px;color:var(--text-secondary)}
 .tab-row-home{display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap;border-bottom:0.5px solid var(--border-tertiary);padding-bottom:1rem}
 .cat-tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-secondary);color:var(--text-secondary);background:var(--bg-primary)}
-.cat-tab.active{background:var(--green);color:white;border-color:var(--green)}
+.cat-tab.active{background:var(--lmi-blue);color:white;border-color:var(--lmi-blue)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
 .card{background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);padding:1.25rem;text-decoration:none;color:inherit;display:block;cursor:pointer;transition:border-color 0.15s, transform 0.1s}
-.card:hover{border-color:var(--green);transform:translateY(-1px)}
+.card:hover{border-color:var(--lmi-blue);transform:translateY(-1px)}
 .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
 .card-icon{width:38px;height:38px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:18px}
 .card-status{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:0.02em;text-transform:uppercase}
@@ -78,13 +78,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 
 .module-hdr{padding:0 0 1.25rem;border-bottom:0.5px solid var(--border-tertiary);margin-bottom:1.25rem}
 .module-hdr-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.lmi-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--green-light);color:var(--green-dark)}
+.lmi-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)}
 .module-hdr h1{font-size:20px;font-weight:600}
 .module-hdr p{font-size:13px;color:var(--text-secondary);margin-top:4px}
 
 .tab-row{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap}
 .tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-secondary);color:var(--text-secondary);background:transparent}
-.tab.active{background:var(--green);color:white;border-color:var(--green)}
+.tab.active{background:var(--lmi-blue);color:white;border-color:var(--lmi-blue)}
 
 .plan-group{margin-bottom:1.5rem}
 .plan-head{display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;flex-wrap:wrap}
@@ -94,24 +94,66 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .plan-desc{font-size:12px;color:var(--text-secondary)}
 .tiers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:1rem}
 .tier-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary)}
-.tier-card.recommended{border:2px solid var(--green)}
+.tier-card.recommended{border:2px solid var(--lmi-blue)}
 .tier-head{padding:10px 12px 8px}
 .tier-rank{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:3px}
 .tier-name{font-size:15px;font-weight:600;color:var(--text-primary)}
 .tier-sub{font-size:11px;color:var(--text-secondary);margin-top:1px}
-.rec-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--green-light);color:var(--green-dark);display:inline-block;margin-top:4px;font-weight:600}
+.rec-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--lmi-soft-blue);color:var(--lmi-dark-blue);display:inline-block;margin-top:4px;font-weight:600}
 .tier-body{padding:8px 12px 12px;border-top:0.5px solid var(--border-tertiary)}
 .tier-row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:0.5px solid var(--border-tertiary)}
 .tier-row:last-child{border-bottom:none}
 .t-label{font-size:11px;color:var(--text-secondary)}
 .t-val{font-size:12px;font-weight:600;color:var(--text-primary)}
 .fp-share{color:var(--blue)}
-.t1 .tier-head{background:var(--amber-light)}
-.t2 .tier-head{background:var(--green-light)}
-.t3 .tier-head{background:#E6F1FB}
-.t4 .tier-head{background:#FBEAF0}
-.t5 .tier-head{background:#EEEDFE}
-.t6 .tier-head{background:#FAECE7}
+.te1 .tier-head{background:#E8EAF6}
+.te1 .tic-share,.te1 .fp-share{color:#5A67C7}
+.te2 .tier-head{background:#C5CBEC}
+.te3 .tier-head{background:#A3ACE3}
+.te3.recommended{border:2px solid var(--lmi-blue)}
+
+.tb1 .tier-head{background:#F3E3D8}
+.tb2 .tier-head{background:#EAEAEA}
+.tb3 .tier-head{background:#F7EBC8}
+
+.best-suited{font-size:10px;font-weight:600;color:var(--text-secondary);background:var(--bg-secondary);padding:5px 12px;text-align:center;letter-spacing:0.01em}
+
+.discount-strip{font-size:10.5px;color:var(--green-dark);background:var(--green-light);padding:6px 12px;display:flex;align-items:center;gap:5px;border-top:0.5px solid var(--border-tertiary)}
+.discount-strip i{font-size:13px;flex-shrink:0}
+
+.tier-3yr-line{font-size:11.5px;color:var(--text-secondary);padding:8px 12px;border-top:0.5px solid var(--border-tertiary);cursor:pointer;text-align:center}
+.tier-3yr-line:hover{background:var(--bg-secondary)}
+.tier-3yr-line strong{color:var(--lmi-blue);font-weight:600}
+
+.roi-strip{display:flex;justify-content:space-between;padding:7px 12px;background:var(--lmi-soft-blue);border-top:0.5px solid var(--border-tertiary);font-size:11px}
+.roi-item{text-align:center;flex:1}
+.roi-item-label{color:var(--text-secondary);font-size:9.5px;text-transform:uppercase;letter-spacing:0.02em;margin-bottom:1px}
+.roi-item-val{font-weight:700;color:var(--lmi-dark-blue);font-size:13px}
+
+.breakdown-toggle{font-size:11px;color:var(--lmi-blue);padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:4px;border-top:0.5px dashed var(--border-tertiary);font-weight:500}
+.breakdown-toggle:hover{background:var(--bg-secondary)}
+.breakdown-toggle i{transition:transform 0.15s}
+.breakdown-toggle.open i{transform:rotate(180deg)}
+.breakdown-panel{display:none;padding:8px 12px 10px;background:var(--bg-secondary);border-top:0.5px solid var(--border-tertiary)}
+.breakdown-panel.open{display:block}
+.bd-row{display:flex;justify-content:space-between;font-size:10.5px;padding:3px 0;color:var(--text-secondary)}
+.bd-row.bd-total{font-weight:700;color:var(--text-primary);border-top:0.5px solid var(--border-secondary);margin-top:3px;padding-top:5px}
+.bd-row .bd-val{font-weight:500;color:var(--text-primary)}
+.bd-section-label{font-size:9.5px;text-transform:uppercase;letter-spacing:0.02em;color:var(--text-tertiary);margin-top:6px;margin-bottom:2px;font-weight:600}
+.bd-section-label:first-child{margin-top:0}
+
+.gp-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary)}
+.gp-card.featured{border:2px solid var(--lmi-blue)}
+.gp-head{padding:10px 12px 8px;background:var(--lmi-soft-blue)}
+.gp-rank{font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--lmi-dark-blue);margin-bottom:3px}
+.gp-name{font-size:15px;font-weight:600;color:var(--text-primary)}
+.gp-sub{font-size:11px;color:var(--text-secondary);margin-top:1px}
+.fcfs-badge{font-size:9.5px;font-weight:600;color:var(--amber-dark);background:var(--amber-light);padding:3px 8px;border-radius:10px;display:inline-flex;align-items:center;gap:3px;margin-top:6px}
+.gp-body{padding:8px 12px 12px;border-top:0.5px solid var(--border-tertiary)}
+.gp-select-row{margin-bottom:8px}
+.gp-select-label{font-size:11px;color:var(--text-secondary);display:block;margin-bottom:4px;font-weight:500}
+.gp-select{width:100%;padding:7px 9px;font-size:13px;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;cursor:pointer}
+.gp-select:focus{outline:none;border-color:var(--lmi-blue)}
 .total-row{border-top:0.5px solid var(--border-secondary);margin-top:4px;padding-top:7px}
 .total-row .t-label{font-weight:600;color:var(--text-primary)}
 .total-val{font-size:13px;font-weight:700;color:var(--lmi-dark-blue)}
@@ -126,14 +168,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .opts{display:flex;flex-direction:column;gap:5px}
 .opt{display:flex;align-items:center;gap:9px;padding:7px 11px;border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);cursor:pointer;font-size:13px;color:var(--text-primary);background:var(--bg-secondary)}
 .opt:hover{border-color:var(--border-secondary)}
-.opt.sel{border-color:var(--green);background:var(--green-light);color:var(--green-dark)}
+.opt.sel{border-color:var(--lmi-blue);background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)}
 .radio{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--border-secondary);flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.opt.sel .radio{border-color:var(--green);background:var(--green)}
+.opt.sel .radio{border-color:var(--lmi-blue);background:var(--lmi-blue)}
 .opt.sel .radio::after{content:'';width:4px;height:4px;border-radius:50%;background:white;display:block}
 .txt-in{width:100%;padding:8px 10px;font-size:13px;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);background:var(--bg-secondary);color:var(--text-primary);font-family:inherit}
-.txt-in:focus{outline:none;border-color:var(--green)}
-.sub-btn{width:100%;padding:12px;font-size:14px;font-weight:600;background:var(--green);color:white;border:none;border-radius:var(--radius-md);cursor:pointer;margin-top:0.75rem}
-.sub-btn:hover{background:var(--green-dark)}
+.txt-in:focus{outline:none;border-color:var(--lmi-blue)}
+.sub-btn{width:100%;padding:12px;font-size:14px;font-weight:600;background:var(--lmi-blue);color:white;border:none;border-radius:var(--radius-md);cursor:pointer;margin-top:0.75rem}
+.sub-btn:hover{background:var(--lmi-dark-blue)}
 .sub-btn:disabled{background:var(--bg-tertiary);color:var(--text-tertiary);cursor:not-allowed}
 .cmp-note{font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:6px}
 .req{color:var(--red);margin-left:2px;font-size:11px}
@@ -177,7 +219,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .slider-label{font-size:13px;color:var(--text-primary);font-weight:500}
 .slider-hint{font-size:11px;color:var(--text-tertiary)}
 .slider-value{font-size:14px;font-weight:600;color:var(--lmi-dark-blue);min-width:70px;text-align:right}
-input[type=range]{width:100%;accent-color:var(--green)}
+input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .derived-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-secondary);border-radius:var(--radius-md);margin-bottom:8px;font-size:12.5px}
 .derived-row .lbl{color:var(--text-secondary)}
 .derived-row .val{font-weight:600;color:var(--text-primary)}
@@ -196,7 +238,7 @@ input[type=range]{width:100%;accent-color:var(--green)}
 .metric-card .msub{font-size:10px;color:var(--text-tertiary);margin-top:2px}
 .year-tabs{display:flex;gap:6px;margin-bottom:1rem}
 .year-tab{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-secondary);color:var(--text-secondary);background:transparent}
-.year-tab.active{background:var(--green);color:white;border-color:var(--green)}
+.year-tab.active{background:var(--lmi-blue);color:white;border-color:var(--lmi-blue)}
 .chart-wrap{position:relative;height:240px;margin-bottom:1.25rem}
 .summary-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:1rem}
 .summary-table th{text-align:left;font-weight:600;color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:0.03em;padding:6px 8px;border-bottom:0.5px solid var(--border-secondary)}
@@ -229,14 +271,24 @@ input[type=range]{width:100%;accent-color:var(--green)}
 .vas-switch input{opacity:0;width:0;height:0}
 .vas-slider-ui{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border-secondary);border-radius:22px;transition:0.2s}
 .vas-slider-ui::before{position:absolute;content:"";height:16px;width:16px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.2s}
-.vas-switch input:checked + .vas-slider-ui{background:var(--green)}
+.vas-switch input:checked + .vas-slider-ui{background:var(--lmi-blue)}
 .vas-switch input:checked + .vas-slider-ui::before{transform:translateX(18px)}
 .vas-toggle-label{font-size:13px;color:var(--text-primary);font-weight:500}
 
 .tier-income-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.gp-mini-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;color:var(--text-tertiary);margin-bottom:3px}
+.gp-income-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.gp-income-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-primary);transition:border-color 0.15s}
+.gp-income-card.selected{border:2px solid var(--lmi-dark-blue);box-shadow:0 1px 4px rgba(0,0,0,0.12)}
+.gp-income-head{padding:5px 8px 3px;background:var(--lmi-soft-blue);cursor:pointer}
+.gp-income-name{font-size:11px;font-weight:600;color:var(--text-primary)}
+.gp-income-body{padding:4px 8px 6px;border-top:0.5px solid var(--border-tertiary)}
+.gp-income-val{font-size:13px;font-weight:700;color:var(--lmi-dark-blue)}
+.gp-income-select{width:100%;padding:3px 5px;font-size:10.5px;border:0.5px solid var(--border-secondary);border-radius:5px;background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;cursor:pointer;margin-bottom:3px}
+.gp-income-select:focus{outline:none;border-color:var(--lmi-blue)}
 .tier-income-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary);cursor:pointer;transition:border-color 0.15s,transform 0.1s}
 .tier-income-card:hover{transform:translateY(-1px)}
-.tier-income-card.featured{border:2px solid var(--green)}
+.tier-income-card.featured{border:2px solid var(--lmi-blue)}
 .tic-head{padding:7px 8px 5px}
 .tic-name{font-size:12px;font-weight:600;color:var(--text-primary)}
 .tic-share{font-size:10px;color:var(--text-secondary);margin-top:1px;display:none}
@@ -264,12 +316,6 @@ input[type=range]{width:100%;accent-color:var(--green)}
   .income-sticky-header{margin-left:-1rem;margin-right:-1rem;padding-left:1rem;padding-right:1rem}
 }
 
-.tier-preview-banner{background:var(--bg-secondary);border-radius:var(--radius-md);padding:0.9rem 1rem;margin:0.75rem 0 1rem;text-align:center}
-.tier-preview-label{font-size:11px;color:var(--text-tertiary);margin-bottom:3px}
-.tier-preview-val{font-size:20px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:6px}
-.tier-preview-link{font-size:12px;color:var(--green-dark);font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
-.tier-preview-link:hover{text-decoration:underline}
-
 footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-tertiary)}
 
 @media (max-width:650px){
@@ -281,7 +327,7 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
 <div class="topbar">
   <div class="topbar-inner">
-    <span class="badge">List My India™</span>
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAAQABAAD/wAARCAFsA0gDACIAAREBAhEB/9sAQwAIBgYHBgUIBwcHCQkICgwUDQwLCwwZEhMPFB0aHx4dGhwcICQuJyAiLCMcHCg3KSwwMTQ0NB8nOT04MjwuMzQy/9sAQwEJCQkMCwwYDQ0YMiEcITIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMAAAERAhEAPwD3+iiuc8YeMLLwlpvnS4lu5QRBbg4Ln1Poo9aaTk7INjV1XWNP0Sya71K6jt4R3Y8sfQDqT7CvK9e+M07s0OhWSxp0FxcjLH3CjgfiT9K861vXtR8Q6g17qNwZZDwq9FjHoo7Cs2vUo4GKV6mrMJVH0NvUPF/iLU2Ju9Yu2B6okhRf++VwKxnkeRtzuzH1Y5ptFd0YRj8KsZtt7hRRRVCCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAFVipypIPqK07LxHrenMDZ6reQ4/hWZtv5Zway6KUoxlpJXGnY9J0T4xavaMserwRX0PeRAI5B+Xyn8h9a9W8P+KtI8TW5k025DOoy8L/LIn1H9RkV8wVPZXtzp13Hd2c8kE8ZykiHBFclXBQnrHRlxqNbn1lRXC+AfiDF4mjFhf7ItVRc4HCzgd19D6j8R7d1Xk1KcqcuWRummroKKKKgZR1jVbbRNJudRu2xDAm446sewHuTgfjXzNr2uXfiHWJ9RvGzJIflUHiNeyj2Fei/GbXme5tNChf5EH2icDuxyFH4DJ/EV5RXq4GilH2j3ZhUlrYKKKK9AyCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigCW2uZrO6iubaVopomDo6nBUjoa+kvBXiePxV4fju/lW6j/d3MY/hcdx7HqPy7V80V2vwv15tH8XQ27vi2v8QOO27+A/nx/wACNcuLo+0hdbo0hKzPoSiiivEOg+YvGOoHU/GOrXROQbhkU/7K/Kv6AVh1JO5kuJJD1ZyT+JqOvo6ceWCj2ORu7CiiiqEFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABT4pXhmSWNirowZWHYjkUyigD6w0+7W/0y1vF+7cQpKPowB/rVmsHwS5k8EaMT1Fog/IY/pW9XztSKjNxXRnWndXPkd/vt9aSlf77fWkr6I5QooooEFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQB9MeBf8AkRtG/wCvZa6Gue8C/wDIjaN/17LXQ18/W/iy9WdcdkfI7/fb60lK/wB9vrSV9AcoUUUUCCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA+mPAv/IjaN/17LXQ1z3gX/kRtG/69lroa+frfxZerOuOyPkd/vt9aSlf77fWkr6A5QooooEFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQBam02/t7WO6nsrmK3kxsmeJlRsjIwSMHI5p66RqbwCddOu2iK7hIIGKkeucdK9S8df8kd8O/wC7a/8Aohq2NL/5EC2/7Bo/9F14Wb51/Z2H9vyc3vctr26N32fY6KVD2kuW/S54RRRRXunOFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH0x4F/5EbRv+vZa6Gue8C/8iNo3/XstdDXz9b+LL1Z1x2R8jv8Afb60lK/32+tJX0ByhRRRQIKKKKACiivY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gooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAPpjwL/wAiNo3/AF7LXQ1z3gX/AJEbRv8Ar2Wuhr5+t/Fl6s647I+R3++31pKV/vt9aSvoDlCiiigQUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAHr/jr/AJI74d/3bX/0Q1bGl/8AIgW3/YNH/ousbxy6n4P+HVDAkC14B/6YtWxpbp/wgNsN65/s4cZ/6Z18Lxb/AMi//uL/AO2yO/CfxPkeE0UUV90cAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAfTHgX/AJEbRv8Ar2WuhrnvAv8AyI2jf9ey10NfP1v4svVnXHZHyO/32+tJSv8Afb60lfQHKFFFFAgooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAPpjwL/yI2jf9ey10Nc94F/5EbRv+vZa6Gvn638WXqzrjsj5Hf77fWkpX++31pK+gOUKKKKBBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUU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" alt="List My India" class="topbar-logo">
     <h1>Project Hub — Internal Prototypes</h1>
   </div>
 </div>
@@ -350,57 +396,13 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
     </div>
 
     <div id="tab-tiers">
+
     <div class="plan-group">
       <div class="plan-head">
         <span class="plan-tag entrepreneur">Entrepreneur Plan</span>
         <span class="plan-desc">Low investment · No office required · Work from home or small setup</span>
       </div>
-      <div class="tiers-grid">
-
-      <div class="tier-card t1">
-        <div class="tier-head">
-          <div class="tier-rank">Tier 1</div>
-          <div class="tier-name">Quick Start</div>
-          <div class="tier-sub">Lightest entry point</div>
-        </div>
-        <div class="tier-body">
-          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹50,000</span></div>
-          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">30%</span></div>
-          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹70,000</span></div>
-          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹6,000/mo</span></div>
-        </div>
-      </div>
-
-      <div class="tier-card t2">
-        <div class="tier-head">
-          <div class="tier-rank">Tier 2</div>
-          <div class="tier-name">Ultra Light</div>
-          <div class="tier-sub">Slightly larger reach</div>
-        </div>
-        <div class="tier-body">
-          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹75,000</span></div>
-          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">35%</span></div>
-          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹94,000</span></div>
-          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹9,000/mo</span></div>
-        </div>
-      </div>
-
-      <div class="tier-card t3 recommended">
-        <div class="tier-head">
-          <div class="tier-rank">Tier 3</div>
-          <div class="tier-name">Light</div>
-          <div class="tier-sub">Most popular entry tier</div>
-          <span class="rec-badge">Most popular</span>
-        </div>
-        <div class="tier-body">
-          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹1,00,000</span></div>
-          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">40%</span></div>
-          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹1,49,000</span></div>
-          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹12,000/mo</span></div>
-        </div>
-      </div>
-
-      </div>
+      <div class="tiers-grid" id="entrepreneur-tiers-grid"></div>
     </div>
 
     <div class="plan-group">
@@ -408,76 +410,40 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
         <span class="plan-tag enterprise">Enterprise Plan</span>
         <span class="plan-desc">Higher investment · Office setup required · Built for scale</span>
       </div>
-      <div class="tiers-grid">
-
-      <div class="tier-card t4">
-        <div class="tier-head">
-          <div class="tier-rank">Tier 4</div>
-          <div class="tier-name">Bronze</div>
-          <div class="tier-sub">Office-based, entry enterprise</div>
-        </div>
-        <div class="tier-body">
-          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹3,00,000</span></div>
-          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">55%</span></div>
-          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹5,66,000</span></div>
-          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹49,500/mo</span></div>
-        </div>
-      </div>
-
-      <div class="tier-card t5">
-        <div class="tier-head">
-          <div class="tier-rank">Tier 5</div>
-          <div class="tier-name">Silver</div>
-          <div class="tier-sub">District-level operation</div>
-        </div>
-        <div class="tier-body">
-          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹4,00,000</span></div>
-          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">60%</span></div>
-          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹6,66,000</span></div>
-          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹51,500/mo</span></div>
-        </div>
-      </div>
-
-      <div class="tier-card t6">
-        <div class="tier-head">
-          <div class="tier-rank">Tier 6</div>
-          <div class="tier-name">Gold</div>
-          <div class="tier-sub">Anchor / zone-level partner</div>
-        </div>
-        <div class="tier-body">
-          <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">₹5,00,000</span></div>
-          <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">65%</span></div>
-          <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">₹7,66,000</span></div>
-          <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~₹54,500/mo</span></div>
-        </div>
-      </div>
-
-      </div>
+      <div class="tiers-grid" id="enterprise-tiers-grid"></div>
     </div>
 
-    <div class="tier-preview-banner">
-      <div class="tier-preview-label">3-year projected income (Light tier, default assumptions)</div>
-      <div class="tier-preview-val" id="tier-preview-3yr">₹0</div>
-      <span class="tier-preview-link" onclick="goToModule('income')"><i class="ti ti-calculator" aria-hidden="true"></i> Check and validate your income potential →</span>
+    <p class="footnote">* Franchise fee shown is the Regular Partner (limited period offer) rate. Women entrepreneurs under 50 years and Young entrepreneurs under 30 years get 50% off this offer fee for a limited period. "Total to start" = franchise fee + first-year subscription (₹19,175) + one-time setup fee + office interiors (Enterprise only) — the upfront amount needed on day one; click to expand the full breakup. Marketing materials (polo t-shirt, visiting cards) are provided by the company as part of the franchise fee, at no extra cost. "Running cost" is the ongoing monthly spend — maintenance, conveyance, and marketing & advertising — click to expand the full breakup. ROI % is Year 1 net income ÷ total upfront investment, at default income-potential assumptions. Breakeven month is when cumulative net income crosses the total upfront investment. All amounts exclude 18% GST unless stated.</p>
+
+    <div class="plan-group" style="margin-top:2rem">
+      <div class="plan-head">
+        <span class="plan-tag entrepreneur" style="background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)">Referral Programme</span>
+        <span class="plan-desc">Zero office, zero operations — earn by referring Franchise Partners. Active (live) slab shown.</span>
+      </div>
+      <div class="tiers-grid" id="growth-partner-grid"></div>
+      <p class="footnote">* Growth Partner and Super Growth Partner earn a % of the referred Franchise Partner's monthly gross income — not on the total invoice value. Pin code token amount is exclusive of GST; 18% GST is added on top as shown. Pin code booking is strictly first-come-first-served: once a pin code is booked by any partner, it is no longer available to others. Super Growth Partner can refer and book pin codes anywhere across India — there is no district or zone restriction. Rates shown are the currently active (live) slab; rates change at higher active-franchise-partner milestones — see your Growth Partner agreement for the full slab table.</p>
     </div>
 
-    <p class="footnote">* Franchise fee shown is the Regular Partner (limited period offer) rate; Young/Women entrepreneurs under qualifying age get up to 50% further off. "Total to start" = franchise fee + first-year subscription (₹19,175) + one-time setup fee + office interiors (Enterprise only) — the upfront amount needed on day one. "Running cost" is the ongoing monthly spend (maintenance, marketing, and for Enterprise tiers, rent/utilities/salaries) on top of that. All amounts exclude 18% GST.</p>
     <button class="sub-btn" style="margin-top:0" onclick="showTab('form')">Proceed to Screening Questionnaire →</button>
     </div>
 
     <div id="tab-form" style="display:none">
-    <div class="prog-bar" style="height:4px;background:var(--bg-tertiary);border-radius:2px;margin-bottom:1.25rem"><div class="prog-fill" id="prog" style="width:0%;height:4px;background:var(--green);border-radius:2px"></div></div>
+    <div class="prog-bar" style="height:4px;background:var(--bg-tertiary);border-radius:2px;margin-bottom:1.25rem"><div class="prog-fill" id="prog" style="width:0%;height:4px;background:var(--lmi-blue);border-radius:2px"></div></div>
     <div id="form-area"></div>
     </div>
   </div>
 
   <div class="module-panel" id="panel-income">
     <div class="income-sticky-header">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.5rem">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.4rem">
         <span class="lmi-badge">List My India™</span>
         <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Income potential calculator</span>
       </div>
 
+      <div class="gp-mini-label">Referral programme</div>
+      <div class="gp-income-grid" id="gp-mini-grid"></div>
+
+      <div class="gp-mini-label" style="margin-top:6px">Franchise tiers</div>
       <div class="tier-income-grid" id="tier-income-grid"></div>
 
       <div class="summary-banner" style="margin-top:8px">
@@ -972,6 +938,8 @@ let incomeChart;
 let currentYear = 1;
 let monthlyVisible = false;
 let selectedTier = 'light';
+let selectedMode = 'tier'; // 'tier' or 'gp'
+let gpPinCount = {gp:1, sgp:50};
 
 const planSliders = {
   149: document.getElementById('sl-plan149'),
@@ -1054,6 +1022,215 @@ function buildMonthlyRate(y1pct,y2pct,y3pct){
   return rates;
 }
 
+// Default assumptions (mirrors Income Potential tab's reset values) used by the Franchise Tiers tab
+// so ROI/breakeven figures are always linked to the same underlying model.
+function computeDefaultTierSubs(){
+  const pop=100000, retailPct=0.0125, homeMult=5, capturePct=0.20;
+  const planPct={149:0.50,199:0.30,249:0.20};
+  const retailStores = pop*retailPct;
+  const homeBusinesses = retailStores*homeMult;
+  const totalBusinesses = retailStores+homeBusinesses;
+  const capturedListings = totalBusinesses*capturePct;
+  const growthRates = buildMonthlyRate(7.5,4,3);
+  const churnRates = buildMonthlyRate(2.5,2,1.5);
+  let subsTotal=[];
+  let base=capturedListings;
+  for(let m=1;m<=36;m++){
+    if(m<=3){ subsTotal.push(base*(m/3)); }
+    else {
+      const g=growthRates[m-1], c=churnRates[m-1];
+      const prev=subsTotal[m-2];
+      subsTotal.push(Math.max(0, prev + prev*g - prev*(c/100)));
+    }
+  }
+  return {
+    subs149: subsTotal.map(s=>s*planPct[149]),
+    subs199: subsTotal.map(s=>s*planPct[199]),
+    subs249: subsTotal.map(s=>s*planPct[249]),
+    subsTotal
+  };
+}
+
+function computeDefaultTierFinancials(share, cost, investment){
+  const d = computeDefaultTierSubs();
+  let monthlyGross=[], monthlyNet=[];
+  for(let m=1;m<=36;m++){
+    const gross = d.subs149[m-1]*149 + d.subs199[m-1]*199 + d.subs249[m-1]*249;
+    const fpShare = gross*share;
+    const runningCost = cost*Math.pow(1.1, Math.floor((m-1)/12));
+    monthlyGross.push(gross);
+    monthlyNet.push(fpShare-runningCost);
+  }
+  const y1 = monthlyNet.slice(0,12).reduce((a,b)=>a+b,0);
+  const roiPct = investment>0 ? Math.round((y1/investment)*1000)/10 : 0;
+  let cum=0, breakeven=null;
+  for(let i=0;i<monthlyNet.length;i++){
+    cum+=monthlyNet[i];
+    if(cum>=investment){ breakeven=i+1; break; }
+  }
+  return {monthlyGross, monthlyNet, y1, roiPct, breakeven};
+}
+
+const franchiseTierData = [
+  {key:'quickstart', cls:'te1', plan:'entrepreneur', rank:'Tier 1', name:'Quick Start', sub:'Lightest entry point', bestFor:'first-time, solo starters',
+   fee:50000, share:0.30, sub_:19175, setup:0, office:0, runningCost:6000,
+   breakup:[['Franchise fee (offer rate)',50000],['Year-1 subscription bundle',19175]],
+   monthlyExpense:[['Maintenance',1000],['Conveyance',0],['Marketing & advertising',5000]]},
+  {key:'ultralight', cls:'te2', plan:'entrepreneur', rank:'Tier 2', name:'Ultra Light', sub:'Slightly larger reach', bestFor:'side-hustlers testing the model',
+   fee:75000, share:0.35, sub_:19175, setup:0, office:0, runningCost:9000,
+   breakup:[['Franchise fee (offer rate)',75000],['Year-1 subscription bundle',19175]],
+   monthlyExpense:[['Maintenance',2000],['Conveyance',0],['Marketing & advertising',7000]]},
+  {key:'light', cls:'te3', plan:'entrepreneur', rank:'Tier 3', name:'Light', sub:'Most popular entry tier', bestFor:'serious full-time operators', recommended:true,
+   fee:100000, share:0.40, sub_:19175, setup:30000, office:0, runningCost:12000,
+   breakup:[['Franchise fee (offer rate)',100000],['Year-1 subscription bundle',19175],['Setup fee (incl. billboard/digital ad)',30000]],
+   monthlyExpense:[['Maintenance',3000],['Conveyance',0],['Marketing & advertising',9000]]},
+  {key:'bronze', cls:'tb1', plan:'enterprise', rank:'Tier 4', name:'Bronze', sub:'Office-based, entry enterprise', bestFor:'building a small team-led office',
+   fee:300000, share:0.55, sub_:19175, setup:46500, office:200000, runningCost:77000,
+   breakup:[['Franchise fee (offer rate)',300000],['Year-1 subscription bundle',19175],['Setup fee (dashboards + billboard)',46500],['Office interiors (min. 200 sq.ft)',200000]],
+   monthlyExpense:[['Maintenance',5000],['Conveyance',2000],['Marketing & advertising',10000],['Office rent',30000],['Staff (2 @ ₹15,000 each)',30000]]},
+  {key:'silver', cls:'tb2', plan:'enterprise', rank:'Tier 5', name:'Silver', sub:'District-level operation', bestFor:'district-wide ambitions',
+   fee:400000, share:0.60, sub_:19175, setup:46500, office:200000, runningCost:79000,
+   breakup:[['Franchise fee (offer rate)',400000],['Year-1 subscription bundle',19175],['Setup fee (dashboards + billboard)',46500],['Office interiors (min. 200 sq.ft)',200000]],
+   monthlyExpense:[['Maintenance',5000],['Conveyance',2000],['Marketing & advertising',12000],['Office rent',30000],['Staff (2 @ ₹15,000 each)',30000]]},
+  {key:'gold', cls:'tb3', plan:'enterprise', rank:'Tier 6', name:'Gold', sub:'Anchor / zone-level partner', bestFor:'experienced investors, anchor partners',
+   fee:500000, share:0.65, sub_:19175, setup:46500, office:200000, runningCost:82000,
+   breakup:[['Franchise fee (offer rate)',500000],['Year-1 subscription bundle',19175],['Setup fee (dashboards + billboard)',46500],['Office interiors (min. 200 sq.ft)',200000]],
+   monthlyExpense:[['Maintenance',5000],['Conveyance',2000],['Marketing & advertising',15000],['Office rent',30000],['Staff (2 @ ₹15,000 each)',30000]]}
+];
+
+function renderFranchiseTierCards(){
+  const entGrid = document.getElementById('entrepreneur-tiers-grid');
+  const entGridHtml = [];
+  const entItems = franchiseTierData.filter(t=>t.plan==='entrepreneur');
+  const entrItems = franchiseTierData.filter(t=>t.plan==='enterprise');
+
+  function buildCard(t){
+    const total = t.breakup.reduce((a,b)=>a+b[1],0);
+    const fin = computeDefaultTierFinancials(t.share, t.runningCost, total);
+    const discountFee = Math.round(t.fee/2);
+    let breakupHtml = '<div class="bd-section-label">Total to start (mandatory)</div>';
+    t.breakup.forEach(([label,val])=>{
+      breakupHtml += `<div class="bd-row"><span>${label}</span><span class="bd-val">${fmtCurrency(val)}</span></div>`;
+    });
+    breakupHtml += `<div class="bd-row bd-total"><span>Total to start</span><span class="bd-val">${fmtCurrency(total)}</span></div>`;
+    breakupHtml += '<div class="bd-section-label">Monthly running cost</div>';
+    t.monthlyExpense.forEach(([label,val])=>{
+      breakupHtml += `<div class="bd-row"><span>${label}</span><span class="bd-val">${fmtCurrency(val)}/mo</span></div>`;
+    });
+    breakupHtml += `<div class="bd-row bd-total"><span>Total running cost</span><span class="bd-val">${fmtCurrency(t.runningCost)}/mo</span></div>`;
+
+    return `<div class="tier-card ${t.cls} ${t.recommended?'recommended':''}">
+      <div class="best-suited">Best for: ${t.bestFor}</div>
+      <div class="tier-head">
+        <div class="tier-rank">${t.rank}</div>
+        <div class="tier-name">${t.name}</div>
+        <div class="tier-sub">${t.sub}</div>
+        ${t.recommended?'<span class="rec-badge">Most popular</span>':''}
+      </div>
+      <div class="tier-body">
+        <div class="tier-row"><span class="t-label">Franchise fee</span><span class="t-val">${fmtCurrency(t.fee)}</span></div>
+        <div class="tier-row"><span class="t-label">FP earns</span><span class="t-val fp-share">${Math.round(t.share*100)}%</span></div>
+        <div class="tier-row total-row"><span class="t-label">Total to start ~</span><span class="t-val total-val">${fmtCurrency(total)}</span></div>
+        <div class="tier-row run-row"><span class="t-label">+ running cost</span><span class="t-val">~${fmtCurrency(t.runningCost)}/mo</span></div>
+      </div>
+      <div class="roi-strip">
+        <div class="roi-item"><div class="roi-item-label">Year-1 ROI</div><div class="roi-item-val">${fin.roiPct}%</div></div>
+        <div class="roi-item"><div class="roi-item-label">Breakeven</div><div class="roi-item-val">${fin.breakeven?'M'+fin.breakeven:'36+'}</div></div>
+      </div>
+      <div class="breakdown-toggle" onclick="toggleBreakdown(this)"><i class="ti ti-chevron-down" aria-hidden="true"></i> View full cost breakup</div>
+      <div class="breakdown-panel">${breakupHtml}</div>
+      <div class="discount-strip">
+        <i class="ti ti-discount-2" aria-hidden="true"></i> ${fmtCurrency(discountFee)} fee for Women (&lt;50) / Young (&lt;30) entrepreneurs*
+      </div>
+      <div class="tier-3yr-line" onclick="goToModule('income');selectTier('${t.key}')">
+        3-year income potential: <strong>see estimate →</strong>
+      </div>
+    </div>`;
+  }
+
+  entGrid.innerHTML = entItems.map(buildCard).join('');
+  document.getElementById('enterprise-tiers-grid').innerHTML = entrItems.map(buildCard).join('');
+}
+
+function toggleBreakdown(el){
+  el.classList.toggle('open');
+  const panel = el.nextElementSibling;
+  panel.classList.toggle('open');
+  const icon = el.querySelector('i');
+  el.innerHTML = panel.classList.contains('open')
+    ? '<i class="ti ti-chevron-up" aria-hidden="true"></i> Hide full cost breakup'
+    : '<i class="ti ti-chevron-down" aria-hidden="true"></i> View full cost breakup';
+}
+
+// Growth Partner / Super Growth Partner — active (live) slab
+const growthPartnerData = [
+  {key:'gp', rank:'Growth Partner', name:'Refer Franchise Partners', sub:'Choose how many pin codes you want to book',
+   minQty:1, tierBreak:5, lowRate:1500, highRate:1000, timeline:'6 months', onetimePct:5, monthlyPct:5},
+  {key:'sgp', rank:'Super Growth Partner', name:'PAN India Referral Network', sub:'Minimum 50 pin codes, no geographic restriction',
+   minQty:50, tierBreak:null, lowRate:500, highRate:500, timeline:'6 months', onetimePct:2.5, monthlyPct:2.5}
+];
+
+function gpRateFor(gp, qty){
+  if(gp.tierBreak && qty >= gp.tierBreak) return gp.highRate;
+  return gp.lowRate;
+}
+
+function renderGrowthPartnerCards(){
+  const grid = document.getElementById('growth-partner-grid');
+  let html = '';
+  growthPartnerData.forEach(gp=>{
+    const defaultQty = gp.minQty;
+    const rate = gpRateFor(gp, defaultQty);
+    const rateWithGst = Math.round(rate * 1.18);
+    const totalWithGst = rateWithGst * defaultQty;
+
+    let qtyOptions = '';
+    if(gp.key === 'gp'){
+      for(let i=1;i<=20;i++){
+        qtyOptions += `<option value="${i}" ${i===defaultQty?'selected':''}>${i} Pin Code${i>1?'s':''}</option>`;
+      }
+    } else {
+      for(let i=50;i<=70;i++){
+        qtyOptions += `<option value="${i}" ${i===defaultQty?'selected':''}>${i} Pin Codes</option>`;
+      }
+    }
+
+    html += `<div class="gp-card" id="gp-card-${gp.key}">
+      <div class="gp-head">
+        <div class="gp-rank">${gp.rank}</div>
+        <div class="gp-name">${gp.name}</div>
+        <div class="gp-sub">${gp.sub}</div>
+        <span class="fcfs-badge"><i class="ti ti-flag-3" aria-hidden="true"></i> First-come-first-served pin code booking</span>
+      </div>
+      <div class="gp-body">
+        <div class="gp-select-row">
+          <label class="gp-select-label">Number of pin codes</label>
+          <select class="gp-select" id="gp-qty-${gp.key}" onchange="updateGpCard('${gp.key}')">${qtyOptions}</select>
+        </div>
+        <div class="tier-row"><span class="t-label">Rate per pin code (+18% GST)</span><span class="t-val" id="gp-rate-${gp.key}">${fmtCurrency(rateWithGst)}</span></div>
+        <div class="tier-row"><span class="t-label">One-time on franchise fee</span><span class="t-val fp-share">${gp.onetimePct}%</span></div>
+        <div class="tier-row"><span class="t-label">Monthly on FP gross income</span><span class="t-val fp-share">${gp.monthlyPct}%</span></div>
+        <div class="tier-row"><span class="t-label">Timeline to appoint FP</span><span class="t-val">${gp.timeline}</span></div>
+        <div class="tier-row total-row"><span class="t-label">Total investment</span><span class="t-val total-val" id="gp-total-${gp.key}">${fmtCurrency(totalWithGst)}</span></div>
+      </div>
+      <div class="tier-3yr-line" onclick="goToModule('income');selectGP('${gp.key}')">
+        Check income potential: <strong>see estimate →</strong>
+      </div>
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+
+function updateGpCard(key){
+  const gp = growthPartnerData.find(g=>g.key===key);
+  const qty = parseInt(document.getElementById('gp-qty-'+key).value);
+  const rate = gpRateFor(gp, qty);
+  const rateWithGst = Math.round(rate * 1.18);
+  const totalWithGst = rateWithGst * qty;
+  document.getElementById('gp-rate-'+key).textContent = fmtCurrency(rateWithGst);
+  document.getElementById('gp-total-'+key).textContent = fmtCurrency(totalWithGst);
+}
+
 vasToggle.addEventListener('change', ()=>{
   document.getElementById('vas-controls').style.display = vasToggle.checked ? 'block' : 'none';
   calculateIncome();
@@ -1124,13 +1301,53 @@ function calculateIncome(){
   document.getElementById('val-vas-adopt').textContent = Math.round(vasAdoptPct*100)+'%';
   document.getElementById('val-vas-price').textContent = '₹'+Math.round(vasPrice);
 
+  const gpList = [
+    {key:'gp', name:'Growth Partner', lowRate:1500, highRate:1000, tierBreak:5, onetimePct:5, monthlyPct:5},
+    {key:'sgp', name:'Super Growth Partner', lowRate:500, highRate:500, tierBreak:null, onetimePct:2.5, monthlyPct:2.5}
+  ];
+
+  function gpRateFor(gp, qty){
+    if(gp.tierBreak && qty >= gp.tierBreak) return gp.highRate;
+    return gp.lowRate;
+  }
+
+  // Benchmark: assume each referred Franchise Partner (one per pin code) is on the Light tier,
+  // using the SAME market assumptions as the rest of the calculator.
+  function computeReferredFPIncome(){
+    let monthlyGross=[];
+    for(let m=1;m<=36;m++){
+      const gross = subs149[m-1]*149 + subs199[m-1]*199 + subs249[m-1]*249;
+      monthlyGross.push(gross);
+    }
+    return monthlyGross;
+  }
+
+  function computeForGP(gp, qty){
+    qty = qty || gpPinCount[gp.key] || 1;
+    const referredFPGross = computeReferredFPIncome();
+    const onetimePerFP = Math.round(100000 * gp.onetimePct/100); // on Light tier franchise fee
+    const onetimeIncome = onetimePerFP * qty;
+    let monthlyGross=[], monthlyNet=[];
+    for(let m=1;m<=36;m++){
+      const monthlyShare = referredFPGross[m-1] * (gp.monthlyPct/100) * qty;
+      const gross = referredFPGross[m-1] * qty;
+      const net = (m===1 ? onetimeIncome : 0) + monthlyShare;
+      monthlyGross.push(gross);
+      monthlyNet.push(net);
+    }
+    const y1 = monthlyNet.slice(0,12).reduce((a,b)=>a+b,0);
+    const y2 = monthlyNet.slice(12,24).reduce((a,b)=>a+b,0);
+    const y3 = monthlyNet.slice(24,36).reduce((a,b)=>a+b,0);
+    return {monthlyGross, monthlyNet, monthlyVas:monthlyGross.map(()=>0), y1, y2, y3, total:y1+y2+y3, onetimeIncome, qty};
+  }
+
   const tierList = [
     {key:'quickstart',name:'Quick Start',share:0.30,cost:6000,cls:'t1'},
     {key:'ultralight',name:'Ultra Light',share:0.35,cost:9000,cls:'t2'},
-    {key:'light',name:'Light',share:0.40,cost:13997,cls:'t3'},
-    {key:'bronze',name:'Bronze',share:0.55,cost:49500,cls:'t4'},
-    {key:'silver',name:'Silver',share:0.60,cost:51500,cls:'t5'},
-    {key:'gold',name:'Gold',share:0.65,cost:54500,cls:'t6'}
+    {key:'light',name:'Light',share:0.40,cost:12000,cls:'t3'},
+    {key:'bronze',name:'Bronze',share:0.55,cost:77000,cls:'t4'},
+    {key:'silver',name:'Silver',share:0.60,cost:79000,cls:'t5'},
+    {key:'gold',name:'Gold',share:0.65,cost:82000,cls:'t6'}
   ];
 
   function computeForTier(revShare, baseCost){
@@ -1151,32 +1368,47 @@ function calculateIncome(){
     return {monthlyGross, monthlyNet, monthlyVas, y1, y2, y3, total: y1+y2+y3};
   }
 
-  const selectedTierObj = tierList.find(t=>t.key===selectedTier) || tierList[2];
-  const selectedData = computeForTier(selectedTierObj.share, selectedTierObj.cost);
+  let selectedData, selectedLabel, selectedRevSharePct, selectedCost;
+
+  if(selectedMode === 'gp'){
+    const gpObj = gpList.find(g=>g.key===selectedTier) || gpList[0];
+    const qty = gpPinCount[gpObj.key] || 1;
+    selectedData = computeForGP(gpObj, qty);
+    selectedLabel = `${gpObj.name} (${qty} pin code${qty>1?'s':''})`;
+    selectedRevSharePct = gpObj.monthlyPct;
+    selectedCost = 0;
+    document.getElementById('d-vas-y1').textContent = fmtCurrency(0);
+  } else {
+    const selectedTierObj = tierList.find(t=>t.key===selectedTier) || tierList[2];
+    selectedData = computeForTier(selectedTierObj.share, selectedTierObj.cost);
+    selectedLabel = selectedTierObj.name + ' tier';
+    selectedRevSharePct = Math.round(selectedTierObj.share*100);
+    selectedCost = selectedTierObj.cost;
+    const vasY1 = vasOn ? subsTotal.slice(0,12).reduce((a,s)=>a+s*vasAdoptPct*vasPrice*selectedTierObj.share,0) : 0;
+    document.getElementById('d-vas-y1').textContent = fmtCurrency(vasY1);
+  }
 
   document.getElementById('sb-y1').textContent = fmtCurrency(selectedData.y1);
   document.getElementById('sb-y2').textContent = fmtCurrency(selectedData.y2);
   document.getElementById('sb-y3').textContent = fmtCurrency(selectedData.y3);
   document.getElementById('sb-total').textContent = fmtCurrency(selectedData.total);
-  document.getElementById('summary-banner-tier-name').textContent = selectedTierObj.name + ' tier';
-  document.getElementById('tier-preview-3yr').textContent = fmtCurrency(selectedData.total);
-
-  const vasY1 = vasOn ? subsTotal.slice(0,12).reduce((a,s)=>a+s*vasAdoptPct*vasPrice*selectedTierObj.share,0) : 0;
-  document.getElementById('d-vas-y1').textContent = fmtCurrency(vasY1);
+  document.getElementById('summary-banner-tier-name').textContent = selectedLabel;
 
   window._incomeCalcData = {
-    revShare: selectedTierObj.share,
-    revSharePct: Math.round(selectedTierObj.share*100),
+    revShare: selectedRevSharePct/100,
+    revSharePct: selectedRevSharePct,
     monthlyGross: selectedData.monthlyGross,
     monthlyNet: selectedData.monthlyNet,
     monthlyVas: selectedData.monthlyVas,
-    monthlyRunningCostBase: selectedTierObj.cost
+    monthlyRunningCostBase: selectedCost,
+    isGpMode: selectedMode==='gp'
   };
 
   renderIncomeChart();
   renderIncomeTable();
   renderMonthlyTable();
   renderTierCards(tierList, computeForTier);
+  renderGpMiniCards(gpList, computeForGP);
 }
 
 function renderIncomeChart(){
@@ -1213,27 +1445,52 @@ function renderIncomeTable(){
   const yearStart = (currentYear-1)*12;
   const grossSlice = d.monthlyGross.slice(yearStart,yearStart+12);
   const netSlice = d.monthlyNet.slice(yearStart,yearStart+12);
-  const vasSlice = d.monthlyVas.slice(yearStart,yearStart+12);
-  const fpShareSlice = grossSlice.map(g=>g*d.revShare);
-  const expenseSlice = fpShareSlice.map((s,i)=>s+vasSlice[i]-netSlice[i]);
-
   const grossTotal = grossSlice.reduce((a,b)=>a+b,0);
-  const fpShareTotal = fpShareSlice.reduce((a,b)=>a+b,0);
-  const vasTotal = vasSlice.reduce((a,b)=>a+b,0);
-  const expenseTotal = expenseSlice.reduce((a,b)=>a+b,0);
   const netTotal = netSlice.reduce((a,b)=>a+b,0);
 
   const body = document.getElementById('summary-body');
-  let rows = `
-    <tr class="row-income"><td>Gross subscription revenue (Year ${currentYear})</td><td class="num">${fmtCurrency(grossTotal)}</td></tr>
-    <tr class="row-income"><td>Your share (${d.revSharePct}% revenue sharing)</td><td class="num">${fmtCurrency(fpShareTotal)}</td></tr>`;
-  if(vasTotal > 0){
-    rows += `<tr class="row-income"><td>Value added services income</td><td class="num">${fmtCurrency(vasTotal)}</td></tr>`;
+  let rows = '';
+
+  if(d.isGpMode){
+    const commissionTotal = grossSlice.reduce((a,g)=>a+g*(d.revSharePct/100),0);
+    const onetimeThisYear = currentYear===1 ? (netTotal - commissionTotal) : 0;
+    const gpObj = [
+      {key:'gp', lowRate:1500, highRate:1000, tierBreak:5},
+      {key:'sgp', lowRate:500, highRate:500, tierBreak:null}
+    ].find(g=>g.key===selectedTier);
+    const qty = gpPinCount[selectedTier] || 1;
+    const rate = (gpObj && gpObj.tierBreak && qty >= gpObj.tierBreak) ? gpObj.highRate : (gpObj ? gpObj.lowRate : 0);
+    const tokenInvestment = Math.round(rate * 1.18) * qty;
+    rows = `
+      <tr class="row-income"><td>Referred FPs' combined gross revenue (Year ${currentYear}, ${qty} pin code${qty>1?'s':''})</td><td class="num">${fmtCurrency(grossTotal)}</td></tr>
+      <tr class="row-income"><td>Your monthly commission (${d.revSharePct}% of FP gross)</td><td class="num">${fmtCurrency(commissionTotal)}</td></tr>`;
+    if(onetimeThisYear > 0){
+      rows += `<tr class="row-income"><td>One-time commission on franchise fee</td><td class="num">${fmtCurrency(onetimeThisYear)}</td></tr>`;
+    }
+    if(currentYear===1){
+      rows += `<tr class="row-expense"><td>Pin code token investment (${qty} × incl. GST)</td><td class="num">- ${fmtCurrency(tokenInvestment)}</td></tr>`;
+    }
+    const netAfterToken = currentYear===1 ? netTotal - tokenInvestment : netTotal;
+    rows += `<tr class="row-profit total"><td>Net income (Year ${currentYear})</td><td class="num">${fmtCurrency(netAfterToken)}</td></tr>`;
+  } else {
+    const vasSlice = d.monthlyVas.slice(yearStart,yearStart+12);
+    const fpShareSlice = grossSlice.map(g=>g*d.revShare);
+    const expenseSlice = fpShareSlice.map((s,i)=>s+vasSlice[i]-netSlice[i]);
+    const fpShareTotal = fpShareSlice.reduce((a,b)=>a+b,0);
+    const vasTotal = vasSlice.reduce((a,b)=>a+b,0);
+    const expenseTotal = expenseSlice.reduce((a,b)=>a+b,0);
+
+    rows = `
+      <tr class="row-income"><td>Gross subscription revenue (Year ${currentYear})</td><td class="num">${fmtCurrency(grossTotal)}</td></tr>
+      <tr class="row-income"><td>Your share (${d.revSharePct}% revenue sharing)</td><td class="num">${fmtCurrency(fpShareTotal)}</td></tr>`;
+    if(vasTotal > 0){
+      rows += `<tr class="row-income"><td>Value added services income</td><td class="num">${fmtCurrency(vasTotal)}</td></tr>`;
+    }
+    rows += `
+      <tr class="row-expense"><td>Running costs (maintenance, conveyance, marketing)</td><td class="num">- ${fmtCurrency(expenseTotal)}</td></tr>
+      <tr class="row-profit total"><td>Net income (Year ${currentYear})</td><td class="num">${fmtCurrency(netTotal)}</td></tr>
+    `;
   }
-  rows += `
-    <tr class="row-expense"><td>Running costs (maintenance, conveyance, marketing)</td><td class="num">- ${fmtCurrency(expenseTotal)}</td></tr>
-    <tr class="row-profit total"><td>Net income (Year ${currentYear})</td><td class="num">${fmtCurrency(netTotal)}</td></tr>
-  `;
   body.innerHTML = rows;
 }
 
@@ -1255,7 +1512,7 @@ function renderTierCards(tierList, computeForTier){
   let html = '';
   tierList.forEach(t=>{
     const data = computeForTier(t.share, t.cost);
-    const isSelected = t.key === selectedTier;
+    const isSelected = selectedMode==='tier' && t.key === selectedTier;
     html += `<div class="tier-income-card ${t.cls} ${isSelected?'selected':''}" onclick="selectTier('${t.key}')">
       <div class="tic-head">
         <div class="tic-name">${t.name}</div>
@@ -1270,7 +1527,56 @@ function renderTierCards(tierList, computeForTier){
   grid.innerHTML = html;
 }
 
+function renderGpMiniCards(gpList, computeForGP){
+  const grid = document.getElementById('gp-mini-grid');
+  if(!grid) return;
+  let html = '';
+  gpList.forEach(g=>{
+    const qty = gpPinCount[g.key] || (g.key==='sgp' ? 50 : 1);
+    const data = computeForGP(g, qty);
+    const isSelected = selectedMode==='gp' && g.key === selectedTier;
+
+    let qtyOptions = '';
+    if(g.key === 'gp'){
+      for(let i=1;i<=20;i++){
+        qtyOptions += `<option value="${i}" ${i===qty?'selected':''}>${i} PIN${i>1?'s':''}</option>`;
+      }
+    } else {
+      for(let i=50;i<=70;i++){
+        qtyOptions += `<option value="${i}" ${i===qty?'selected':''}>${i} PINs</option>`;
+      }
+    }
+
+    html += `<div class="gp-income-card ${isSelected?'selected':''}" id="gp-income-card-${g.key}">
+      <div class="gp-income-head" onclick="selectGP('${g.key}')"><div class="gp-income-name">${g.name}</div></div>
+      <div class="gp-income-body">
+        <select class="gp-income-select" id="gp-income-qty-${g.key}" onchange="updateGpIncomeQty('${g.key}')" onclick="event.stopPropagation()">${qtyOptions}</select>
+        <div class="tic-3yr-label">3-year income</div>
+        <div class="gp-income-val" id="gp-income-val-${g.key}">${fmtCurrency(data.total)}</div>
+      </div>
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+
+function updateGpIncomeQty(key){
+  const qty = parseInt(document.getElementById('gp-income-qty-'+key).value);
+  gpPinCount[key] = qty;
+  if(selectedMode==='gp' && selectedTier===key){
+    calculateIncome();
+  } else {
+    selectGP(key);
+  }
+}
+
 function selectTier(key){
+  selectedMode = 'tier';
+  selectedTier = key;
+  calculateIncome();
+}
+
+function selectGP(key){
+  selectedMode = 'gp';
   selectedTier = key;
   calculateIncome();
 }
@@ -1294,6 +1600,8 @@ function toggleMonthly(){
 
 function resetAll(){
   selectedTier = 'light';
+  selectedMode = 'tier';
+  gpPinCount = {gp:1, sgp:50};
   slPop.value = 100000;
   slRetailPct.value = 1.25;
   slHomeMult.value = 5;
@@ -1324,6 +1632,8 @@ function resetAll(){
 [slPop, slRetailPct, slHomeMult, slCapture, slGrowthY1, slGrowthY2, slGrowthY3, slChurnY1, slChurnY2, slChurnY3, slVasAdopt, slVasPrice].forEach(s=>s.addEventListener('input', calculateIncome));
 
 calculateIncome();
+renderFranchiseTierCards();
+renderGrowthPartnerCards();
 </script>
 
 </body>
