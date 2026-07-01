@@ -582,7 +582,7 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
     <div class="section">
       <div class="section-title"><i class="ti ti-users" aria-hidden="true"></i> Your market</div>
-      <div class="section-sub">Adjust any assumption — everything recalculates instantly across all 6 tier cards. Defaults auto-switch when you change tier type: Entrepreneur tiers use 1L pop / 10% capture, Enterprise tiers use 2L pop / 20% capture.</div>
+      <div class="section-sub">All 6 franchise tiers are calculated from the same market assumptions below — same population, same capture %, same plan mix. Change any slider and all 6 update together.</div>
 
       <div class="slider-row">
         <div class="slider-label-row">
@@ -888,16 +888,12 @@ const fsSections=[
       {text:"Corporate / Government employee",score:2},
       {text:"Retired / Homemaker",score:1},
       {text:"Fresher / Student",score:0}]},
-    {id:"q3",text:"Age group",hint:"Young entrepreneurs under 30 and women entrepreneurs under 50 get 50% off franchise fee (limited period)",type:"radio",options:[
-      {text:"26–30 years (qualifies for Young Entrepreneur 50% discount)",score:3},
-      {text:"31–45 years",score:3},
-      {text:"46–50 years",score:2},
-      {text:"18–25 years",score:1},
-      {text:"51–55 years",score:1},
-      {text:"Above 55 years",score:1}]},
-    {id:"q4",text:"Are you a woman entrepreneur (under 50 years)?",hint:"Women entrepreneurs under 50 qualify for 50% off the franchise fee for a limited period",type:"radio",options:[
-      {text:"Yes — I qualify for the Women Entrepreneur 50% discount",score:3,flag:"Women Entrepreneur discount applicable"},
-      {text:"No",score:0}]}
+    {id:"q3",text:"Your profile — discount eligibility",hint:"Young Entrepreneurs (under 30) and Women Entrepreneurs (under 50) each get 50% off the franchise fee for a limited period. Only one discount applies — whichever is more relevant to you.",type:"radio",options:[
+      {text:"Woman entrepreneur, under 30 years — I qualify for both, will apply Young Entrepreneur discount (50% off)",score:3,flag:"Young Entrepreneur discount applicable (under 30)"},
+      {text:"Woman entrepreneur, 30–49 years — I qualify for Women Entrepreneur discount (50% off)",score:3,flag:"Women Entrepreneur discount applicable"},
+      {text:"Male entrepreneur, under 30 years — I qualify for Young Entrepreneur discount (50% off)",score:3,flag:"Young Entrepreneur discount applicable (under 30)"},
+      {text:"Male entrepreneur, 30–49 years — no special discount",score:3},
+      {text:"50 years or above — no special discount",score:2}]}
   ]},
   {label:"Business experience",questions:[
     {id:"q5",text:"Years of experience in sales, marketing, or business development",hint:"",type:"radio",options:[
@@ -917,7 +913,7 @@ const fsSections=[
       {text:"Not comfortable at all",score:0}]}
   ]},
   {label:"Financial readiness",questions:[
-    {id:"q8",text:"Which franchise plan are you interested in?",hint:"Entrepreneur plan figures use conservative assumptions (pop 1L, 10% capture, solo). Enterprise plan figures use realistic office-team assumptions (pop 2L, 20% capture, 1 staff). All figures are indicative — use the Income Potential calculator for personalised estimates.",type:"radio",tableHtml:`
+    {id:"q8",text:"Which franchise plan are you interested in?",hint:"All 6 plans are compared on the same market in the Income Potential calculator. Select a plan, then use the sliders to model your specific pincode population and market capture. The figures below are indicative at default assumptions.",type:"radio",tableHtml:`
 <div class="plan-compare-note">📊 Plan comparison — indicative figures based on plan-specific default assumptions</div>
 <div style="overflow-x:auto;margin-bottom:10px">
 <table class="plan-compare-table">
@@ -925,10 +921,10 @@ const fsSections=[
   <th>Plan</th><th>Rev %</th><th>Upfront ~ (excl. GST)</th><th>Running /mo (excl. GST)</th><th>Breakeven</th><th>3-yr income ~</th><th>Assumptions</th>
 </tr></thead>
 <tbody>
-<tr class="pc-ent"><td><strong>Quick Start</strong></td><td>30%</td><td>₹80K <span style="font-size:9px;color:#888">(~₹93K incl. GST)</span></td><td>₹6K + GST</td><td>M4</td><td>₹2.3L</td><td rowspan="3" class="pc-ent-note">Pop 1L · Solo · 10% capture · plan mix 50/30/20</td></tr>
+<tr class="pc-ent"><td><strong>Quick Start</strong></td><td>30%</td><td>₹80K <span style="font-size:9px;color:#888">(~₹93K incl. GST)</span></td><td>₹6K + GST</td><td>M4</td><td>₹2.3L</td><td rowspan="3" class="pc-ent-note">Default: Pop 1L · 10% capture · 50/30/20 mix — adjustable in calculator</td></tr>
 <tr class="pc-ent"><td><strong>Ultra Light</strong></td><td>35%</td><td>₹1L <span style="font-size:9px;color:#888">(~₹1.23L incl. GST)</span></td><td>₹9K + GST</td><td>M4</td><td>₹2.6L</td></tr>
 <tr class="pc-ent pc-pop"><td><strong>Light ⭐</strong></td><td>40%</td><td>₹1.6L <span style="font-size:9px;color:#888">(~₹1.88L incl. GST)</span></td><td>₹12K + GST</td><td>M5</td><td>₹2.9L</td></tr>
-<tr class="pc-biz"><td><strong>Bronze</strong></td><td>55%</td><td>₹5.76L <span style="font-size:9px;color:#888">(~₹6.79L incl. GST)</span></td><td>₹55K + GST</td><td>M4</td><td>₹16.4L</td><td rowspan="3" class="pc-biz-note">Pop 2L · 1 staff · 20% capture · plan mix 40/35/25 · rent ₹20K · variable cost ₹40K</td></tr>
+<tr class="pc-biz"><td><strong>Bronze</strong></td><td>55%</td><td>₹5.76L <span style="font-size:9px;color:#888">(~₹6.79L incl. GST)</span></td><td>₹55K + GST</td><td>M4</td><td>₹16.4L</td><td rowspan="3" class="pc-biz-note">Default: Pop 2L · 20% capture · 40/35/25 mix — adjustable in calculator</td></tr>
 <tr class="pc-biz"><td><strong>Silver</strong></td><td>60%</td><td>₹6.76L <span style="font-size:9px;color:#888">(~₹7.97L incl. GST)</span></td><td>₹57K + GST</td><td>M4</td><td>₹18.0L</td></tr>
 <tr class="pc-biz"><td><strong>Gold</strong></td><td>65%</td><td>₹7.76L <span style="font-size:9px;color:#888">(~₹9.15L incl. GST)</span></td><td>₹60K + GST</td><td>M4</td><td>₹19.5L</td></tr>
 </tbody></table></div>
@@ -1055,7 +1051,7 @@ function fsEvaluate(){
   let hardReject=false,warnFlags=[],greenFlags=[];
   let chosenTier='';
   const cats={Background:{s:0,m:0},Experience:{s:0,m:0},Financial:{s:0,m:0},'Market fit':{s:0,m:0},Commitment:{s:0,m:0}};
-  const catMap=['Background','Background','Background','Background','Experience','Experience','Experience','Financial','Financial','Financial','Financial','Market fit','Market fit','Market fit','Market fit','Commitment','Commitment','Commitment','Commitment'];
+  const catMap=['Background','Background','Background','Experience','Experience','Experience','Financial','Financial','Financial','Financial','Market fit','Market fit','Market fit','Market fit','Commitment','Commitment','Commitment','Commitment'];
   let qi=0;
 
   fsSections.forEach(sec=>{
@@ -1613,49 +1609,15 @@ function calculateIncome(){
     return gp.lowRate;
   }
 
-  // Benchmark: assume each referred Franchise Partner (one per pin code) is on the Light tier,
-  // using the SAME market assumptions as the rest of the calculator.
-  function computeReferredFPIncome(){
-    let monthlyGross=[];
-    for(let m=1;m<=36;m++){
-      const gross = subs149[m-1]*149 + subs199[m-1]*199 + subs249[m-1]*249;
-      monthlyGross.push(gross);
-    }
-    return monthlyGross;
-  }
+  // GP income is tied to the SELECTED franchise tier:
+  // - One-time commission = GP% × selected tier's franchise fee
+  // - Recurring commission = GP% × selected tier's monthly gross (from live subs)
+  // This means clicking QS vs Light vs Bronze shows meaningfully different GP income
+  const selectedTierMeta = franchiseTierData ? franchiseTierData.find(f=>f.key===selectedTier) : null;
+  const selectedFranchiseFee = selectedTierMeta ? selectedTierMeta.fee : 100000;
+  const selectedTierLabel = selectedTierMeta ? selectedTierMeta.name : 'Light';
 
-  function computeForGP(gp, qty){
-    qty = qty || gpPinCount[gp.key] || 1;
-    const referredFPGross = computeReferredFPIncome(); // full gross of 1 referred FP
 
-    // One-time income: % of franchise fee (Light tier = ₹1,00,000 offer rate) × number of pin codes
-    const onetimePerPin = Math.round(100000 * gp.onetimePct/100);
-    const onetimeTotal = onetimePerPin * qty;
-
-    // Monthly recurring income: % of each referred FP's monthly gross × number of pin codes
-    let monthlyGPGross=[],  // what GP earns (their commission)
-        monthlyFPGross=[],  // underlying FP revenue (for display context)
-        monthlyNet=[];
-    for(let m=1;m<=36;m++){
-      const fpGross = referredFPGross[m-1] * qty;           // total across all pin codes
-      const monthlyCommission = fpGross * (gp.monthlyPct/100); // GP's % of that
-      const onetime = (m===1 ? onetimeTotal : 0);
-      monthlyFPGross.push(fpGross);
-      monthlyGPGross.push(monthlyCommission);
-      monthlyNet.push(onetime + monthlyCommission);
-    }
-    const y1 = monthlyNet.slice(0,12).reduce((a,b)=>a+b,0);
-    const y2 = monthlyNet.slice(12,24).reduce((a,b)=>a+b,0);
-    const y3 = monthlyNet.slice(24,36).reduce((a,b)=>a+b,0);
-    return {
-      monthlyGross: monthlyFPGross,   // FP's gross (for context row)
-      monthlyGPCommission: monthlyGPGross, // GP's actual commission
-      monthlyNet,
-      monthlyVas: monthlyNet.map(()=>0),
-      y1, y2, y3, total:y1+y2+y3,
-      onetimeTotal, onetimePerPin, qty
-    };
-  }
 
   // === Enterprise plan variable costs ===
   const isEnterpriseTier = ['bronze','silver','gold'].includes(selectedTier) && selectedMode==='tier';
@@ -1716,6 +1678,41 @@ function calculateIncome(){
     const y3 = monthlyNet.slice(24,36).reduce((a,b)=>a+b,0);
     return {monthlyGross, monthlyNet, monthlyVas, y1, y2, y3, total: y1+y2+y3};
   }
+  // GP earns gp_pct% of the referred FP's GROSS COMMISSION
+  // FP gross commission = total listing subscription revenue × FP revenue share %
+  // Running costs are irrelevant — GP earns on gross commission before any deductions
+  // Example: 1000 listings × ₹199 = ₹1,99,000 total revenue
+  //          FP on 30% share → gross commission = ₹59,700
+  //          GP earns 5% of ₹59,700 = ₹2,985
+  function computeForGP(gp, qty){
+    qty = qty || gpPinCount[gp.key] || 1;
+
+    // Find selected tier's revenue share %
+    const tierList2 = [
+      {key:'quickstart',share:0.30},{key:'ultralight',share:0.35},{key:'light',share:0.40},
+      {key:'bronze',share:0.55},{key:'silver',share:0.60},{key:'gold',share:0.65}
+    ];
+    const t = tierList2.find(x=>x.key===selectedTier) || tierList2[2];
+
+    // FP gross commission per month = subscription revenue × revenue share %
+    const fpGrossCommission = [];
+    for(let m=1;m<=36;m++){
+      const subRev = subs149[m-1]*149 + subs199[m-1]*199 + subs249[m-1]*249;
+      fpGrossCommission.push(subRev * t.share);
+    }
+
+    // One-time: gp_pct% of the selected tier's franchise fee × qty pins
+    const onetimePerPin = Math.round(selectedFranchiseFee * gp.onetimePct/100);
+    const onetimeTotal = onetimePerPin * qty;
+
+    // Recurring: gp_pct% of FP gross commission × qty pins
+    const pct = gp.monthlyPct / 100;
+    const monthlyNet = fpGrossCommission.map((gc,i) => (i===0 ? onetimeTotal : 0) + gc * pct * qty);
+    const y1 = monthlyNet.slice(0,12).reduce((a,b)=>a+b,0);
+    const y2 = monthlyNet.slice(12,24).reduce((a,b)=>a+b,0);
+    const y3 = monthlyNet.slice(24,36).reduce((a,b)=>a+b,0);
+    return { y1, y2, y3, total:y1+y2+y3, onetimeTotal, onetimePerPin, qty, tierLabel:selectedTierLabel };
+  }
 
   let selectedData, selectedLabel, selectedRevSharePct, selectedCost;
 
@@ -1760,26 +1757,15 @@ function calculateIncome(){
   renderIncomeChart();
   renderIncomeTable();
   renderMonthlyTable();
-  // Store breakeven per tier for franchise plan cards to read
-  // Selected tier = live (from current sliders); others = their own natural defaults
+  // All 6 tiers use live slider values for breakeven — same market, different cost/share
   window._liveTierBreakeven = {};
   tierList.forEach(t=>{
     const meta = franchiseTierData ? franchiseTierData.find(f=>f.key===t.key) : null;
     const inv = meta ? meta.breakup.reduce((a,b)=>a+b[1],0) : 0;
-    const isEntCard = ['bronze','silver','gold'].includes(t.key);
-    if(selectedMode==='tier' && t.key===selectedTier){
-      // Live
-      const d = computeForTier(t.share, t.cost);
-      let bev=null, c=0;
-      for(let i=0;i<d.monthlyNet.length;i++){ c+=d.monthlyNet[i]; if(c>=inv){bev=i+1;break;} }
-      window._liveTierBreakeven[t.key] = bev;
-    } else {
-      // Default per tier type
-      const entCostMap = {bronze:55000,silver:57000,gold:60000};
-      const cardCost = isEntCard ? entCostMap[t.key] : t.cost;
-      const fin = computeDefaultTierFinancials(t.share, cardCost, inv, isEntCard);
-      window._liveTierBreakeven[t.key] = fin.breakeven;
-    }
+    const d = computeForTier(t.share, t.cost);
+    let bev=null, c=0;
+    for(let i=0;i<d.monthlyNet.length;i++){ c+=d.monthlyNet[i]; if(c>=inv){bev=i+1;break;} }
+    window._liveTierBreakeven[t.key] = bev;
   });
 
   renderTierCards(tierList, computeForTier);
@@ -1916,26 +1902,15 @@ function renderTierCards(tierList, computeForTier){
     const data = computeForTier(t.share, t.cost);
     const isSelected = selectedMode==='tier' && t.key === selectedTier;
 
-    // Selected tier: fully LIVE breakeven from current sliders (what the user is actively discussing)
-    // Other 5 tiers: breakeven from their own default assumptions (Entrepreneur 100k/10%, Enterprise 200k/20%)
-    // This is honest and consistent — sliders can only describe ONE market at a time
-    const isEntCard = ['bronze','silver','gold'].includes(t.key);
+    // All 6 tiers use the SAME live slider values for breakeven
+    // This is the correct approach — sliders represent the user's market,
+    // all tiers compete on the same playing field for comparison
     const tierMeta = franchiseTierData ? franchiseTierData.find(f=>f.key===t.key) : null;
     const investment = tierMeta ? tierMeta.breakup.reduce((a,b)=>a+b[1],0) : 0;
-    let breakeven;
-    if(isSelected){
-      // Live: use current slider-driven monthly net
-      let cum=0; breakeven=null;
-      for(let i=0;i<data.monthlyNet.length;i++){
-        cum+=data.monthlyNet[i];
-        if(cum>=investment){breakeven=i+1;break;}
-      }
-    } else {
-      // Reference: use tier's natural default assumptions
-      const entCostMap = {bronze:55000, silver:57000, gold:60000};
-      const cardCost = isEntCard ? entCostMap[t.key] : t.cost;
-      const finCard = computeDefaultTierFinancials(t.share, cardCost, investment, isEntCard);
-      breakeven = finCard.breakeven;
+    let breakeven=null, cum=0;
+    for(let i=0;i<data.monthlyNet.length;i++){
+      cum+=data.monthlyNet[i];
+      if(cum>=investment){breakeven=i+1;break;}
     }
 
     html += `<div class="tier-income-card ${t.cls} ${isSelected?'selected':''}" onclick="selectTier('${t.key}')">
@@ -1978,13 +1953,13 @@ function renderGpMiniCards(gpList, computeForGP){
     html += `<div class="gp-income-card ${isSelected?'selected':''}" id="gp-income-card-${g.key}">
       <div class="gp-income-head" onclick="selectGP('${g.key}')">
         <div class="gp-income-name">${g.name}</div>
-        <div style="font-size:9px;color:var(--lmi-dark-blue);margin-top:1px;font-weight:600">${g.onetimePct}% commission on referred franchise partner</div>
+        <div style="font-size:9px;color:var(--lmi-dark-blue);margin-top:1px;font-weight:600">${g.onetimePct}% of referred FP's gross commission</div>
       </div>
       <div class="gp-income-body">
         <div style="font-size:9.5px;color:var(--text-tertiary);margin-bottom:4px">Pin codes referred by you</div>
         <select class="gp-income-select" id="gp-income-qty-${g.key}" onchange="updateGpIncomeQty('${g.key}')" onclick="event.stopPropagation()">${qtyOptions}</select>
         <div class="gp-onetime-row">
-          <span class="gp-onetime-label">One-time on franchise fee</span>
+          <span class="gp-onetime-label">One-time on ${data.tierLabel} fee</span>
           <span class="gp-onetime-val">${fmtCurrency(data.onetimeTotal)}</span>
         </div>
         <div class="gp-yr-grid" style="margin-top:5px">
@@ -2011,32 +1986,8 @@ function updateGpIncomeQty(key){
 }
 
 function selectTier(key){
-  const wasEnterprise = ['bronze','silver','gold'].includes(selectedTier);
-  const nowEnterprise = ['bronze','silver','gold'].includes(key);
   selectedMode = 'tier';
   selectedTier = key;
-
-  // Auto-switch market assumptions to match the tier type
-  if(nowEnterprise && !wasEnterprise){
-    // Switching to Enterprise: set larger market defaults
-    slPop.value = 200000;
-    slCapture.value = 20;
-    planSliders[149].value = 40;
-    planSliders[199].value = 35;
-    planSliders[249].value = 25;
-    Object.keys(planSliders).forEach(k=>{ if(planVals[k]) planVals[k].textContent=planSliders[k].value+'%'; });
-    const psn1=document.getElementById('plan-sum-note'); if(psn1){psn1.textContent='Total: 100%'; psn1.className='plan-sum-note';}
-  } else if(!nowEnterprise && wasEnterprise){
-    // Switching back to Entrepreneur: restore conservative defaults
-    slPop.value = 100000;
-    slCapture.value = 10;
-    planSliders[149].value = 50;
-    planSliders[199].value = 30;
-    planSliders[249].value = 20;
-    Object.keys(planSliders).forEach(k=>{ if(planVals[k]) planVals[k].textContent=planSliders[k].value+'%'; });
-    const psn2=document.getElementById('plan-sum-note'); if(psn2){psn2.textContent='Total: 100%'; psn2.className='plan-sum-note';}
-  }
-
   calculateIncome();
 }
 
@@ -2205,19 +2156,14 @@ function applyFromTopbar(){
 }
 
 function applyTierAndPop(tierKey, pinPop){
-  // Reset to light so wasEnterprise/nowEnterprise diff fires correctly
-  selectedTier = 'light';
+  // selectTier always applies correct slider defaults for the tier type
   selectTier(tierKey);
 
-  // Override the auto-switched population with the actual pin code population
+  // Then override population with actual pincode population
   const capped = Math.min(Math.max(pinPop, 10000), 500000);
   slPop.value = capped;
+  set('val-pop', fmtNum(capped));
 
-  // Update the displayed slider value
-  const valPop = document.getElementById('val-pop');
-  if(valPop) valPop.textContent = fmtNum(capped);
-
-  // Recalculate everything with pin code population
   calculateIncome();
   goToModule('income');
 }
