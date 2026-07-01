@@ -345,6 +345,14 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .gp-income-name{font-size:11px;font-weight:600;color:var(--text-primary)}
 .gp-income-body{padding:4px 8px 6px;border-top:0.5px solid var(--border-tertiary)}
 .gp-income-val{font-size:13px;font-weight:700;color:var(--lmi-dark-blue)}
+.gp-yr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.gp-onetime-row{display:flex;justify-content:space-between;align-items:center;background:var(--amber-light);border-radius:4px;padding:4px 8px;margin-top:6px}
+.gp-onetime-label{font-size:9.5px;color:var(--amber-dark);font-weight:600}
+.gp-onetime-val{font-size:12px;font-weight:700;color:var(--amber-dark)}
+.gp-yr-cell{background:var(--bg-secondary);border-radius:4px;padding:4px 5px;text-align:center}
+.gp-yr-total{background:var(--lmi-soft-blue)}
+.gp-yr-label{font-size:8.5px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.02em;margin-bottom:1px}
+.gp-yr-val{font-size:11px;font-weight:700;color:var(--lmi-dark-blue)}
 .gp-income-select{width:100%;padding:3px 5px;font-size:10.5px;border:0.5px solid var(--border-secondary);border-radius:5px;background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;cursor:pointer;margin-bottom:3px}
 .gp-income-select:focus{outline:none;border-color:var(--lmi-blue)}
 .tier-income-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary);cursor:pointer;transition:border-color 0.15s,transform 0.1s}
@@ -569,51 +577,6 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
     </div>
 
     <div class="income-scroll-body">
-
-    <div class="section" id="pincode-selector-section">
-      <div class="section-title"><i class="ti ti-map-pin" aria-hidden="true"></i> Find your pincode — auto-set market assumptions</div>
-      <div class="section-sub">Select state → district → pincode. The population will auto-populate the market slider and suggest the right franchise tier for your location.</div>
-
-      <div class="pin-select-grid">
-        <div class="pin-select-col">
-          <label class="pin-label">State</label>
-          <select class="pin-select" id="pin-state" onchange="onStateChange()">
-            <option value="">— Select state —</option>
-          </select>
-        </div>
-        <div class="pin-select-col">
-          <label class="pin-label">District</label>
-          <select class="pin-select" id="pin-district" onchange="onDistrictChange()" disabled>
-            <option value="">— Select district —</option>
-          </select>
-        </div>
-        <div class="pin-select-col">
-          <label class="pin-label">Pin code</label>
-          <select class="pin-select" id="pin-code" onchange="onPincodeChange()" disabled>
-            <option value="">— Select pin code —</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="pincode-result" style="display:none">
-        <div class="pin-result-row">
-          <div class="pin-chip"><span class="pin-chip-label">Pin pop.</span><span class="pin-chip-val" id="pin-pop-val">—</span></div>
-          <div class="pin-chip"><span class="pin-chip-label">District pop.</span><span class="pin-chip-val" id="pin-dist-pop-val">—</span></div>
-          <div class="pin-chip"><span class="pin-chip-label">Pins in district</span><span class="pin-chip-val" id="pin-count-val">—</span></div>
-          <div class="pin-chip pin-chip-source"><span class="pin-chip-label">Source</span><span class="pin-chip-val" style="font-size:9.5px">Census 2011 × State growth rate ÷ district pin count</span></div>
-        </div>
-        <div class="pin-rec-box" id="pin-rec-box">
-          <div class="pin-rec-inline">
-            <div>
-              <div class="pin-rec-head"><i class="ti ti-trophy" aria-hidden="true"></i> Recommended for this pin code</div>
-              <div class="pin-rec-tier" id="pin-rec-tier"></div>
-              <div class="pin-rec-reason" id="pin-rec-reason"></div>
-            </div>
-            <button class="pin-rec-btn" id="pin-rec-btn" onclick="applyPincodeRecommendation()">Apply →</button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:1rem">Tap a tier card above to see its projected income. Adjust the assumptions below to refine the estimate.</p>
 
@@ -1229,7 +1192,7 @@ function rebalancePlans(changedKey){
     });
   }
 
-  keys.forEach(k=>{ planVals[k].textContent = planSliders[k].value + '%'; });
+  keys.forEach(k=>{ if(planVals[k]) planVals[k].textContent = planSliders[k].value + '%'; });
   const total = keys.reduce((s,k)=>s+parseInt(planSliders[k].value),0);
   const note = document.getElementById('plan-sum-note');
   note.textContent = 'Total: ' + total + '%';
@@ -1563,8 +1526,8 @@ function updateGpCard(key){
   const rate = gpRateFor(gp, qty);
   const rateWithGst = Math.round(rate * 1.18);
   const totalWithGst = rateWithGst * qty;
-  document.getElementById('gp-rate-'+key).textContent = fmtCurrency(rateWithGst);
-  document.getElementById('gp-total-'+key).textContent = fmtCurrency(totalWithGst);
+  const rateEl=document.getElementById('gp-rate-'+key); if(rateEl) rateEl.textContent=fmtCurrency(rateWithGst);
+  const totEl=document.getElementById('gp-total-'+key); if(totEl) totEl.textContent=fmtCurrency(totalWithGst);
 }
 
 vasToggle.addEventListener('change', ()=>{
@@ -1573,25 +1536,9 @@ vasToggle.addEventListener('change', ()=>{
 });
 
 function calculateIncome(){
-  // Auto-correct slider defaults when tier type doesn't match slider values
-  // This ensures all 6 tier sticky cards always use the right assumptions for their tier type
-  const isEnterpriseSelected = ['bronze','silver','gold'].includes(selectedTier) && selectedMode==='tier';
-  const currentPop = parseInt(slPop.value);
-  const currentCap = parseInt(slCapture.value);
-  if(isEnterpriseSelected && currentPop < 150000){
-    // Enterprise tier selected but Entrepreneur-scale assumptions still on sliders — auto-correct
-    slPop.value = 200000;
-    slCapture.value = 20;
-    planSliders[149].value = 40; planSliders[199].value = 35; planSliders[249].value = 25;
-    Object.keys(planSliders).forEach(k=>planVals[k].textContent=planSliders[k].value+'%');
-  } else if(!isEnterpriseSelected && selectedMode==='tier' && currentPop > 150000){
-    // Entrepreneur tier selected but Enterprise-scale assumptions still on sliders — auto-correct
-    slPop.value = 100000;
-    slCapture.value = 10;
-    planSliders[149].value = 50; planSliders[199].value = 30; planSliders[249].value = 20;
-    Object.keys(planSliders).forEach(k=>planVals[k].textContent=planSliders[k].value+'%');
-  }
-
+  // Safe DOM setter — silently skips if element not in DOM
+  const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  const setHTML = (id, val) => { const el=document.getElementById(id); if(el) el.innerHTML=val; };
   const pop = parseInt(slPop.value);
   const retailPct = parseFloat(slRetailPct.value)/100;
   const homeMult = parseFloat(slHomeMult.value);
@@ -1600,16 +1547,16 @@ function calculateIncome(){
   const gY1 = parseFloat(slGrowthY1.value), gY2 = parseFloat(slGrowthY2.value), gY3 = parseFloat(slGrowthY3.value);
   const cY1 = parseFloat(slChurnY1.value), cY2 = parseFloat(slChurnY2.value), cY3 = parseFloat(slChurnY3.value);
 
-  document.getElementById('val-pop').textContent = fmtNum(pop);
-  document.getElementById('val-retailpct').textContent = (retailPct*100).toFixed(2) + '%';
-  document.getElementById('val-homemult').textContent = homeMult.toFixed(1)+'x';
-  document.getElementById('val-capture').textContent = Math.round(capturePct*100)+'%';
-  document.getElementById('val-growth-y1').textContent = gY1.toFixed(1)+'%/mo';
-  document.getElementById('val-growth-y2').textContent = gY2.toFixed(1)+'%/mo';
-  document.getElementById('val-growth-y3').textContent = gY3.toFixed(1)+'%/mo';
-  document.getElementById('val-churn-y1').textContent = cY1.toFixed(2)+'%/mo';
-  document.getElementById('val-churn-y2').textContent = cY2.toFixed(2)+'%/mo';
-  document.getElementById('val-churn-y3').textContent = cY3.toFixed(2)+'%/mo';
+  set('val-pop', fmtNum(pop));
+  set('val-retailpct', (retailPct*100).toFixed(2) + '%');
+  set('val-homemult', homeMult.toFixed(1)+'x');
+  set('val-capture', Math.round(capturePct*100)+'%');
+  set('val-growth-y1', gY1.toFixed(1)+'%/mo');
+  set('val-growth-y2', gY2.toFixed(1)+'%/mo');
+  set('val-growth-y3', gY3.toFixed(1)+'%/mo');
+  set('val-churn-y1', cY1.toFixed(2)+'%/mo');
+  set('val-churn-y2', cY2.toFixed(2)+'%/mo');
+  set('val-churn-y3', cY3.toFixed(2)+'%/mo');
 
   const retailStores = pop * retailPct;
   const homeBusinesses = retailStores * homeMult;
@@ -1617,12 +1564,9 @@ function calculateIncome(){
   const capturedListings = totalBusinesses * capturePct;
 
   // Update slider value displays with count alongside %
-  const retailEl = document.getElementById('val-retailpct');
-  if(retailEl) retailEl.innerHTML = `${(retailPct*100).toFixed(2)}% <span class="slider-count">(${fmtNum(retailStores)} stores)</span>`;
-  const homeEl = document.getElementById('val-homemult');
-  if(homeEl) homeEl.innerHTML = `${homeMult.toFixed(1)}x <span class="slider-count">(${fmtNum(homeBusinesses)} businesses)</span>`;
-  const captureEl = document.getElementById('val-capture');
-  if(captureEl) captureEl.innerHTML = `${Math.round(capturePct*100)}% <span class="slider-count">(${fmtNum(capturedListings)} listings)</span>`;
+  setHTML('val-retailpct', `${(retailPct*100).toFixed(2)}% <span class="slider-count">(${fmtNum(retailStores)} stores)</span>`);
+  setHTML('val-homemult', `${homeMult.toFixed(1)}x <span class="slider-count">(${fmtNum(homeBusinesses)} businesses)</span>`);
+  setHTML('val-capture', `${Math.round(capturePct*100)}% <span class="slider-count">(${fmtNum(capturedListings)} listings)</span>`);
 
   const planPct = {
     149: parseInt(planSliders[149].value)/100,
@@ -1656,8 +1600,8 @@ function calculateIncome(){
   const vasOn = vasToggle.checked;
   const vasAdoptPct = parseInt(slVasAdopt.value)/100;
   const vasPrice = parseFloat(slVasPrice.value);
-  document.getElementById('val-vas-adopt').textContent = Math.round(vasAdoptPct*100)+'%';
-  document.getElementById('val-vas-price').textContent = '₹'+Math.round(vasPrice);
+  set('val-vas-adopt', Math.round(vasAdoptPct*100)+'%');
+  set('val-vas-price', '₹'+Math.round(vasPrice));
 
   const gpList = [
     {key:'gp', name:'Growth Partner', lowRate:1500, highRate:1000, tierBreak:5, onetimePct:5, monthlyPct:5},
@@ -1734,16 +1678,16 @@ function calculateIncome(){
   };
 
   if(slEntRent && isEnterpriseTier){
-    document.getElementById('val-ent-rent').textContent = '₹'+entRent.toLocaleString('en-IN')+'/mo';
-    document.getElementById('val-ent-conv').textContent = '₹'+entConv.toLocaleString('en-IN')+'/mo';
-    document.getElementById('val-ent-ewp').textContent  = '₹'+entEwp.toLocaleString('en-IN')+'/mo';
+    set('val-ent-rent', '₹'+entRent.toLocaleString('en-IN')+'/mo');
+    set('val-ent-conv', '₹'+entConv.toLocaleString('en-IN')+'/mo');
+    set('val-ent-ewp', '₹'+entEwp.toLocaleString('en-IN')+'/mo');
     // staff count shown via button toggle state (no separate span)
-    document.getElementById('val-ent-salary').textContent = '₹'+entSalary.toLocaleString('en-IN')+'/mo';
-    document.getElementById('d-ent-variable').textContent = '₹'+entVariableTotal.toLocaleString('en-IN')+'/mo';
+    set('val-ent-salary', '₹'+entSalary.toLocaleString('en-IN')+'/mo');
+    set('d-ent-variable', '₹'+entVariableTotal.toLocaleString('en-IN')+'/mo');
     const selectedFixedCost = entFixedCosts[selectedTier] || 15000;
-    document.getElementById('ent-fixed-val').textContent = '₹'+selectedFixedCost.toLocaleString('en-IN')+'/mo';
-    document.getElementById('ent-fixed-desc').innerHTML = `Maintenance + Marketing & advertising — these build your brand visibility in the locality and cannot be reduced. Currently <strong>₹${selectedFixedCost.toLocaleString('en-IN')}/mo</strong> (highlighted as non-negotiable in your franchise agreement).`;
-    document.getElementById('d-ent-total').textContent = '₹'+(entFixedCosts[selectedTier]||15000+entVariableTotal).toLocaleString('en-IN')+'/mo';
+    set('ent-fixed-val', '₹'+selectedFixedCost.toLocaleString('en-IN')+'/mo');
+    setHTML('ent-fixed-desc', `Maintenance + Marketing & advertising — these build your brand visibility in the locality and cannot be reduced. Currently <strong>₹${selectedFixedCost.toLocaleString('en-IN')}/mo</strong> (highlighted as non-negotiable in your franchise agreement).`);
+    set('d-ent-total', '₹'+(entFixedCosts[selectedTier]||15000+entVariableTotal).toLocaleString('en-IN')+'/mo');
   }
 
   const tierList = [
@@ -1782,7 +1726,7 @@ function calculateIncome(){
     selectedLabel = `${gpObj.name} (${qty} pin code${qty>1?'s':''})`;
     selectedRevSharePct = gpObj.monthlyPct;
     selectedCost = 0;
-    document.getElementById('d-vas-y1').textContent = fmtCurrency(0);
+    set('d-vas-y1', fmtCurrency(0));
   } else {
     const selectedTierObj = tierList.find(t=>t.key===selectedTier) || tierList[2];
     selectedData = computeForTier(selectedTierObj.share, selectedTierObj.cost);
@@ -1790,14 +1734,14 @@ function calculateIncome(){
     selectedRevSharePct = Math.round(selectedTierObj.share*100);
     selectedCost = selectedTierObj.cost;
     const vasY1 = vasOn ? subsTotal.slice(0,12).reduce((a,s)=>a+s*vasAdoptPct*vasPrice*selectedTierObj.share,0) : 0;
-    document.getElementById('d-vas-y1').textContent = fmtCurrency(vasY1);
+    set('d-vas-y1', fmtCurrency(vasY1));
   }
 
-  document.getElementById('sb-y1').textContent = fmtCurrency(selectedData.y1);
-  document.getElementById('sb-y2').textContent = fmtCurrency(selectedData.y2);
-  document.getElementById('sb-y3').textContent = fmtCurrency(selectedData.y3);
-  document.getElementById('sb-total').textContent = fmtCurrency(selectedData.total);
-  document.getElementById('summary-banner-tier-name').textContent = selectedLabel;
+  set('sb-y1', fmtCurrency(selectedData.y1));
+  set('sb-y2', fmtCurrency(selectedData.y2));
+  set('sb-y3', fmtCurrency(selectedData.y3));
+  set('sb-total', fmtCurrency(selectedData.total));
+  set('summary-banner-tier-name', selectedLabel);
 
   window._incomeCalcData = {
     revShare: selectedRevSharePct/100,
@@ -2034,14 +1978,22 @@ function renderGpMiniCards(gpList, computeForGP){
     html += `<div class="gp-income-card ${isSelected?'selected':''}" id="gp-income-card-${g.key}">
       <div class="gp-income-head" onclick="selectGP('${g.key}')">
         <div class="gp-income-name">${g.name}</div>
-        <div style="font-size:9px;color:var(--lmi-dark-blue);margin-top:1px;font-weight:500">${g.onetimePct}% one-time + ${g.monthlyPct}% monthly</div>
+        <div style="font-size:9px;color:var(--lmi-dark-blue);margin-top:1px;font-weight:600">${g.onetimePct}% commission on referred franchise partner</div>
       </div>
       <div class="gp-income-body">
         <div style="font-size:9.5px;color:var(--text-tertiary);margin-bottom:4px">Pin codes referred by you</div>
         <select class="gp-income-select" id="gp-income-qty-${g.key}" onchange="updateGpIncomeQty('${g.key}')" onclick="event.stopPropagation()">${qtyOptions}</select>
-        <div class="tic-3yr-label" style="margin-top:5px">Your 3-yr commission income</div>
-        <div class="gp-income-val" id="gp-income-val-${g.key}">${fmtCurrency(data.total)}</div>
-        <div style="font-size:9px;color:var(--text-tertiary);margin-top:2px">Based on same market assumptions as franchise calculator</div>
+        <div class="gp-onetime-row">
+          <span class="gp-onetime-label">One-time on franchise fee</span>
+          <span class="gp-onetime-val">${fmtCurrency(data.onetimeTotal)}</span>
+        </div>
+        <div class="gp-yr-grid" style="margin-top:5px">
+          <div class="gp-yr-cell"><div class="gp-yr-label">Y1 recurring</div><div class="gp-yr-val">${fmtCurrency(data.y1 - data.onetimeTotal)}</div></div>
+          <div class="gp-yr-cell"><div class="gp-yr-label">Y2 recurring</div><div class="gp-yr-val">${fmtCurrency(data.y2)}</div></div>
+          <div class="gp-yr-cell"><div class="gp-yr-label">Y3 recurring</div><div class="gp-yr-val">${fmtCurrency(data.y3)}</div></div>
+          <div class="gp-yr-cell gp-yr-total"><div class="gp-yr-label">3-yr total</div><div class="gp-yr-val">${fmtCurrency(data.total)}</div></div>
+        </div>
+        <div style="font-size:9px;color:var(--text-tertiary);margin-top:5px">↑ Updates live with population &amp; market assumptions</div>
       </div>
     </div>`;
   });
@@ -2072,9 +2024,8 @@ function selectTier(key){
     planSliders[149].value = 40;
     planSliders[199].value = 35;
     planSliders[249].value = 25;
-    Object.keys(planSliders).forEach(k=>planVals[k].textContent=planSliders[k].value+'%');
-    document.getElementById('plan-sum-note').textContent='Total: 100%';
-    document.getElementById('plan-sum-note').className='plan-sum-note';
+    Object.keys(planSliders).forEach(k=>{ if(planVals[k]) planVals[k].textContent=planSliders[k].value+'%'; });
+    const psn1=document.getElementById('plan-sum-note'); if(psn1){psn1.textContent='Total: 100%'; psn1.className='plan-sum-note';}
   } else if(!nowEnterprise && wasEnterprise){
     // Switching back to Entrepreneur: restore conservative defaults
     slPop.value = 100000;
@@ -2082,9 +2033,8 @@ function selectTier(key){
     planSliders[149].value = 50;
     planSliders[199].value = 30;
     planSliders[249].value = 20;
-    Object.keys(planSliders).forEach(k=>planVals[k].textContent=planSliders[k].value+'%');
-    document.getElementById('plan-sum-note').textContent='Total: 100%';
-    document.getElementById('plan-sum-note').className='plan-sum-note';
+    Object.keys(planSliders).forEach(k=>{ if(planVals[k]) planVals[k].textContent=planSliders[k].value+'%'; });
+    const psn2=document.getElementById('plan-sum-note'); if(psn2){psn2.textContent='Total: 100%'; psn2.className='plan-sum-note';}
   }
 
   calculateIncome();
@@ -2139,8 +2089,8 @@ function resetAll(){
   planSliders[149].value = 50;
   planSliders[199].value = 30;
   planSliders[249].value = 20;
-  Object.keys(planSliders).forEach(k=>planVals[k].textContent = planSliders[k].value+'%');
-  document.getElementById('plan-sum-note').textContent = 'Total: 100%';
+  Object.keys(planSliders).forEach(k=>{ if(planVals[k]) planVals[k].textContent = planSliders[k].value+'%'; });
+  set('plan-sum-note', 'Total: 100%');
   document.getElementById('plan-sum-note').className = 'plan-sum-note';
   monthlyVisible = false;
   document.getElementById('monthly-breakup').style.display = 'none';
@@ -2194,69 +2144,33 @@ function initPincodeSelector(){
 }
 
 function onStateChange(){
-  const stateEl = document.getElementById('pin-state');
-  const distEl = document.getElementById('pin-district');
-  const pinEl = document.getElementById('pin-code');
-  if(!stateEl||!distEl||!pinEl) return;
-  const state = stateEl.value;
-  distEl.innerHTML = '<option value="">— Select district —</option>';
-  pinEl.innerHTML = '<option value="">— Select pin code —</option>';
-  pinEl.disabled = true;
-  const res = document.getElementById('pincode-result');
-  if(res) res.style.display = 'none';
+  // Stub — scroll-body selectors removed; topbar handles everything via onStateChangeTop
   selectedPinData = null;
-  if(!state){ distEl.disabled=true; return; }
-  Object.keys(PINCODE_DATA[state]).sort().forEach(d => {
-    const opt = document.createElement('option');
-    opt.value = d; opt.textContent = d;
-    distEl.appendChild(opt);
-  });
-  distEl.disabled = false;
 }
 
 function onDistrictChange(){
-  const stateEl = document.getElementById('pin-state');
-  const districtEl = document.getElementById('pin-district');
-  const pinEl = document.getElementById('pin-code');
-  if(!stateEl||!districtEl||!pinEl) return;
-  const state = stateEl.value;
-  const district = districtEl.value;
-  pinEl.innerHTML = '<option value="">— Select pin code —</option>';
-  const res = document.getElementById('pincode-result');
-  if(res) res.style.display = 'none';
+  // Stub — scroll-body selectors removed; topbar handles everything via onDistrictChangeTop
   selectedPinData = null;
-  if(!district){ pinEl.disabled=true; return; }
-  const [distPop, pinCount, pins] = PINCODE_DATA[state][district];
-  pins.forEach(([code, pop]) => {
-    const opt = document.createElement('option');
-    opt.value = code;
-    opt.textContent = code + ' (pop ~' + (pop>=100000?(pop/100000).toFixed(1)+'L':(pop/1000).toFixed(0)+'K') + ')';
-    pinEl.appendChild(opt);
-  });
-  pinEl.disabled = false;
 }
 
 function onPincodeChange(){
-  const stateEl = document.getElementById('pin-state');
-  const districtEl = document.getElementById('pin-district');
-  const pincodeEl = document.getElementById('pin-code');
+  // Now reads from topbar selectors (the only selectors since scroll-body ones are removed)
+  const stateEl = document.getElementById('pin-state-top') || document.getElementById('pin-state');
+  const districtEl = document.getElementById('pin-district-top') || document.getElementById('pin-district');
+  const pincodeEl = document.getElementById('pin-code-top') || document.getElementById('pin-code');
   if(!stateEl || !districtEl || !pincodeEl) return;
 
   const state = stateEl.value;
   const district = districtEl.value;
   const pincode = parseInt(pincodeEl.value);
-  if(!pincode || !state || !district){
-    const res = document.getElementById('pincode-result');
-    if(res) res.style.display='none';
-    return;
-  }
+  if(!pincode || !state || !district){ selectedPinData = null; return; }
 
   const [distPop, pinCount, pins] = PINCODE_DATA[state][district];
   const pinPop = (pins.find(p=>p[0]===pincode)||[0,0])[1];
 
   selectedPinData = { state, district, pincode, pinPop, distPop, pinCount };
 
-  // Update compact stat chips
+  // Update optional scroll-body chips if they exist
   const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
   setEl('pin-pop-val', fmtNum(pinPop));
   setEl('pin-dist-pop-val', fmtNum(distPop));
@@ -2274,34 +2188,36 @@ function onPincodeChange(){
 }
 
 function applyPincodeRecommendation(){
+  // Called if scroll-body apply button exists (legacy) — route through applyFromTopbar logic
   if(!selectedPinData) return;
-  const tierKey = document.getElementById('pin-rec-btn').dataset.tierKey;
-  applyTierAndPop(tierKey, selectedPinData.pinPop);
-  const btn = document.getElementById('pin-rec-btn');
-  btn.textContent = '✓ Applied!';
-  btn.style.background = 'var(--green)';
-  setTimeout(()=>{ btn.textContent='Apply →'; btn.style.background=''; }, 2000);
+  applyTierAndPop(selectedPinData._tierKey || 'light', selectedPinData.pinPop);
 }
 
 function applyFromTopbar(){
   if(!selectedPinData) return;
-  const tierKey = document.getElementById('ptb-apply').dataset.tierKey;
-  applyTierAndPop(tierKey, selectedPinData.pinPop);
   const btn = document.getElementById('ptb-apply');
+  if(!btn) return;
+  const tierKey = btn.dataset.tierKey;
+  if(!tierKey) return;
+  applyTierAndPop(tierKey, selectedPinData.pinPop);
   btn.textContent = '✓ Applied!';
   setTimeout(()=>{ btn.textContent='Apply →'; }, 2000);
 }
 
 function applyTierAndPop(tierKey, pinPop){
-  // Set selectedTier first so selectTier knows whether it's Entrepreneur->Enterprise or not
-  selectedTier = 'light'; // reset to trigger the wasEnterprise/nowEnterprise diff
-  selectTier(tierKey);    // this runs auto-switch of sliders for pop/capture/mix
+  // Reset to light so wasEnterprise/nowEnterprise diff fires correctly
+  selectedTier = 'light';
+  selectTier(tierKey);
 
-  // AFTER selectTier has auto-set population defaults, OVERRIDE with the actual pincode population
+  // Override the auto-switched population with the actual pin code population
   const capped = Math.min(Math.max(pinPop, 10000), 500000);
   slPop.value = capped;
 
-  // Recalculate with pincode population in place
+  // Update the displayed slider value
+  const valPop = document.getElementById('val-pop');
+  if(valPop) valPop.textContent = fmtNum(capped);
+
+  // Recalculate everything with pin code population
   calculateIncome();
   goToModule('income');
 }
@@ -2338,9 +2254,6 @@ function onStateChangeTop(){
     distEl.appendChild(opt);
   });
   distEl.disabled = false;
-  // Sync scroll-body selector
-  const sb = document.getElementById('pin-state');
-  if(sb){ sb.value = state; onStateChange(); }
 }
 
 function onDistrictChangeTop(){
@@ -2359,9 +2272,6 @@ function onDistrictChangeTop(){
     pinEl.appendChild(opt);
   });
   pinEl.disabled = false;
-  // Sync scroll-body
-  const sb = document.getElementById('pin-district');
-  if(sb){ sb.value = district; onDistrictChange(); }
 }
 
 function onPincodeChangeTop(){
@@ -2369,19 +2279,20 @@ function onPincodeChangeTop(){
   const district = document.getElementById('pin-district-top').value;
   const pincode = parseInt(document.getElementById('pin-code-top').value);
   if(!pincode){ document.getElementById('pin-topbar-chips').style.display='none'; return; }
-  // Sync scroll-body selector and trigger its logic
-  const sbPin = document.getElementById('pin-code');
-  if(sbPin){ sbPin.value = pincode; onPincodeChange(); }
+
+  // Compute directly from data (no scroll-body elements needed)
+  const [distPop, pinCount, pins] = PINCODE_DATA[state][district];
+  const pinPop = (pins.find(p=>p[0]===pincode)||[0,0])[1];
+  selectedPinData = { state, district, pincode, pinPop, distPop, pinCount };
+
   // Show topbar chips
   const chips = document.getElementById('pin-topbar-chips');
   chips.style.display = 'flex';
-  if(selectedPinData){
-    const pop = selectedPinData.pinPop;
-    document.getElementById('ptb-pop').textContent = 'Pop: ' + (pop>=100000?(pop/100000).toFixed(1)+'L':(pop/1000).toFixed(0)+'K');
-    const bracket = TIER_BRACKETS.find(b => pop <= b.max) || TIER_BRACKETS[TIER_BRACKETS.length-1];
-    document.getElementById('ptb-rec').textContent = '→ ' + bracket.name.split('(')[0].trim();
-    document.getElementById('ptb-apply').dataset.tierKey = bracket.key;
-  }
+  const bracket = TIER_BRACKETS.find(b => pinPop <= b.max) || TIER_BRACKETS[TIER_BRACKETS.length-1];
+  selectedPinData._tierKey = bracket.key; // store for applyPincodeRecommendation fallback
+  const ptbPop=document.getElementById('ptb-pop'); if(ptbPop) ptbPop.textContent='Pop: '+(pinPop>=100000?(pinPop/100000).toFixed(1)+'L':(pinPop/1000).toFixed(0)+'K');
+  const ptbRec=document.getElementById('ptb-rec'); if(ptbRec) ptbRec.textContent='→ '+bracket.name.split('(')[0].trim();
+  document.getElementById('ptb-apply').dataset.tierKey = bracket.key;
 }
 
 </script>
