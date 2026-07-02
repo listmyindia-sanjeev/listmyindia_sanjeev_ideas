@@ -307,8 +307,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .footnote{font-size:11px;color:var(--text-tertiary);margin-top:1rem;line-height:1.6}
 
 .section{margin-bottom:1.75rem}
-.section-title{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:0.25rem;display:flex;align-items:center;gap:6px}
-.section-sub{font-size:12px;color:var(--text-tertiary);margin-bottom:0.9rem}
+.section-title{font-size:12.5px;font-weight:700;color:var(--text-primary);margin-bottom:0.4rem;display:flex;align-items:center;gap:5px}
 .slider-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:0.75rem}
 .slider-row{background:var(--bg-secondary);border-radius:var(--radius-md);padding:7px 10px}
 .slider-label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
@@ -321,14 +320,14 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .derived-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-secondary);border-radius:var(--radius-md);margin-bottom:8px;font-size:12.5px}
 .derived-row .lbl{color:var(--text-secondary)}
 .derived-row .val{font-weight:600;color:var(--text-primary)}
-.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0.5rem}
-.plan-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:7px 10px}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:0}
+.plan-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:5px 9px}
 .plan-card-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
 .plan-card .pname{font-size:11.5px;font-weight:600;color:var(--text-primary)}
 .plan-card .pprice{font-size:10px;color:var(--text-tertiary);margin-bottom:4px}
 .plan-card input[type=range]{margin:0;display:block}
 .plan-card .pval{font-size:13px;font-weight:700;color:var(--lmi-blue);background:var(--lmi-soft-blue);padding:1px 6px;border-radius:6px}
-.plan-sum-note{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:2px}
+.plan-sum-note{font-size:10.5px;color:var(--text-tertiary);font-weight:500}
 .plan-sum-note.warn{color:var(--red-dark);font-weight:600}
 .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1rem}
 .metric-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:1rem;text-align:center}
@@ -339,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .year-tab{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-secondary);color:var(--text-secondary);background:transparent}
 .year-tab.active{background:var(--lmi-blue);color:white;border-color:var(--lmi-blue)}
 .chart-wrap{position:relative;height:240px;margin-bottom:1.25rem}
-.summary-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:1rem}
+.summary-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:0.5rem}
 .plan-compare-note{font-size:11.5px;font-weight:600;color:var(--lmi-dark-blue);margin-bottom:6px}
 .plan-compare-table{width:100%;border-collapse:collapse;font-size:11.5px;min-width:520px}
 .plan-compare-table thead tr{background:var(--lmi-dark-blue);color:white}
@@ -353,15 +352,15 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .pc-biz{background:#FDF9F0}
 .pc-biz:hover{background:#F5EDD8}
 .plan-disclaimer{font-size:10px;color:var(--text-tertiary);margin-top:6px;margin-bottom:4px;line-height:1.5;border-left:2px solid var(--amber);padding-left:8px}
-.summary-table th{text-align:left;font-weight:600;color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:0.03em;padding:6px 8px;border-bottom:0.5px solid var(--border-secondary)}
-.summary-table td{padding:7px 8px;border-bottom:0.5px solid var(--border-tertiary)}
+.summary-table th{text-align:left;font-weight:600;color:var(--text-secondary);font-size:10px;text-transform:uppercase;letter-spacing:0.03em;padding:4px 8px;border-bottom:0.5px solid var(--border-secondary)}
+.summary-table td{padding:5px 8px;border-bottom:0.5px solid var(--border-tertiary)}
 .summary-table td.num{text-align:right;font-weight:500}
 .summary-table tr.total td{font-weight:600;border-top:1px solid var(--border-secondary);border-bottom:none}
 .row-income td.num{color:var(--green-dark)}
 .row-expense td.num{color:var(--red-dark)}
 .row-profit td.num{color:var(--lmi-dark-blue);font-weight:600}
-.reset-btn{font-size:12px;padding:7px 14px;margin-top:0.5rem;background:transparent;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);cursor:pointer;color:var(--text-secondary)}
-.reset-btn:hover{background:var(--bg-secondary)}
+.reset-btn{font-size:12px;padding:7px 16px;margin-top:0.4rem;background:var(--lmi-dark-blue);border:none;border-radius:var(--radius-md);cursor:pointer;color:white;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+.reset-btn:hover{background:var(--lmi-dark-blue);color:var(--lmi-yellow)}
 
 .summary-banner{background:var(--lmi-dark-blue);border-radius:var(--radius-lg);padding:0.4rem 0.7rem;margin-bottom:0;color:white}
 .summary-banner-head{font-size:10px;font-weight:600;letter-spacing:0.02em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:0.3rem;display:flex;align-items:center;gap:5px}
@@ -372,8 +371,8 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .summary-banner-item.total{justify-content:space-between}.summary-banner-item.total .sb-label{color:rgba(45,58,140,0.75)}
 .sb-val{font-size:13px;font-weight:700}
 
-.assumption-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.assumption-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:7px 10px}
+.assumption-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.assumption-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:5px 9px}
 .ac-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
 .ac-label{font-size:11.5px;font-weight:600;color:var(--text-primary)}
 .assumption-card input[type=range]{margin:0;display:block}
@@ -404,9 +403,10 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .gp-income-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .gp-income-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-primary);transition:border-color 0.15s}
 .gp-income-card.selected{border:2px solid var(--lmi-dark-blue);box-shadow:0 1px 4px rgba(0,0,0,0.12)}
-.gp-income-head{padding:5px 8px 3px;background:var(--lmi-soft-blue);cursor:pointer}
-.gp-income-name{font-size:11px;font-weight:600;color:var(--text-primary)}
-.gp-income-body{padding:4px 8px 6px;border-top:0.5px solid var(--border-tertiary)}
+.gp-income-head{padding:5px 8px 4px;background:var(--lmi-soft-blue);display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.gp-income-name{font-size:12px;font-weight:700;color:var(--text-primary);white-space:nowrap}
+.gp-income-sub{font-size:9.5px;color:var(--lmi-dark-blue);font-weight:600}
+.gp-income-body{padding:5px 8px 6px;border-top:0.5px solid var(--border-tertiary)}
 .gp-income-val{font-size:13px;font-weight:700;color:var(--lmi-dark-blue)}
 .gp-yr-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
 .gp-onetime-row{display:flex;justify-content:space-between;align-items:center;background:var(--amber-light);border-radius:4px;padding:4px 8px;margin-top:6px}
@@ -422,10 +422,9 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .gp-onetime-inline .gp-onetime-label{font-size:9px;color:var(--amber-dark);font-weight:600;white-space:nowrap}
 .gp-onetime-inline .gp-onetime-val{font-size:11px;font-weight:700;color:var(--amber-dark);margin-left:auto}
 .gp-income-select:focus{outline:none;border-color:var(--lmi-blue)}
-.tier-income-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary);cursor:pointer;transition:border-color 0.15s,transform 0.1s}
-.tier-income-card:hover{transform:translateY(-1px)}
-.tier-income-card.featured{border:2px solid var(--lmi-blue)}
-.tier-income-card.selected{border:2px solid var(--lmi-dark-blue);box-shadow:0 1px 4px rgba(0,0,0,0.12)}
+.tier-income-card{border-top:2px solid var(--border-secondary);border-left:2px solid var(--border-secondary);border-right:1px solid transparent;border-bottom:1px solid transparent;border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary);cursor:pointer;transition:all 0.15s}
+.tier-income-card:hover{border:1.5px solid var(--lmi-blue);box-shadow:2px 3px 6px rgba(0,0,0,0.1)}
+.tier-income-card.selected{border:2px solid var(--lmi-dark-blue);box-shadow:3px 4px 10px rgba(0,0,0,0.18)}
 .tic-inner{padding:5px 8px;display:flex;flex-direction:column;gap:1px}
 .tic-name{font-size:11px;font-weight:600;color:var(--text-primary)}
 .tic-row{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-top:1px}
@@ -845,11 +844,10 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
     <div class="income-scroll-body">
 
-    <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:1rem">Tap a tier card above to see its projected income. Adjust the assumptions below to refine the estimate.</p>
+    
 
     <div class="section">
       <div class="section-title"><i class="ti ti-users" aria-hidden="true"></i> Your market</div>
-      <div class="section-sub">All 6 franchise tiers are calculated from the same market assumptions below — same population, same capture %, same plan mix. Change any slider and all 6 update together.</div>
 
       <div class="slider-grid">
       <div class="slider-row">
@@ -889,15 +887,6 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
     <div class="section" id="enterprise-vars-section" style="display:none">
       <div class="section-title"><i class="ti ti-building-store" aria-hidden="true"></i> Enterprise plan — office & team costs</div>
-      <div class="section-sub">These variable costs apply to Bronze, Silver, and Gold tiers only, since they require a physical office and a dedicated team. Adjust to match your local market.</div>
-
-      <div class="ent-fixed-strip">
-        <i class="ti ti-lock" aria-hidden="true"></i>
-        <div>
-          <div class="ent-fixed-label">Fixed monthly costs (non-negotiable)</div>
-          <div class="ent-fixed-desc" id="ent-fixed-desc">Maintenance + Marketing & advertising — these build your brand visibility in the locality and cannot be reduced. Currently <strong id="ent-fixed-val">₹15,000/mo</strong>.</div>
-        </div>
-      </div>
 
       <div class="slider-row" style="margin-top:0.75rem">
         <div class="slider-label-row">
@@ -964,20 +953,17 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
     </div>
 
     <div class="section">
-      <div class="section-title"><i class="ti ti-chart-pie" aria-hidden="true"></i> Plan distribution</div>
-      <div class="section-sub">How your captured listings split across the 3 starter plans — drag any slider, the others rebalance to keep the total at 100%.</div>
+      <div class="section-title"><i class="ti ti-chart-pie" aria-hidden="true"></i> Plan distribution <span class="plan-sum-note" id="plan-sum-note" style="margin-left:auto;font-size:10.5px">Total: 100%</span></div>
 
       <div class="plan-grid">
         <div class="plan-card"><div class="plan-card-header"><div class="pname">LMI Social</div><div class="pval" id="val-plan149">50%</div></div><div class="pprice">₹149/mo</div><input type="range" id="sl-plan149" min="0" max="100" step="1" value="50"></div>
         <div class="plan-card"><div class="plan-card-header"><div class="pname">LMI Star Rated</div><div class="pval" id="val-plan199">30%</div></div><div class="pprice">₹199/mo</div><input type="range" id="sl-plan199" min="0" max="100" step="1" value="30"></div>
         <div class="plan-card"><div class="plan-card-header"><div class="pname">LMI Lead Magnet</div><div class="pval" id="val-plan249">20%</div></div><div class="pprice">₹249/mo</div><input type="range" id="sl-plan249" min="0" max="100" step="1" value="20"></div>
       </div>
-      <div class="plan-sum-note" id="plan-sum-note">Total: 100%</div>
     </div>
 
     <div class="section">
       <div class="section-title"><i class="ti ti-trending-up" aria-hidden="true"></i> Growth rate by year</div>
-      <div class="section-sub">Month-on-month new subscriber growth, set separately for each year. Defaults are realistic and match List My India's actual onboarding curve — adjust if you expect faster or slower uptake.</div>
 
       <div class="assumption-grid">
                 <div class="assumption-card">
@@ -997,7 +983,6 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
     <div class="section">
       <div class="section-title"><i class="ti ti-user-minus" aria-hidden="true"></i> Churn (unsubscription) rate by year</div>
-      <div class="section-sub">% of subscribers who don't renew each month. Typically highest in year 1 as the market settles, then stabilizes.</div>
 
       <div class="assumption-grid">
                 <div class="assumption-card">
@@ -1017,7 +1002,6 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
     <div class="section">
       <div class="section-title"><i class="ti ti-rocket" aria-hidden="true"></i> Value added services (optional)</div>
-      <div class="section-sub">List My India also offers paid add-ons — WhatsApp broadcast, email broadcast, category sponsorship, banner placement, and pop-up promotions — that subscribers can buy on top of their base plan. These aren't guaranteed income, but a realistic franchise partner typically sees some uptake. Toggle on to include an estimate in your projection.</div>
 
       <div class="vas-toggle-row">
         <label class="vas-switch">
@@ -1028,30 +1012,27 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
       </div>
 
       <div id="vas-controls" style="display:none">
-        <div class="slider-row">
-          <div class="slider-label-row">
-            <span class="slider-label">% of subscribers opting for at least one VAS</span>
-            <span class="slider-value" id="val-vas-adopt">8%</span>
+        <div class="slider-grid">
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <span class="slider-label">Subscribers opting for VAS</span>
+              <span class="slider-value" id="val-vas-adopt">8%</span>
+            </div>
+            <input type="range" id="sl-vas-adopt" min="1" max="30" step="1" value="8">
           </div>
-          <input type="range" id="sl-vas-adopt" min="1" max="30" step="1" value="8">
-          <div class="slider-hint">Default 8% — based on typical broadcast/sponsor uptake rates</div>
-        </div>
-        <div class="slider-row">
-          <div class="slider-label-row">
-            <span class="slider-label">Average VAS spend per opted-in subscriber / month</span>
-            <span class="slider-value" id="val-vas-price">₹350</span>
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <span class="slider-label">Avg VAS spend / subscriber / mo</span>
+              <span class="slider-value" id="val-vas-price">₹350</span>
+            </div>
+            <input type="range" id="sl-vas-price" min="100" max="2000" step="50" value="350">
           </div>
-          <input type="range" id="sl-vas-price" min="100" max="2000" step="50" value="350">
-          <div class="slider-hint">Blended average across WhatsApp/email broadcast (₹99), category sponsor (₹499-999), banner (₹1,999)</div>
         </div>
         <div class="derived-row"><span class="lbl">Estimated additional VAS income (Year 1)</span><span class="val" id="d-vas-y1">₹0</span></div>
       </div>
     </div>
 
     <div class="section">
-      <div class="section-title"><i class="ti ti-cash" aria-hidden="true"></i> Income breakdown by year</div>
-      <div class="section-sub">Your share as franchise partner for the selected tier, net of estimated monthly running costs.</div>
-
       <div class="year-tabs">
         <button class="year-tab active" data-y="1" onclick="setYear(1)">Year 1 income</button>
         <button class="year-tab" data-y="2" onclick="setYear(2)">Year 2 income</button>
@@ -1924,7 +1905,6 @@ function renderGrowthPartnerCards(){
       </div>
       <div class="gp-body">
         <div class="gp-select-row">
-          <label class="gp-select-label">Number of pin codes</label>
           <select class="gp-select" id="gp-qty-${gp.key}" onchange="updateGpCard('${gp.key}')">${qtyOptions}</select>
         </div>
         <div class="tier-row"><span class="t-label">Rate per pin code (+18% GST)</span><span class="t-val" id="gp-rate-${gp.key}">${fmtCurrency(rateWithGst)}</span></div>
@@ -2520,10 +2500,9 @@ function renderGpMiniCards(gpList, computeForGP){
     html += `<div class="gp-income-card" id="gp-income-card-${g.key}">
       <div class="gp-income-head">
         <div class="gp-income-name">${g.name}</div>
-        <div style="font-size:9px;color:var(--lmi-dark-blue);margin-top:1px;font-weight:600">${g.onetimePct}% of referred FP's gross commission</div>
+        <div class="gp-income-sub">${g.onetimePct}% of referred FP's gross commission</div>
       </div>
       <div class="gp-income-body">
-        <div style="font-size:9.5px;color:var(--text-tertiary);margin-bottom:4px">Pin codes referred by you</div>
         <div class="gp-select-onetime-row">
           <select class="gp-income-select" id="gp-income-qty-${g.key}" onchange="updateGpIncomeQty('${g.key}')" onclick="event.stopPropagation()">${qtyOptions}</select>
           <div class="gp-onetime-inline" id="gp-onetime-inline-${g.key}">
@@ -2535,13 +2514,12 @@ function renderGpMiniCards(gpList, computeForGP){
           <span class="gp-onetime-label">One-time on ${data.tierLabel} fee</span>
           <span class="gp-onetime-val">${fmtCurrency(data.onetimeTotal)}</span>
         </div>
-        <div class="gp-yr-grid" style="margin-top:5px">
-          <div class="gp-yr-cell"><div class="gp-yr-label">Y1 recurring</div><div class="gp-yr-val">${fmtCurrency(data.y1 - data.onetimeTotal)}</div></div>
-          <div class="gp-yr-cell"><div class="gp-yr-label">Y2 recurring</div><div class="gp-yr-val">${fmtCurrency(data.y2)}</div></div>
-          <div class="gp-yr-cell"><div class="gp-yr-label">Y3 recurring</div><div class="gp-yr-val">${fmtCurrency(data.y3)}</div></div>
-          <div class="gp-yr-cell gp-yr-total"><div class="gp-yr-label">3-yr total</div><div class="gp-yr-val">${fmtCurrency(data.total)}</div></div>
+        <div class="gp-yr-grid" style="margin-top:4px">
+          <div class="gp-yr-cell"><div class="gp-yr-label">Y1 Recurring</div><div class="gp-yr-val">${fmtCurrency(data.y1 - data.onetimeTotal)}</div></div>
+          <div class="gp-yr-cell"><div class="gp-yr-label">Y2 Recurring</div><div class="gp-yr-val">${fmtCurrency(data.y2)}</div></div>
+          <div class="gp-yr-cell"><div class="gp-yr-label">Y3 Recurring</div><div class="gp-yr-val">${fmtCurrency(data.y3)}</div></div>
+          <div class="gp-yr-cell gp-yr-total"><div class="gp-yr-label">3-Yr Total</div><div class="gp-yr-val">${fmtCurrency(data.total)}</div></div>
         </div>
-        <div style="font-size:9px;color:var(--text-tertiary);margin-top:5px">↑ Updates live with population &amp; market assumptions</div>
       </div>
     </div>`;
   });
