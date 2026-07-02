@@ -1352,9 +1352,12 @@ let currentYear = 1;
 let monthlyVisible = false;
 let selectedTier = 'light';
 let discountType = 'regular'; // 'regular' | 'young' | 'women'
+let discountTypeEntr = 'regular';
 let selectedMode = 'tier'; // 'tier' or 'gp'
-let gpPinCount = {gp:1, sgp:1};          // Income Potential mini-cards: SGP default 1
-let gpStandalonePinCount = {gp:1, sgp:50}; // Standalone GP/SGP tab cards: SGP default 50
+let gpPinCount = {gp:1, sgp:1};
+let gpStandalonePinCount = {gp:1, sgp:50};
+// Module-level cache — populated by calculateIncome(), read by computeForGP() and updateGpIncomeQty()
+let _subs149=[], _subs199=[], _subs249=[], _selectedFranchiseFee=100000, _selectedTierLabel='Light';
 
 const planSliders = {
   149: document.getElementById('sl-plan149'),
@@ -1727,7 +1730,7 @@ function renderGrowthPartnerCards(){
         <div class="tier-row"><span class="t-label">Timeline to appoint FP</span><span class="t-val">${gp.timeline}</span></div>
         <div class="tier-row total-row"><span class="t-label">Total token investment</span><span class="t-val total-val" id="gp-total-${gp.key}">${fmtCurrency(totalWithGst)}</span></div>
       </div>
-      <div class="tier-3yr-line" onclick="goToFranchiseSub('income');selectGP('${gp.key}')">
+      <div class="tier-3yr-line" onclick="goToFranchiseSub('income')">
         Check income potential: <strong>see estimate →</strong>
       </div>
     </div>`;
@@ -1861,6 +1864,8 @@ function calculateIncome(){
   const subs149 = subsTotal.map(s=>s*planPct[149]);
   const subs199 = subsTotal.map(s=>s*planPct[199]);
   const subs249 = subsTotal.map(s=>s*planPct[249]);
+  // Cache at module level so computeForGP can use them outside calculateIncome
+  _subs149=subs149; _subs199=subs199; _subs249=subs249;
 
   const vasOn = vasToggle.checked;
   const vasAdoptPct = parseInt(slVasAdopt.value)/100;
@@ -1887,6 +1892,8 @@ function calculateIncome(){
     ? (discountType !== 'regular' ? selectedTierMeta.youngFee : selectedTierMeta.fee)
     : 100000;
   const selectedTierLabel = selectedTierMeta ? selectedTierMeta.name : 'Light';
+  _selectedFranchiseFee = selectedFranchiseFee;
+  _selectedTierLabel = selectedTierLabel;
 
 
 
@@ -1957,53 +1964,45 @@ function calculateIncome(){
   //          GP earns 5% of ₹59,700 = ₹2,985
   function computeForGP(gp, qty){
     qty = qty || gpPinCount[gp.key] || 1;
-
-    // Find selected tier's revenue share %
     const tierList2 = [
       {key:'quickstart',share:0.30},{key:'ultralight',share:0.35},{key:'light',share:0.40},
       {key:'bronze',share:0.55},{key:'silver',share:0.60},{key:'gold',share:0.65}
     ];
     const t = tierList2.find(x=>x.key===selectedTier) || tierList2[2];
-
-    // FP gross commission per month = subscription revenue × revenue share %
+    const s149 = _subs149.length ? _subs149 : subs149;
+    const s199 = _subs199.length ? _subs199 : subs199;
+    const s249 = _subs249.length ? _subs249 : subs249;
+    const fee = _selectedFranchiseFee || 100000;
+    const label = _selectedTierLabel || 'Light';
     const fpGrossCommission = [];
     for(let m=1;m<=36;m++){
-      const subRev = subs149[m-1]*149 + subs199[m-1]*199 + subs249[m-1]*249;
+      const subRev = s149[m-1]*149 + s199[m-1]*199 + s249[m-1]*249;
       fpGrossCommission.push(subRev * t.share);
     }
-
-    // One-time: gp_pct% of the selected tier's franchise fee × qty pins
-    const onetimePerPin = Math.round(selectedFranchiseFee * gp.onetimePct/100);
+    const onetimePerPin = Math.round(fee * gp.onetimePct/100);
     const onetimeTotal = onetimePerPin * qty;
-
-    // Recurring: gp_pct% of FP gross commission × qty pins
     const pct = gp.monthlyPct / 100;
+    const monthlyGross = fpGrossCommission.map(gc => gc);
+    const monthlyGPCommission = fpGrossCommission.map(gc => gc * pct * qty);
     const monthlyNet = fpGrossCommission.map((gc,i) => (i===0 ? onetimeTotal : 0) + gc * pct * qty);
+    const monthlyVas = Array(36).fill(0);
     const y1 = monthlyNet.slice(0,12).reduce((a,b)=>a+b,0);
     const y2 = monthlyNet.slice(12,24).reduce((a,b)=>a+b,0);
     const y3 = monthlyNet.slice(24,36).reduce((a,b)=>a+b,0);
-    return { y1, y2, y3, total:y1+y2+y3, onetimeTotal, onetimePerPin, qty, tierLabel:selectedTierLabel };
+    return { y1, y2, y3, total:y1+y2+y3, onetimeTotal, onetimePerPin, qty, tierLabel:selectedTierLabel, monthlyNet, monthlyGross, monthlyGPCommission, monthlyVas };
   }
 
   let selectedData, selectedLabel, selectedRevSharePct, selectedCost;
 
-  if(selectedMode === 'gp'){
-    const gpObj = gpList.find(g=>g.key===selectedTier) || gpList[0];
-    const qty = gpPinCount[gpObj.key] || 1;
-    selectedData = computeForGP(gpObj, qty);
-    selectedLabel = `${gpObj.name} (${qty} pin code${qty>1?'s':''})`;
-    selectedRevSharePct = gpObj.monthlyPct;
-    selectedCost = 0;
-    set('d-vas-y1', fmtCurrency(0));
-  } else {
-    const selectedTierObj = tierList.find(t=>t.key===selectedTier) || tierList[2];
-    selectedData = computeForTier(selectedTierObj.share, selectedTierObj.cost);
-    selectedLabel = selectedTierObj.name + ' tier';
-    selectedRevSharePct = Math.round(selectedTierObj.share*100);
-    selectedCost = selectedTierObj.cost;
-    const vasY1 = vasOn ? subsTotal.slice(0,12).reduce((a,s)=>a+s*vasAdoptPct*vasPrice*selectedTierObj.share,0) : 0;
-    set('d-vas-y1', fmtCurrency(vasY1));
-  }
+  // Summary banner always shows the selected FRANCHISE TIER income
+  // GP/SGP cards are reference-only and never drive the summary
+  const selectedTierObj = tierList.find(t=>t.key===selectedTier) || tierList[2];
+  selectedData = computeForTier(selectedTierObj.share, selectedTierObj.cost);
+  selectedLabel = selectedTierObj.name + ' tier';
+  selectedRevSharePct = Math.round(selectedTierObj.share*100);
+  selectedCost = selectedTierObj.cost;
+  const vasY1 = vasOn ? subsTotal.slice(0,12).reduce((a,s)=>a+s*vasAdoptPct*vasPrice*selectedTierObj.share,0) : 0;
+  set('d-vas-y1', fmtCurrency(vasY1));
 
   set('sb-y1', fmtCurrency(selectedData.y1));
   set('sb-y2', fmtCurrency(selectedData.y2));
@@ -2019,7 +2018,7 @@ function calculateIncome(){
     monthlyNet: selectedData.monthlyNet,
     monthlyVas: selectedData.monthlyVas,
     monthlyRunningCostBase: selectedCost,
-    isGpMode: selectedMode==='gp',
+    isGpMode: false,
     gpOnetimePerPin: selectedData.onetimePerPin || 0,
     gpOnetimeTotal: selectedData.onetimeTotal || 0,
     gpQty: selectedData.qty || 1
@@ -2117,7 +2116,7 @@ function renderIncomeTable(){
     rows = `
       <tr class="row-income"><td>Referred FPs' combined gross revenue (Year ${currentYear}, ${qty} pin code${qty>1?'s':''})</td><td class="num">${fmtCurrency(grossTotal)}</td></tr>`;
     if(currentYear===1){
-      rows += `<tr class="row-income"><td>① One-time commission (${d.revSharePct}% of ${fmtCurrency(selectedFranchiseFee)} franchise fee × ${qty})</td><td class="num">${fmtCurrency(onetimeTotal)}</td></tr>`;
+      rows += `<tr class="row-income"><td>① One-time commission (${d.revSharePct}% of ${fmtCurrency(_selectedFranchiseFee)} franchise fee × ${qty})</td><td class="num">${fmtCurrency(onetimeTotal)}</td></tr>`;
     }
     rows += `<tr class="row-income"><td>② Recurring monthly commission (${d.revSharePct}% of FP gross, Year ${currentYear})</td><td class="num">${fmtCurrency(commissionTotal)}</td></tr>`;
     if(currentYear===1){
@@ -2208,8 +2207,6 @@ function renderGpMiniCards(gpList, computeForGP){
   gpList.forEach(g=>{
     const qty = gpPinCount[g.key] || 1;
     const data = computeForGP(g, qty);
-    const isSelected = selectedMode==='gp' && g.key === selectedTier;
-
     let qtyOptions = '';
     if(g.key === 'gp'){
       for(let i=1;i<=20;i++){
@@ -2222,8 +2219,8 @@ function renderGpMiniCards(gpList, computeForGP){
       }
     }
 
-    html += `<div class="gp-income-card ${isSelected?'selected':''}" id="gp-income-card-${g.key}">
-      <div class="gp-income-head" onclick="selectGP('${g.key}')">
+    html += `<div class="gp-income-card" id="gp-income-card-${g.key}">
+      <div class="gp-income-head">
         <div class="gp-income-name">${g.name}</div>
         <div style="font-size:9px;color:var(--lmi-dark-blue);margin-top:1px;font-weight:600">${g.onetimePct}% of referred FP's gross commission</div>
       </div>
@@ -2250,11 +2247,8 @@ function renderGpMiniCards(gpList, computeForGP){
 function updateGpIncomeQty(key){
   const qty = parseInt(document.getElementById('gp-income-qty-'+key).value);
   gpPinCount[key] = qty;
-  if(selectedMode==='gp' && selectedTier===key){
-    calculateIncome();
-  } else {
-    selectGP(key);
-  }
+  // Don't switch mode - just recalculate so GP mini-cards update with new qty
+  calculateIncome();
 }
 
 function selectTier(key){
@@ -2263,11 +2257,7 @@ function selectTier(key){
   calculateIncome();
 }
 
-function selectGP(key){
-  selectedMode = 'gp';
-  selectedTier = key;
-  calculateIncome();
-}
+
 
 function setYear(y){
   currentYear = y;
