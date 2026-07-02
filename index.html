@@ -36,20 +36,60 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg-tertiary);color:var(--text-primary);line-height:1.5}
 
-.topbar{background:var(--lmi-dark-blue);color:white;padding:1.25rem 1.5rem}
+.topbar{background:var(--lmi-dark-blue);color:white;padding:0.65rem 1.5rem}
 .topbar-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:10px}
 .topbar h1{font-size:18px;font-weight:600}
 .topbar-logo{height:44px;width:auto;display:block;border-radius:6px}
 
 .module-nav{background:var(--bg-primary);border-bottom:0.5px solid var(--border-tertiary);position:sticky;top:0;z-index:10}
 .module-nav-inner{max-width:980px;margin:0 auto;display:flex;gap:4px;padding:0 1.5rem;overflow-x:auto}
-.module-btn{padding:14px 18px;font-size:13px;font-weight:500;color:var(--text-secondary);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.module-btn{padding:8px 16px;font-size:13px;font-weight:500;color:var(--text-secondary);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
 .module-btn:hover{color:var(--text-primary)}
 .module-btn.active{color:var(--lmi-dark-blue);border-bottom-color:var(--lmi-blue)}
 .module-btn i{font-size:16px}
+/* Sub-navigation */
+.sub-nav{background:var(--bg-primary);border-bottom:0.5px solid var(--border-tertiary)}
+.sub-nav-inner{max-width:980px;margin:0 auto;display:flex;gap:0;padding:0 1.5rem;overflow-x:auto}
+.sub-btn{padding:7px 14px;font-size:12.5px;font-weight:500;color:var(--text-secondary);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:color 0.15s;-webkit-tap-highlight-color:transparent}
+.sub-btn:hover,.sub-btn:focus{background:transparent;outline:none}
+.sub-btn.active{color:var(--lmi-dark-blue);border-bottom-color:var(--lmi-blue);font-weight:600}
+.sub-btn i{font-size:13px}
+/* Sub-sub navigation (Franchise Tiers | Screening under Franchise Partners) */
+.subsub-nav{background:#F0F1FB;border-bottom:0.5px solid var(--border-tertiary);margin-bottom:0}
+.subsub-nav-inner{max-width:980px;margin:0 auto;display:flex;padding:0 1.5rem;overflow-x:auto}
+.subsub-btn{padding:5px 14px;font-size:11.5px;font-weight:500;color:var(--text-tertiary);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.subsub-btn:hover,.subsub-btn:focus{background:transparent;outline:none}
+.subsub-btn.active{color:var(--lmi-dark-blue);border-bottom-color:var(--lmi-blue);font-weight:600}
+/* Home page */
+.home-hero{background:linear-gradient(135deg,var(--lmi-dark-blue) 0%,var(--lmi-blue) 100%);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.5rem;color:white}
+.home-hero-badge{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:rgba(255,255,255,0.15);display:inline-block;padding:3px 10px;border-radius:20px;margin-bottom:0.6rem}
+.home-hero-title{font-size:26px;font-weight:700;margin:0 0 0.4rem;color:white}
+.home-hero-sub{font-size:13px;color:rgba(255,255,255,0.8);margin:0;line-height:1.6}
+.home-section-label{font-size:11px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.6rem}
+.home-quick-grid{display:flex;flex-direction:column;gap:8px}
+.home-quick-card{display:flex;align-items:center;gap:12px;background:var(--bg-primary);border:0.5px solid var(--border-secondary);border-radius:var(--radius-lg);padding:12px 14px;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s}
+.home-quick-card:hover{border-color:var(--lmi-blue);box-shadow:0 2px 8px rgba(61,77,183,0.12)}
+.home-quick-card--soon{opacity:0.65;cursor:default}
+.home-quick-card--soon:hover{border-color:var(--border-secondary);box-shadow:none}
+.hqc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.hqc-body{flex:1;min-width:0}
+.hqc-title{font-size:13.5px;font-weight:600;color:var(--text-primary);margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.hqc-desc{font-size:11.5px;color:var(--text-tertiary);line-height:1.4}
+.hqc-arrow{font-size:16px;color:var(--text-tertiary);flex-shrink:0}
+.coming-soon-badge{font-size:9px;font-weight:600;background:var(--lmi-soft-blue);color:var(--lmi-dark-blue);padding:1px 6px;border-radius:8px;vertical-align:middle}
+/* Coming soon panels */
+.coming-soon-panel{text-align:center;padding:3rem 1rem}
+.csp-icon{font-size:48px;color:var(--lmi-blue);margin-bottom:1rem}
+.coming-soon-panel h2{font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:0.5rem}
+.coming-soon-panel p{font-size:13.5px;color:var(--text-secondary);max-width:400px;margin:0 auto 1.5rem;line-height:1.7}
+.csp-items{display:inline-flex;flex-direction:column;gap:8px;text-align:left}
+.csp-item{font-size:13px;color:var(--text-primary);display:flex;align-items:center;gap:8px}
+.csp-item i{color:var(--green);font-size:14px}
+.csp-item.csp-soon{color:var(--text-tertiary)}
+.csp-item.csp-soon i{color:var(--amber)}
 
-.wrap{max-width:980px;margin:0 auto;padding:2rem 1.5rem}
-.module-panel{display:none}
+.wrap{max-width:980px;margin:0 auto;padding:0.25rem 1.5rem}
+.module-panel{display:none}.module-panel.active{padding-top:0.25rem}
 .module-panel.active{display:block}
 
 .intro{margin-bottom:1.75rem}
@@ -196,7 +236,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .run-row .t-label,.run-row .t-val{font-size:11px;color:var(--text-tertiary)}
 .run-row{padding-top:2px}
 
-.sec-lbl{font-size:11px;font-weight:600;letter-spacing:0.06em;color:var(--text-tertiary);text-transform:uppercase;margin-bottom:0.75rem;margin-top:1rem}
+.sec-lbl{font-size:11px;font-weight:600;letter-spacing:0.06em;color:var(--text-tertiary);text-transform:uppercase;margin-bottom:0.5rem;margin-top:0.5rem}
 .q-block{margin-bottom:1rem;padding:0.875rem 1.1rem;background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg)}
 .q-block.answered{border-color:var(--border-secondary)}
 .q-lbl{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:3px}
@@ -210,9 +250,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .opt.sel .radio::after{content:'';width:4px;height:4px;border-radius:50%;background:white;display:block}
 .txt-in{width:100%;padding:8px 10px;font-size:13px;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);background:var(--bg-secondary);color:var(--text-primary);font-family:inherit}
 .txt-in:focus{outline:none;border-color:var(--lmi-blue)}
-.sub-btn{width:100%;padding:12px;font-size:14px;font-weight:600;background:var(--lmi-blue);color:white;border:none;border-radius:var(--radius-md);cursor:pointer;margin-top:0.75rem}
-.sub-btn:hover{background:var(--lmi-dark-blue)}
-.sub-btn:disabled{background:var(--bg-tertiary);color:var(--text-tertiary);cursor:not-allowed}
+
+.cta-link-btn{background:none;border:none;color:var(--lmi-blue);font-size:13px;font-weight:600;cursor:pointer;padding:8px 0;text-decoration:underline;font-family:inherit}
+.fs-submit-btn{width:100%;padding:12px;font-size:14px;font-weight:600;background:var(--lmi-blue);color:white;border:none;border-radius:var(--radius-md);cursor:pointer;margin-top:0.75rem}
+.fs-submit-btn:hover{background:var(--lmi-dark-blue)}
+.fs-submit-btn:disabled{background:var(--bg-tertiary);color:var(--text-tertiary);cursor:not-allowed}
 .cmp-note{font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:6px}
 .req{color:var(--red);margin-left:2px;font-size:11px}
 
@@ -373,10 +415,18 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .tier-income-card.selected{border:2px solid var(--lmi-dark-blue);box-shadow:0 1px 4px rgba(0,0,0,0.12)}
 .tier-income-card.selected .tic-3yr-val{color:var(--lmi-dark-blue)}
 
-.income-sticky-header{position:sticky;top:49px;background:var(--bg-tertiary);z-index:5;padding-top:0.5rem;padding-bottom:0.6rem;border-bottom:0.5px solid var(--border-secondary);margin-bottom:1rem;margin-left:-1.5rem;margin-right:-1.5rem;padding-left:1.5rem;padding-right:1.5rem}
+.income-sticky-header{position:sticky;top:74px;background:var(--bg-tertiary);z-index:5;padding-top:0.5rem;padding-bottom:0.6rem;border-bottom:0.5px solid var(--border-secondary);margin-bottom:1rem;margin-left:-1.5rem;margin-right:-1.5rem;padding-left:1.5rem;padding-right:1.5rem}
 .income-scroll-body{padding-top:0.25rem}
 
 @media (max-width:650px){
+  /* Sub-nav: tighter on mobile */
+  .sub-nav-inner{padding:0 1rem}
+  .sub-btn{padding:6px 10px;font-size:11.5px}
+  /* Home hero: tighter */
+  .home-hero{padding:1rem}
+  .home-hero-title{font-size:20px}
+  /* Sticky header offset: main nav + sub nav */
+  .income-sticky-header{top:86px}
   /* ── Sticky header: mobile layout ── */
   .income-sticky-header{
     margin-left:-1rem;margin-right:-1rem;
@@ -467,67 +517,72 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 <div class="module-nav">
   <div class="module-nav-inner">
     <button class="module-btn active" data-module="home" onclick="goToModule('home')"><i class="ti ti-home" aria-hidden="true"></i>Home</button>
-    <button class="module-btn" data-module="franchise" onclick="goToModule('franchise')"><i class="ti ti-clipboard-check" aria-hidden="true"></i>Franchise Screener</button>
-    <button class="module-btn" data-module="income" onclick="goToModule('income')"><i class="ti ti-cash" aria-hidden="true"></i>Income Potential</button>
+    <button class="module-btn" data-module="franchise" onclick="goToModule('franchise','fp')"><i class="ti ti-users" aria-hidden="true"></i>Partners</button>
+  </div>
+  <!-- Sub-menu: shown only when Partners is active -->
+  <div class="sub-nav" id="sub-nav-franchise" style="display:none">
+    <div class="sub-nav-inner">
+      <button class="sub-btn active" data-sub="fp" onclick="goToFranchiseSub('fp')"><i class="ti ti-layout-grid" aria-hidden="true"></i>Franchise Partners</button>
+      <button class="sub-btn" data-sub="gp" onclick="goToFranchiseSub('gp')"><i class="ti ti-star" aria-hidden="true"></i>Growth Partners</button>
+      <button class="sub-btn" data-sub="sgp" onclick="goToFranchiseSub('sgp')"><i class="ti ti-star-filled" aria-hidden="true"></i>Super Growth Partners</button>
+      <button class="sub-btn" data-sub="income" onclick="goToFranchiseSub('income')"><i class="ti ti-cash" aria-hidden="true"></i>Income Potential</button>
+    </div>
+    <!-- Sub-sub-nav: shown only when Franchise Partners is active -->
+    <div class="subsub-nav" id="subsub-nav-fp" style="display:none">
+      <div class="subsub-nav-inner">
+        <button class="subsub-btn active" data-subsub="tiers" onclick="goToFpSub('tiers')">Franchise Tiers</button>
+        <button class="subsub-btn" data-subsub="form" onclick="goToFpSub('form')">Screening Questionnaire</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="wrap">
 
   <div class="module-panel active" id="panel-home">
-    <div class="intro">
-      <h2>All projects</h2>
-      <p>A running collection of internal tools, prototypes, and idea drafts. Click a card or use the tabs above to open a module.</p>
-    </div>
-
-    <div class="tab-row-home" id="catTabs">
-      <button class="cat-tab active" data-cat="all" onclick="filterCat('all')">All</button>
-      <button class="cat-tab" data-cat="franchise" onclick="filterCat('franchise')">Franchise</button>
-      <button class="cat-tab" data-cat="finance" onclick="filterCat('finance')">Finance</button>
-      <button class="cat-tab" data-cat="ops" onclick="filterCat('ops')">Operations</button>
-      <button class="cat-tab" data-cat="other" onclick="filterCat('other')">Other</button>
-    </div>
-
-    <div class="grid" id="projectGrid">
-
-      <div class="card" data-cat="franchise" onclick="goToModule('franchise')">
-        <div class="card-top">
-          <div class="card-icon icon-green"><i class="ti ti-clipboard-check" aria-hidden="true"></i></div>
-          <span class="card-status status-live">Live</span>
-        </div>
-        <h3>Franchise Partner Screener</h3>
-        <p>All 6 franchise tiers with fee structure, plus a 16-question auto-scoring questionnaire to shortlist or reject applicants.</p>
-        <div class="card-meta"><i class="ti ti-layout-grid" aria-hidden="true"></i> Franchise Screener module</div>
+    <div class="home-hero">
+      <div class="home-hero-logo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" style="display:none"></div>
+      <div class="home-hero-text">
+        <div class="home-hero-badge">List My India™ — Internal Tools</div>
+        <h2 class="home-hero-title">Project Hub</h2>
+        <p class="home-hero-sub">Internal prototypes for franchise onboarding, financial modelling, and operations. Built for live discussions with partners and investors.</p>
       </div>
-
-      <div class="card" data-cat="franchise" onclick="goToModule('income')">
-        <div class="card-top">
-          <div class="card-icon icon-amber"><i class="ti ti-cash" aria-hidden="true"></i></div>
-          <span class="card-status status-live">Live</span>
-        </div>
-        <h3>Income Potential Calculator</h3>
-        <p>EMI-style slider calculator estimating a franchise partner's monthly, year 1, and 3-year income based on population, market capture, and plan mix.</p>
-        <div class="card-meta"><i class="ti ti-layout-grid" aria-hidden="true"></i> Income Potential module</div>
-      </div>
-
     </div>
 
-    <div class="empty-card" id="emptyNote" style="display:none;margin-top:14px">No projects in this category yet.</div>
+    <div class="home-section-label">Franchise</div>
+    <div class="home-quick-grid">
+      <div class="home-quick-card" onclick="goToFranchiseSub('fp')">
+        <div class="hqc-icon" style="background:#E8EAF6"><i class="ti ti-layout-grid" style="color:var(--lmi-dark-blue)"></i></div>
+        <div class="hqc-body">
+          <div class="hqc-title">Franchise Tiers</div>
+          <div class="hqc-desc">All 6 tiers — fees, revenue share, GST breakdown, breakeven</div>
+        </div>
+        <i class="ti ti-chevron-right hqc-arrow"></i>
+      </div>
+      <div class="home-quick-card" onclick="goToFranchiseSub('form')">
+        <div class="hqc-icon" style="background:#E8EAF6"><i class="ti ti-checklist" style="color:var(--lmi-dark-blue)"></i></div>
+        <div class="hqc-body">
+          <div class="hqc-title">Screening Questionnaire</div>
+          <div class="hqc-desc">18-question auto-scoring to shortlist franchise applicants</div>
+        </div>
+        <i class="ti ti-chevron-right hqc-arrow"></i>
+      </div>
+      <div class="home-quick-card" onclick="goToFranchiseSub('income')">
+        <div class="hqc-icon" style="background:#FFFDE7"><i class="ti ti-cash" style="color:#B45309"></i></div>
+        <div class="hqc-body">
+          <div class="hqc-title">Income Potential Calculator</div>
+          <div class="hqc-desc">Live income projection by population, capture %, plan mix & tier</div>
+        </div>
+        <i class="ti ti-chevron-right hqc-arrow"></i>
+      </div>
+    </div>
+
+
   </div>
 
   <div class="module-panel" id="panel-franchise">
-    <div class="module-hdr">
-      <div class="module-hdr-top"><span class="lmi-badge">List My India™</span><span style="font-size:11px;color:var(--text-tertiary)">Franchise Partner Portal</span></div>
-      <h1>Franchise Partner Screening</h1>
-      <p>Explore all 6 franchise tiers, then complete the screening questionnaire.</p>
-    </div>
 
-    <div class="tab-row">
-      <button class="tab active" onclick="showTab('tiers')">Franchise Tiers</button>
-      <button class="tab" onclick="showTab('form')">Screening Questionnaire</button>
-    </div>
-
-    <div id="tab-tiers">
+    <div id="tab-fp">
 
     <div class="discount-toggle-bar">
       <div class="dt-label"><i class="ti ti-discount-2" aria-hidden="true"></i> Special offer — 50% off franchise fee (limited period):</div>
@@ -566,20 +621,35 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
     <p class="footnote">* Franchise fee shown is the Regular Partner (limited period offer) rate. Women entrepreneurs under 50 years and Young entrepreneurs under 30 years get 50% off this offer fee for a limited period. "Total to start" = franchise fee + first-year subscription (₹19,175) + one-time setup fee + QR Code Printer (₹10,000) + office interiors (Enterprise only) — the upfront amount needed on day one; click to expand the full breakup. Marketing materials (polo t-shirt, visiting cards) are provided by the company as part of the franchise fee, at no extra cost. "Running cost" is the ongoing monthly spend — maintenance, conveyance, and marketing & advertising — click to expand the full breakup. Breakeven month is when cumulative net income crosses the total upfront investment. All figures shown are exclusive of 18% GST unless explicitly marked "incl. GST". GST is applicable at 18% on franchise fees, subscription, setup fees, QR Code Printer, office interiors, and all monthly maintenance/marketing charges. The expandable cost breakup on each card shows per-item GST amounts and the all-inclusive total.</p>
 
-    <div class="plan-group" style="margin-top:2rem">
-      <div class="plan-head">
-        <span class="plan-tag entrepreneur" style="background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)">Referral Programme</span>
-        <span class="plan-desc">Zero office, zero operations — earn by referring Franchise Partners. Active (live) slab shown.</span>
-      </div>
-      <div class="tiers-grid" id="growth-partner-grid"></div>
-      <p class="footnote">* Growth Partner and Super Growth Partner earn a % of the referred Franchise Partner's monthly gross income — not on the total invoice value. Pin code token amount is exclusive of GST; 18% GST is added on top as shown (e.g. ₹1,500 + ₹270 GST = ₹1,770 all-in for 1 pin code at Growth Partner rate). Pin code booking is strictly first-come-first-served: once a pin code is booked by any partner, it is no longer available to others. Super Growth Partner can refer and book pin codes anywhere across India — there is no district or zone restriction. Rates shown are the currently active (live) slab; rates change at higher active-franchise-partner milestones — see your Growth Partner agreement for the full slab table.</p>
+    <button class="cta-link-btn" onclick="goToFpSub('form')">Proceed to Screening Questionnaire →</button>
     </div>
 
-    <button class="sub-btn" style="margin-top:0" onclick="showTab('form')">Proceed to Screening Questionnaire →</button>
+    <div id="tab-gp" style="display:none">
+      <div class="plan-group">
+        <div class="plan-head">
+          <span class="plan-tag entrepreneur" style="background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)">Growth Partner Programme</span>
+          <span class="plan-desc">Earn by referring Franchise Partners — no office, no operations required.</span>
+        </div>
+        <div id="growth-partner-grid-gp"></div>
+        <p class="footnote">* Growth Partner earns 5% of the referred Franchise Partner's gross monthly commission. Pin code token is exclusive of GST (₹1,500 + ₹270 GST = ₹1,770 all-in for 1 pin code). Booking is strictly first-come-first-served. Rates shown are the currently active slab — see your Growth Partner agreement for the full slab table.</p>
+      </div>
+      <button class="cta-link-btn" onclick="goToFranchiseSub('income')">See Income Potential →</button>
+    </div>
+
+    <div id="tab-sgp" style="display:none">
+      <div class="plan-group">
+        <div class="plan-head">
+          <span class="plan-tag entrepreneur" style="background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)">Super Growth Partner Programme</span>
+          <span class="plan-desc">Pan-India territory, minimum 50 pin codes — maximum reach, passive income at scale.</span>
+        </div>
+        <div id="growth-partner-grid-sgp"></div>
+        <p class="footnote">* Super Growth Partner earns 2.5% of the referred Franchise Partner's gross monthly commission across all booked pin codes. Minimum 50 pin codes at ₹500+GST each. Pan-India scope — no zone restriction. Rates shown are the currently active slab.</p>
+      </div>
+      <button class="cta-link-btn" onclick="goToFranchiseSub('income')">See Income Potential →</button>
     </div>
 
     <div id="tab-form" style="display:none">
-    <div class="prog-bar" style="height:4px;background:var(--bg-tertiary);border-radius:2px;margin-bottom:1.25rem"><div class="prog-fill" id="prog" style="width:0%;height:4px;background:var(--lmi-blue);border-radius:2px"></div></div>
+    <div class="prog-bar" style="height:4px;background:var(--bg-tertiary);border-radius:2px;margin-bottom:0.5rem"><div class="prog-fill" id="prog" style="width:0%;height:4px;background:var(--lmi-blue);border-radius:2px"></div></div>
     <div id="form-area"></div>
     </div>
   </div>
@@ -903,37 +973,129 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
   </div>
 
+
+
 </div>
 
 <footer>List My India Growthworks Private Limited &middot; Internal use only</footer>
 
 <script>
 
-function goToModule(name){
-  document.querySelectorAll('.module-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
-  document.querySelectorAll('.module-btn').forEach(b=>b.classList.toggle('active', b.dataset.module===name));
+function goToModule(name, sub){
+  // Show/hide main panels — income is now inside franchise sub-nav
+  const panelName = name === 'income' ? 'income' : name;
+  document.querySelectorAll('.module-panel').forEach(p=>{
+    const isActive = name==='income'
+      ? p.id==='panel-income'
+      : p.id==='panel-'+name;
+    p.classList.toggle('active', isActive);
+  });
+
+  // Update main nav buttons — income maps to franchise
+  const activeMain = name==='income' ? 'franchise' : name;
+  document.querySelectorAll('.module-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.module===activeMain);
+  });
+
+  // Show sub-nav only for franchise (and income = franchise sub)
+  const isFranchise = name==='franchise' || name==='income';
+  document.getElementById('sub-nav-franchise').style.display = isFranchise ? 'block' : 'none';
+
+  // Update sub-nav active button
+  if(isFranchise){
+    const activeSub = name==='income' ? 'income' : (sub || 'fp');
+    document.querySelectorAll('.sub-btn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.sub===activeSub);
+    });
+    // Also trigger the correct franchise tab if needed
+    if(name==='franchise'){
+      const tabTarget = sub || 'tiers';
+      if(tabTarget==='fp' || tabTarget==='gp' || tabTarget==='sgp' || tabTarget==='form'){
+        document.getElementById('panel-income').classList.remove('active');
+        document.getElementById('panel-franchise').classList.add('active');
+        showTab(tabTarget==='tiers' ? 'fp' : tabTarget);
+      }
+    }
+    if(name==='income'){
+      document.getElementById('panel-franchise').classList.remove('active');
+      document.getElementById('panel-income').classList.add('active');
+    }
+  }
+
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function filterCat(cat){
-  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.toggle('active', t.dataset.cat===cat));
-  const cards=document.querySelectorAll('#projectGrid .card');
-  let visible=0;
-  cards.forEach(c=>{
-    const show = cat==='all' || c.dataset.cat===cat;
-    c.style.display = show ? 'block' : 'none';
-    if(show) visible++;
+function goToFranchiseSub(sub){
+  document.querySelectorAll('.sub-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.sub===sub);
   });
-  document.getElementById('emptyNote').style.display = visible===0 ? 'block' : 'none';
+
+  // Show/hide sub-sub-nav for Franchise Partners
+  const subsubNav = document.getElementById('subsub-nav-fp');
+  if(subsubNav) subsubNav.style.display = (sub==='fp') ? 'block' : 'none';
+
+  if(sub==='income'){
+    document.querySelectorAll('.module-panel').forEach(p=>{
+      p.classList.toggle('active', p.id==='panel-income');
+    });
+  } else {
+    document.querySelectorAll('.module-panel').forEach(p=>{
+      p.classList.toggle('active', p.id==='panel-franchise');
+    });
+    if(sub==='fp'){
+      // Default to Franchise Tiers when clicking Franchise Partners
+      showTab('fp');
+      goToFpSub('tiers');
+    } else {
+      showTab(sub);
+    }
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goToFpSub(sub){
+  // sub = 'tiers' | 'form' — within Franchise Partners
+  document.querySelectorAll('.subsub-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.subsub===sub);
+  });
+  // Show/hide the right content within tab-fp
+  const tiersEl = document.getElementById('fp-tiers');
+  const formEl = document.getElementById('tab-form');
+  if(sub==='tiers'){
+    if(tiersEl) tiersEl.style.display='block';
+    if(formEl) formEl.style.display='none';
+    // Make sure panel-franchise is showing tab-fp
+    document.querySelectorAll('.module-panel').forEach(p=>{
+      p.classList.toggle('active', p.id==='panel-franchise');
+    });
+    showTab('fp');
+  } else {
+    // Screening Questionnaire
+    showTab('form');
+    if(tiersEl) tiersEl.style.display='none';
+    if(formEl) formEl.style.display='block';
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
 
 <script>
 function showTab(t){
-  document.getElementById('tab-tiers').style.display = t==='tiers'?'block':'none';
-  document.getElementById('tab-form').style.display = t==='form'?'block':'none';
-  document.querySelectorAll('#panel-franchise .tab').forEach((el,i)=>{
-    el.classList.toggle('active', (i===0&&t==='tiers')||(i===1&&t==='form'));
+  ['fp','gp','sgp','form'].forEach(id=>{
+    const el = document.getElementById('tab-'+id);
+    if(el) el.style.display = (id===t) ? 'block' : 'none';
+  });
+  // Sync sub-nav active (fp covers both tiers and form)
+  const subActive = (t==='form') ? 'fp' : t;
+  document.querySelectorAll('.sub-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.sub===subActive);
+  });
+  // Show sub-sub-nav for fp/form
+  const subsubNav = document.getElementById('subsub-nav-fp');
+  if(subsubNav) subsubNav.style.display = (t==='fp'||t==='form') ? 'block' : 'none';
+  // Sync sub-sub-nav active
+  document.querySelectorAll('.subsub-btn').forEach(b=>{
+    b.classList.toggle('active', (t==='fp'&&b.dataset.subsub==='tiers')||(t==='form'&&b.dataset.subsub==='form'));
   });
   if(t==='form') renderFranchiseForm();
 }
@@ -1092,7 +1254,7 @@ function renderFranchiseForm(){
   });
 
   const allAns=ansCount>=allQ;
-  html+=`<button class="sub-btn" id="sub-btn" onclick="fsEvaluate()" ${allAns?'':'disabled'}>Evaluate Application →</button>`;
+  html+=`<button class="fs-submit-btn" id="sub-btn" onclick="fsEvaluate()" ${allAns?'':'disabled'}>Evaluate Application →</button>`;
   if(!allAns)html+=`<p class="cmp-note">${ansCount} of ${allQ} answered</p>`;
 
   fa.innerHTML=html;
@@ -1210,7 +1372,7 @@ let monthlyVisible = false;
 let selectedTier = 'light';
 let discountType = 'regular'; // 'regular' | 'young' | 'women'
 let selectedMode = 'tier'; // 'tier' or 'gp'
-let gpPinCount = {gp:1, sgp:1};
+let gpPinCount = {gp:1, sgp:50};
 
 const planSliders = {
   149: document.getElementById('sl-plan149'),
@@ -1477,7 +1639,7 @@ function renderFranchiseTierCards(){
         ? `<div class="discount-strip" style="background:#D4EDDA;color:var(--green-dark);font-weight:600"><i class="ti ti-check" aria-hidden="true"></i> ${discountType==='young'?'Young Entrepreneur':'Women Entrepreneur'} pricing — 50% off franchise fee applied ✓</div>`
         : `<div class="discount-strip"><i class="ti ti-discount-2" aria-hidden="true"></i> 50% off for Women (&lt;50) / Young (&lt;30) entrepreneurs — select above*</div>`
       }
-      <div class="tier-3yr-line" onclick="goToModule('income');selectTier('${t.key}')">
+      <div class="tier-3yr-line" onclick="goToFranchiseSub('income');selectTier('${t.key}')">
         3-year income potential: <strong>see estimate →</strong>
       </div>
     </div>`;
@@ -1502,7 +1664,7 @@ const growthPartnerData = [
   {key:'gp', rank:'Growth Partner', name:'Refer Franchise Partners', sub:'Choose how many pin codes you want to book',
    minQty:1, tierBreak:5, lowRate:1500, highRate:1000, timeline:'6 months', onetimePct:5, monthlyPct:5},
   {key:'sgp', rank:'Super Growth Partner', name:'PAN India Referral Network', sub:'Minimum 50 pin codes, no geographic restriction',
-   minQty:1, tierBreak:null, lowRate:500, highRate:500, timeline:'6 months', onetimePct:2.5, monthlyPct:2.5}
+   minQty:50, tierBreak:null, lowRate:500, highRate:500, timeline:'6 months', onetimePct:2.5, monthlyPct:2.5}
 ];
 
 function gpRateFor(gp, qty){
@@ -1511,26 +1673,25 @@ function gpRateFor(gp, qty){
 }
 
 function renderGrowthPartnerCards(){
-  const grid = document.getElementById('growth-partner-grid');
-  let html = '';
   growthPartnerData.forEach(gp=>{
-    const defaultQty = gp.minQty;  // gp=1, sgp=1
+    const gridId = gp.key === 'gp' ? 'growth-partner-grid-gp' : 'growth-partner-grid-sgp';
+    const grid = document.getElementById(gridId);
+    if(!grid) return;
+
+    const defaultQty = gp.minQty;
     const rate = gpRateFor(gp, defaultQty);
     const rateWithGst = Math.round(rate * 1.18);
     const totalWithGst = rateWithGst * defaultQty;
 
     let qtyOptions = '';
     if(gp.key === 'gp'){
-      for(let i=1;i<=20;i++){
-        qtyOptions += `<option value="${i}" ${i===defaultQty?'selected':''}>${i} Pin Code${i>1?'s':''}</option>`;
-      }
+      for(let i=1;i<=20;i++) qtyOptions += `<option value="${i}" ${i===defaultQty?'selected':''}>${i} Pin Code${i>1?'s':''}</option>`;
     } else {
-      for(let i=1;i<=100;i++){
-        qtyOptions += `<option value="${i}" ${i===defaultQty?'selected':''}>${i} Pin Codes</option>`;
-      }
+      // SGP: minimum 50 pin codes, up to 99
+      for(let i=50;i<=99;i++) qtyOptions += `<option value="${i}" ${i===defaultQty?'selected':''}>${i} Pin Codes</option>`;
     }
 
-    html += `<div class="gp-card" id="gp-card-${gp.key}">
+    grid.innerHTML = `<div class="gp-card" id="gp-card-${gp.key}">
       <div class="gp-head">
         <div class="gp-rank">${gp.rank}</div>
         <div class="gp-name">${gp.name}</div>
@@ -1543,17 +1704,16 @@ function renderGrowthPartnerCards(){
           <select class="gp-select" id="gp-qty-${gp.key}" onchange="updateGpCard('${gp.key}')">${qtyOptions}</select>
         </div>
         <div class="tier-row"><span class="t-label">Rate per pin code (+18% GST)</span><span class="t-val" id="gp-rate-${gp.key}">${fmtCurrency(rateWithGst)}</span></div>
+        <div class="tier-row"><span class="t-label">Commission on FP gross commission</span><span class="t-val fp-share">${gp.onetimePct}%</span></div>
         <div class="tier-row"><span class="t-label">One-time on franchise fee</span><span class="t-val fp-share">${gp.onetimePct}%</span></div>
-        <div class="tier-row"><span class="t-label">Monthly on FP gross income</span><span class="t-val fp-share">${gp.monthlyPct}%</span></div>
         <div class="tier-row"><span class="t-label">Timeline to appoint FP</span><span class="t-val">${gp.timeline}</span></div>
-        <div class="tier-row total-row"><span class="t-label">Total investment</span><span class="t-val total-val" id="gp-total-${gp.key}">${fmtCurrency(totalWithGst)}</span></div>
+        <div class="tier-row total-row"><span class="t-label">Total token investment</span><span class="t-val total-val" id="gp-total-${gp.key}">${fmtCurrency(totalWithGst)}</span></div>
       </div>
-      <div class="tier-3yr-line" onclick="goToModule('income');selectGP('${gp.key}')">
+      <div class="tier-3yr-line" onclick="goToFranchiseSub('income');selectGP('${gp.key}')">
         Check income potential: <strong>see estimate →</strong>
       </div>
     </div>`;
   });
-  grid.innerHTML = html;
 }
 
 function setDiscountType(type){
@@ -2080,7 +2240,7 @@ function toggleMonthly(){
 function resetAll(){
   selectedTier = 'light';
   selectedMode = 'tier';
-  gpPinCount = {gp:1, sgp:1};
+  gpPinCount = {gp:1, sgp:50};
   slPop.value = 100000;
   slRetailPct.value = 1.25;
   slHomeMult.value = 5;
@@ -2118,6 +2278,7 @@ function resetAll(){
 calculateIncome();
 renderFranchiseTierCards();
 renderGrowthPartnerCards();
+showTab('fp');
 </script>
 
 <script>
