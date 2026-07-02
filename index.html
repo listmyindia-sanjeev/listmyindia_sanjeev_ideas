@@ -127,7 +127,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid var(--border-secondary);color:var(--text-secondary);background:transparent}
 .tab.active{background:var(--lmi-blue);color:white;border-color:var(--lmi-blue)}
 
-.plan-group{margin-bottom:1.5rem}
+.plan-group{margin-bottom:0.75rem}
 .plan-head{display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;flex-wrap:wrap}
 .plan-tag{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:0.02em}
 .plan-tag.entrepreneur{background:var(--green-light);color:var(--green-dark)}
@@ -190,16 +190,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .breakdown-toggle:hover{background:var(--bg-secondary)}
 .breakdown-toggle i{transition:transform 0.15s}
 .breakdown-toggle.open i{transform:rotate(180deg)}
-.breakdown-panel{display:none;padding:8px 12px 10px;background:var(--bg-secondary);border-top:0.5px solid var(--border-tertiary)}
+.breakdown-panel{display:none;padding:0;background:var(--bg-secondary);border-top:0.5px solid var(--border-tertiary)}
 .breakdown-panel.open{display:block}
-.bd-row{display:flex;justify-content:space-between;font-size:10.5px;padding:3px 0;color:var(--text-secondary)}
-.bd-row.bd-total{font-weight:700;color:var(--text-primary);border-top:0.5px solid var(--border-secondary);margin-top:3px;padding-top:5px}
-.bd-gst{font-size:9.5px;color:var(--amber-dark);font-weight:400;margin-left:3px}
-.bd-fixed-row{background:var(--amber-light);border-radius:3px;padding:2px 4px}
-.bd-discounted-row{background:#D4EDDA;border-radius:3px;padding:2px 4px}
-.bd-row .bd-val{font-weight:500;color:var(--text-primary)}
-.bd-section-label{font-size:9.5px;text-transform:uppercase;letter-spacing:0.02em;color:var(--text-tertiary);margin-top:6px;margin-bottom:2px;font-weight:600}
-.bd-section-label:first-child{margin-top:0}
+/* Clean breakdown table */
+.bd-table{width:100%;border-collapse:collapse;font-size:11px}
+.bd-table td{padding:5px 10px;vertical-align:top}
+.bd-table td:last-child{text-align:right;white-space:nowrap;font-weight:500;color:var(--text-primary)}
+.bd-table tr:nth-child(even){background:rgba(0,0,0,0.02)}
+.bd-section-row td{background:var(--lmi-dark-blue);color:rgba(255,255,255,0.8);font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px}
+.bd-mrp-row td{color:var(--text-tertiary);text-decoration:line-through;font-size:10px}
+.bd-offer-row td:first-child{color:var(--text-secondary)}
+.bd-offer-row td:last-child{color:var(--text-primary)}
+.bd-special-row{background:#F0FDF4!important}
+.bd-special-row td:first-child{color:var(--green-dark);font-weight:600}
+.bd-special-row td:last-child{color:var(--green-dark);font-weight:700}
+.bd-subtotal-row td{border-top:1px solid var(--border-secondary);font-weight:700;color:var(--text-primary);background:white!important;padding-top:6px}
+.bd-gst-row td{color:var(--amber-dark);font-size:10.5px;font-weight:600}
+.bd-total-row td{background:var(--lmi-soft-blue)!important;color:var(--lmi-dark-blue);font-weight:700;font-size:12px;border-top:1px solid #C5CAF0;padding:6px 10px}
+.bd-fixed-row td:first-child::after{content:' 🔒';font-size:9px}
+.bd-note{font-size:9px;color:var(--text-tertiary);padding:3px 10px 6px;font-style:italic}
 
 .gp-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary)}
 .gp-card.featured{border:2px solid var(--lmi-blue)}
@@ -434,23 +443,50 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .income-scroll-body{padding-top:0.25rem}
 
 @media (max-width:650px){
-  /* ── 1. Nav: compress so all tabs fit without scrolling ── */
-  .module-nav-inner{padding:0 0.5rem;gap:0;justify-content:space-between}
-  .module-btn{padding:7px 10px;font-size:11.5px;gap:3px;flex:1;justify-content:center}
-  .module-btn i{font-size:13px}
-  .sub-nav-inner{padding:0 0.5rem;gap:0;justify-content:space-between}
-  .sub-btn{padding:6px 8px;font-size:10.5px;flex:1;justify-content:center;gap:3px}
-  .sub-btn i{font-size:11px}
+  /* ── 1. Nav: hide icons, ultra-compact text, all tabs fit ── */
+  .module-nav-inner{padding:0 0.25rem;gap:0}
+  .module-btn{padding:6px 8px;font-size:11px;gap:0;flex:1;justify-content:center}
+  .module-btn i{display:none}
+  .sub-nav-inner{padding:0 0.25rem;gap:0}
+  .sub-btn{padding:5px 4px;font-size:9.5px;flex:1;justify-content:center;gap:0;white-space:normal;text-align:center;line-height:1.2}
+  .sub-btn i{display:none}
   .subsub-nav-inner{padding:0 0.5rem}
   .subsub-btn{padding:5px 10px;font-size:11px;flex:1;text-align:center}
 
   /* ── 2. Freeze all nav bars on scroll ── */
   .topbar{position:sticky;top:0;z-index:12}
   .module-nav{top:33px;z-index:11}
-  .sub-nav{top:67px;z-index:10}
-  .subsub-nav{top:100px;z-index:9}
+  .sub-nav{top:59px;z-index:10}
+  .subsub-nav{top:88px;z-index:9}
 
-  /* ── 3. Income potential: show GP cards below pincode bar ── */
+  /* ── 2. GP/SGP: tabbed cards on mobile ── */
+  .gp-income-grid{display:block}
+  .gp-tab-bar{display:flex;border-bottom:1px solid var(--border-secondary);margin-bottom:4px}
+  .gp-tab-btn{flex:1;padding:5px 4px;font-size:10.5px;font-weight:600;text-align:center;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--text-secondary);font-family:inherit}
+  .gp-tab-btn.active{color:var(--lmi-dark-blue);border-bottom-color:var(--lmi-blue)}
+  .gp-income-card{display:none}
+  .gp-income-card.gp-tab-active{display:block}
+  /* ── 3. Tier cards: tabbed on mobile ── */
+  .tier-tab-bar{display:flex;gap:4px;margin-bottom:6px}
+  .tier-tab-btn{flex:1;padding:5px 6px;font-size:10.5px;font-weight:600;border:1px solid var(--border-secondary);border-radius:6px;background:var(--bg-secondary);color:var(--text-secondary);cursor:pointer;font-family:inherit;text-align:center}
+  .tier-tab-btn.active{background:var(--lmi-dark-blue);color:white;border-color:var(--lmi-dark-blue)}
+  .tier-income-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+  .tier-income-card{display:none}
+  .tier-income-card.tier-tab-active{display:block}
+  /* ── 4. Compact fonts ── */
+  .gp-income-name{font-size:9px}
+  .gp-income-sub{font-size:7.5px}
+  .gp-onetime-label{font-size:8.5px}
+  .gp-onetime-val{font-size:10.5px}
+  .gp-yr-label{font-size:7px}
+  .gp-yr-val{font-size:9px}
+  .gp-income-select{font-size:9.5px;padding:2px 4px}
+  .gp-select-label{font-size:9.5px}
+  .tic-name{font-size:8px;line-height:1.2}
+  .tic-3yr-val{font-size:10px}
+  .tic-bev{font-size:7.5px}
+  .gp-mini-label{font-size:7.5px;margin-bottom:1px;margin-top:3px}
+  .pin-collapse-btn{font-size:9.5px;padding:0;margin-bottom:2px}
   .income-sticky-header>.sticky-title-row{display:none}
   .income-sticky-header .gp-mini-label{display:block;font-size:8px;margin-bottom:2px;margin-top:4px}
   .income-sticky-header #gp-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
@@ -469,8 +505,14 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
     margin-left:-1rem;margin-right:-1rem;
     padding-left:1rem;padding-right:1rem;
     padding-top:0.3rem;padding-bottom:0.3rem;
-    top:100px;
+    top:88px;
   }
+  /* Pin bar collapsed by default on mobile */
+  .income-sticky-header .pin-topbar-wrap{max-height:0!important;opacity:0;margin-bottom:0}
+  .income-sticky-header .sticky-title-row{max-height:0!important;opacity:0}
+  .income-sticky-header.pin-collapsed .pin-topbar-wrap{max-height:0!important;opacity:0}
+  .income-sticky-header:not(.pin-collapsed) .pin-topbar-wrap{max-height:80px;opacity:1;margin-bottom:0.3rem}
+  .income-sticky-header:not(.pin-collapsed) .sticky-title-row{max-height:40px;opacity:1}
 
   /* ── 4. Income potential tier cards: 2 rows of 3 (2-col grid) ── */
   .tier-income-grid{
@@ -548,6 +590,24 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
   .plan-pop-hint{display:block;margin-top:2px;font-size:10px;white-space:normal}
   .tiers-grid .tier-card{display:none}
   .wrap{padding:0.25rem 1rem}
+  /* Remove blank gaps */
+  .plan-group{margin-bottom:0.5rem}
+  .mobile-tier-detail{margin-bottom:4px}
+  .cta-link-btn{padding:4px 0;font-size:12px}
+  .discount-toggle-bar{padding:6px 8px;margin-bottom:0.5rem}
+  .dt-row{gap:5px}
+  .dt-badges{gap:4px}
+  .dt-discount-badge,.dt-no-discount{font-size:10px;padding:2px 6px}
+  .plan-desc{font-size:10.5px}
+  .plan-pop-hint{font-size:9.5px}
+  /* Mobile table: fixed layout so columns equal width */
+  .mobile-plan-table{table-layout:fixed}
+  .mobile-plan-table th,.mobile-plan-table td{word-break:break-word;padding:4px 2px;font-size:10.5px}
+  .mobile-plan-table th:first-child,.mobile-plan-table td:first-child{width:28%;font-size:9.5px;padding-left:4px}
+  .val-fee-mrp{font-size:8px}
+  .val-fee-offer,.val-fee-special{font-size:10px}
+  .val-total{font-size:10.5px}
+  .val-share{font-size:11px}
 }
 
 @media (max-width:650px){
@@ -574,6 +634,7 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
   .mobile-plan-table td{padding:5px 4px;text-align:center;border-bottom:0.5px solid var(--border-tertiary);font-size:11.5px;vertical-align:middle}
   .mobile-plan-table td:first-child{text-align:left;padding-left:8px;font-size:10.5px;color:var(--text-secondary);font-weight:500}
   .mobile-plan-table tr:nth-child(even){background:var(--bg-secondary)}
+  .mobile-plan-table .col-rec{background:inherit}
   .mobile-plan-table tr.row-highlight td{background:var(--lmi-soft-blue)}
   .mobile-plan-table tr.row-highlight td:first-child{color:var(--lmi-dark-blue);font-weight:700}
   .mobile-plan-table .col-rec{background:#FFF8E1}
@@ -614,10 +675,10 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
   <!-- Sub-menu: shown only when Partners is active -->
   <div class="sub-nav" id="sub-nav-franchise" style="display:none">
     <div class="sub-nav-inner">
-      <button class="sub-btn active" data-sub="fp" onclick="goToFranchiseSub('fp')"><i class="ti ti-layout-grid" aria-hidden="true"></i>Franchise Partners</button>
-      <button class="sub-btn" data-sub="gp" onclick="goToFranchiseSub('gp')"><i class="ti ti-star" aria-hidden="true"></i>Growth Partners</button>
-      <button class="sub-btn" data-sub="sgp" onclick="goToFranchiseSub('sgp')"><i class="ti ti-star-filled" aria-hidden="true"></i>Super Growth Partners</button>
-      <button class="sub-btn" data-sub="income" onclick="goToFranchiseSub('income')"><i class="ti ti-cash" aria-hidden="true"></i>Income Potential</button>
+      <button class="sub-btn active" data-sub="fp" onclick="goToFranchiseSub('fp')">Franchise</button>
+      <button class="sub-btn" data-sub="gp" onclick="goToFranchiseSub('gp')">Growth</button>
+      <button class="sub-btn" data-sub="sgp" onclick="goToFranchiseSub('sgp')">Super Growth</button>
+      <button class="sub-btn" data-sub="income" onclick="goToFranchiseSub('income')">Income</button>
     </div>
     <!-- Sub-sub-nav: shown only when Franchise Partners is active -->
     <div class="subsub-nav" id="subsub-nav-fp" style="display:none">
@@ -729,8 +790,8 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
       <button class="pin-collapse-btn" id="pin-collapse-btn" onclick="togglePinBar()">
         <i class="ti ti-map-pin" style="font-size:11px"></i>
-        <span id="pin-collapse-label">📍 Collapse pin code bar</span>
-        <i class="ti ti-chevron-up" id="pin-collapse-icon" style="font-size:10px"></i>
+        <span id="pin-collapse-label">📍 Show pin code bar</span>
+        <i class="ti ti-chevron-down" id="pin-collapse-icon" style="font-size:10px"></i>
       </button>
 
       <div class="pin-topbar-wrap" id="pin-topbar-wrap">
@@ -1673,53 +1734,45 @@ function renderFranchiseTierCards(){
     }
 
     // Build breakdown HTML
-    let breakupHtml = `<div class="bd-section-label">Total to start — item-wise breakup (excl. GST)</div>`;
-    // MRP fee row first (struck-through reference)
-    breakupHtml += `<div class="bd-row" style="opacity:0.55">
-      <span>Franchise License Fee (MRP)</span>
-      <span class="bd-val" style="text-decoration:line-through">${fmtCurrency(t.mrp)}</span>
-    </div>`;
-    if(isSpecial){
-      breakupHtml += `<div class="bd-row" style="opacity:0.65">
-        <span>Regular Franchise Partner (Limited Period Offer)</span>
-        <span class="bd-val" style="text-decoration:line-through">${fmtCurrency(t.fee)}</span>
-      </div>`;
-      breakupHtml += `<div class="bd-row bd-discounted-row">
-        <span>${discountLabel} 🏷️</span>
-        <span class="bd-val" style="color:var(--green-dark);font-weight:700">${fmtCurrency(effectiveFee)} <span class="bd-gst">+₹${Math.round(effectiveFee*0.18).toLocaleString('en-IN')} GST</span></span>
-      </div>`;
-    } else {
-      breakupHtml += `<div class="bd-row">
-        <span>Regular Franchise Partner (Limited Period Offer)</span>
-        <span class="bd-val">${fmtCurrency(effectiveFee)} <span class="bd-gst">+₹${Math.round(effectiveFee*0.18).toLocaleString('en-IN')} GST</span></span>
-      </div>`;
-    }
-    // Remaining breakup items
-    breakupWithDiscount.forEach(([label,val])=>{
-      if(label.includes('Entrepreneur') || label.includes('offer')) return; // already shown above
-      const itemGst = Math.round(val * 0.18);
-      breakupHtml += `<div class="bd-row">
-        <span>${label}</span>
-        <span class="bd-val">${fmtCurrency(val)} <span class="bd-gst">+₹${itemGst.toLocaleString('en-IN')} GST</span></span>
-      </div>`;
-    });
-    breakupHtml += `<div class="bd-row bd-total"><span>Subtotal (excl. GST)</span><span class="bd-val">${fmtCurrency(total)}</span></div>`;
-    breakupHtml += `<div class="bd-row bd-total" style="color:var(--amber-dark)"><span>18% GST on above</span><span class="bd-val">+ ${fmtCurrency(totalGst)}</span></div>`;
-    breakupHtml += `<div class="bd-row bd-total" style="background:var(--lmi-soft-blue);padding:5px 8px;border-radius:4px;margin-top:4px"><span style="color:var(--lmi-dark-blue);font-weight:700">Total to start (incl. GST)</span><span class="bd-val" style="color:var(--lmi-dark-blue);font-weight:700">${fmtCurrency(totalWithGst)}</span></div>`;
+    // ── Clean breakdown table ──
+    let breakupHtml = `<table class="bd-table">
+      <tr class="bd-section-row"><td colspan="2">One-time investment</td></tr>
+      <tr class="bd-mrp-row"><td>Franchise License Fee (MRP)</td><td>${fmtCurrency(t.mrp)}</td></tr>`;
 
-    const runningGst = Math.round(t.runningCost * 0.18);
-    breakupHtml += '<div class="bd-section-label" style="margin-top:10px">Monthly running cost</div>';
-    t.monthlyExpense.forEach(([label,val])=>{
-      const itemGst = Math.round(val * 0.18);
-      const isFixed = label.includes('(fixed)');
-      breakupHtml += `<div class="bd-row ${isFixed?'bd-fixed-row':''}">
-        <span>${label}${isFixed?' 🔒':''}</span>
-        <span class="bd-val">${fmtCurrency(val)}/mo <span class="bd-gst">+₹${itemGst.toLocaleString('en-IN')} GST</span></span>
-      </div>`;
+    if(isSpecial){
+      breakupHtml += `<tr class="bd-offer-row"><td>Regular offer (limited period)</td><td style="text-decoration:line-through;color:var(--text-tertiary)">${fmtCurrency(t.fee)}</td></tr>`;
+      breakupHtml += `<tr class="bd-special-row"><td>${discountLabel} 🏷️</td><td>${fmtCurrency(effectiveFee)}</td></tr>`;
+    } else {
+      breakupHtml += `<tr class="bd-offer-row"><td>Franchise fee (limited period offer)</td><td>${fmtCurrency(effectiveFee)}</td></tr>`;
+    }
+
+    // Other one-time items
+    breakupWithDiscount.forEach(([label,val])=>{
+      if(label.includes('Entrepreneur') || label.includes('offer') || label.includes('rate')) return;
+      breakupHtml += `<tr><td>${label}</td><td>${fmtCurrency(val)}</td></tr>`;
     });
-    breakupHtml += `<div class="bd-row bd-total"><span>Subtotal running (excl. GST)</span><span class="bd-val">${fmtCurrency(t.runningCost)}/mo</span></div>`;
-    breakupHtml += `<div class="bd-row bd-total" style="color:var(--amber-dark)"><span>18% GST on above</span><span class="bd-val">+ ${fmtCurrency(runningGst)}/mo</span></div>`;
-    breakupHtml += `<div class="bd-row bd-total" style="background:var(--lmi-soft-blue);padding:5px 8px;border-radius:4px;margin-top:4px"><span style="color:var(--lmi-dark-blue);font-weight:700">Total running (incl. GST)</span><span class="bd-val" style="color:var(--lmi-dark-blue);font-weight:700">${fmtCurrency(t.runningCost+runningGst)}/mo</span></div>`;
+
+    breakupHtml += `
+      <tr class="bd-subtotal-row"><td>Subtotal (excl. GST)</td><td>${fmtCurrency(total)}</td></tr>
+      <tr class="bd-gst-row"><td>+ 18% GST</td><td>+ ${fmtCurrency(totalGst)}</td></tr>
+      <tr class="bd-total-row"><td>Total to start (incl. GST)</td><td>${fmtCurrency(totalWithGst)}</td></tr>
+    </table>`;
+
+    // Monthly running cost table
+    const runningGst = Math.round(t.runningCost * 0.18);
+    breakupHtml += `<table class="bd-table" style="margin-top:4px">
+      <tr class="bd-section-row"><td colspan="2">Monthly running cost</td></tr>`;
+    t.monthlyExpense.forEach(([label,val])=>{
+      const isFixed = label.includes('(fixed)');
+      const cleanLabel = label.replace(' (fixed)','');
+      breakupHtml += `<tr class="${isFixed?'bd-fixed-row':''}"><td>${cleanLabel}</td><td>${fmtCurrency(val)}/mo</td></tr>`;
+    });
+    breakupHtml += `
+      <tr class="bd-subtotal-row"><td>Subtotal (excl. GST)</td><td>${fmtCurrency(t.runningCost)}/mo</td></tr>
+      <tr class="bd-gst-row"><td>+ 18% GST</td><td>+ ${fmtCurrency(runningGst)}/mo</td></tr>
+      <tr class="bd-total-row"><td>Total running (incl. GST)</td><td>${fmtCurrency(t.runningCost+runningGst)}/mo</td></tr>
+    </table>
+    <div class="bd-note">GST @ 18% applies on all items. Fixed costs 🔒 are non-negotiable minimums.</div>`;
 
     // Discount strip
     let discountStrip = '';
@@ -1802,7 +1855,7 @@ function renderMobilePlanTables(){
     const recIdx = tiers.findIndex(t => t.recommended);
 
     const thCols = tierNames.map((n,i) =>
-      `<th class="${i===recIdx?'col-rec':''}">${n}${i===recIdx?' ⭐':''}</th>`
+      `<th class="${i===recIdx?'col-rec':''}">${n}</th>`
     ).join('');
 
     const feeRow = tiers.map((t,i) => {
@@ -1961,18 +2014,85 @@ function setStaffCount(n){
   calculateIncome();
 }
 
+function initMobileTabs(){
+  // ── GP/SGP tab bar ──
+  const gpGrid = document.getElementById('gp-mini-grid');
+  if(gpGrid){
+    const cards = gpGrid.querySelectorAll('.gp-income-card');
+    if(cards.length >= 2){
+      // Add tab bar before grid
+      const tabBar = document.createElement('div');
+      tabBar.className = 'gp-tab-bar';
+      tabBar.innerHTML = `
+        <button class="gp-tab-btn active" onclick="switchGpTab('gp',this)">Growth Partner</button>
+        <button class="gp-tab-btn" onclick="switchGpTab('sgp',this)">Super Growth Partner</button>`;
+      gpGrid.before(tabBar);
+      cards.forEach((c,i) => {
+        c.classList.toggle('gp-tab-active', i===0);
+      });
+    }
+  }
+
+  // ── Franchise tier cards tab bar (Entrepreneur / Enterprise) ──
+  const tierGrid = document.getElementById('tier-income-grid');
+  if(tierGrid){
+    const cards = [...tierGrid.querySelectorAll('.tier-income-card')];
+    if(cards.length >= 6){
+      const tabBar = document.createElement('div');
+      tabBar.className = 'tier-tab-bar';
+      tabBar.innerHTML = `
+        <button class="tier-tab-btn active" onclick="switchTierTab('ent',this)">Entrepreneur</button>
+        <button class="tier-tab-btn" onclick="switchTierTab('entr',this)">Enterprise</button>`;
+      tierGrid.before(tabBar);
+      // First 3 = Entrepreneur, last 3 = Enterprise
+      cards.forEach((c,i) => {
+        c.classList.toggle('tier-tab-active', i < 3);
+        c.dataset.tierGroup = i < 3 ? 'ent' : 'entr';
+      });
+    }
+  }
+}
+
+function switchGpTab(key, btn){
+  document.querySelectorAll('.gp-tab-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  document.querySelectorAll('#gp-mini-grid .gp-income-card').forEach(c=>{
+    c.classList.toggle('gp-tab-active', c.id === 'gp-income-card-'+key);
+  });
+}
+
+function switchTierTab(group, btn){
+  document.querySelectorAll('.tier-tab-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  document.querySelectorAll('#tier-income-grid .tier-income-card').forEach(c=>{
+    c.classList.toggle('tier-tab-active', c.dataset.tierGroup===group);
+  });
+}
+
 function togglePinBar(forceCollapse){
   const hdr = document.querySelector('.income-sticky-header');
   const label = document.getElementById('pin-collapse-label');
   const icon = document.getElementById('pin-collapse-icon');
   if(!hdr) return;
-  const isCollapsed = hdr.classList.contains('pin-collapsed');
-  if(forceCollapse === true && isCollapsed) return;
-  if(forceCollapse === false && !isCollapsed) return;
-  hdr.classList.toggle('pin-collapsed');
-  const collapsed = hdr.classList.contains('pin-collapsed');
-  if(label) label.textContent = collapsed ? '📍 Show pin code bar' : '📍 Collapse pin code bar';
-  if(icon) icon.className = collapsed ? 'ti ti-chevron-down' : 'ti ti-chevron-up';
+  // On mobile, default is expanded (no pin-collapsed class = collapsed via CSS)
+  // We use data-pin-open to track open state on mobile
+  const isMobile = window.innerWidth <= 650;
+  if(isMobile){
+    const isOpen = hdr.dataset.pinOpen === '1';
+    if(forceCollapse === true && !isOpen) return;
+    if(forceCollapse === false && isOpen) return;
+    hdr.dataset.pinOpen = isOpen ? '0' : '1';
+    const nowOpen = hdr.dataset.pinOpen === '1';
+    hdr.classList.toggle('pin-collapsed', !nowOpen);
+    if(label) label.textContent = nowOpen ? '📍 Collapse' : '📍 Show pin code bar';
+    if(icon) icon.className = nowOpen ? 'ti ti-chevron-up' : 'ti ti-chevron-down';
+  } else {
+    const isCollapsed = hdr.classList.contains('pin-collapsed');
+    if(forceCollapse === true && isCollapsed) return;
+    if(forceCollapse === false && !isCollapsed) return;
+    hdr.classList.toggle('pin-collapsed');
+    const collapsed = hdr.classList.contains('pin-collapsed');
+    if(label) label.textContent = collapsed ? '📍 Show pin code bar' : '📍 Collapse pin code bar';
+    if(icon) icon.className = collapsed ? 'ti ti-chevron-down' : 'ti ti-chevron-up';
+  }
 }
 
 // Auto-collapse pincode bar on scroll down, restore on scroll up
@@ -2267,6 +2387,7 @@ function calculateIncome(){
 
   renderTierCards(tierList, computeForTier);
   renderGpMiniCards(gpList, computeForGP);
+  if(window.innerWidth <= 650) initMobileTabs();
   // Re-render franchise plan cards to sync breakeven with live slider values
   if(typeof renderFranchiseTierCards === 'function') renderFranchiseTierCards();
 }
