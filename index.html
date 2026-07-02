@@ -1353,7 +1353,8 @@ let monthlyVisible = false;
 let selectedTier = 'light';
 let discountType = 'regular'; // 'regular' | 'young' | 'women'
 let selectedMode = 'tier'; // 'tier' or 'gp'
-let gpPinCount = {gp:1, sgp:50};
+let gpPinCount = {gp:1, sgp:1};          // Income Potential mini-cards: SGP default 1
+let gpStandalonePinCount = {gp:1, sgp:50}; // Standalone GP/SGP tab cards: SGP default 50
 
 const planSliders = {
   149: document.getElementById('sl-plan149'),
@@ -1695,7 +1696,7 @@ function renderGrowthPartnerCards(){
     const grid = document.getElementById(gridId);
     if(!grid) return;
 
-    const defaultQty = gp.minQty;
+    const defaultQty = gpStandalonePinCount[gp.key] || gp.minQty;
     const rate = gpRateFor(gp, defaultQty);
     const rateWithGst = Math.round(rate * 1.18);
     const totalWithGst = rateWithGst * defaultQty;
@@ -1704,7 +1705,7 @@ function renderGrowthPartnerCards(){
     if(gp.key === 'gp'){
       for(let i=1;i<=20;i++) qtyOptions += `<option value="${i}" ${i===defaultQty?'selected':''}>${i} Pin Code${i>1?'s':''}</option>`;
     } else {
-      // SGP: minimum 50 pin codes, up to 99
+      // SGP standalone: minimum 50 pin codes, up to 99
       for(let i=50;i<=99;i++) qtyOptions += `<option value="${i}" ${i===defaultQty?'selected':''}>${i} Pin Codes</option>`;
     }
 
@@ -1786,6 +1787,7 @@ function setStaffCount(n){
 function updateGpCard(key){
   const gp = growthPartnerData.find(g=>g.key===key);
   const qty = parseInt(document.getElementById('gp-qty-'+key).value);
+  gpStandalonePinCount[key] = qty;
   const rate = gpRateFor(gp, qty);
   const rateWithGst = Math.round(rate * 1.18);
   const totalWithGst = rateWithGst * qty;
@@ -2214,6 +2216,7 @@ function renderGpMiniCards(gpList, computeForGP){
         qtyOptions += `<option value="${i}" ${i===qty?'selected':''}>${i} PIN${i>1?'s':''}</option>`;
       }
     } else {
+      // SGP in Income Potential: 1 to 100, default 1
       for(let i=1;i<=100;i++){
         qtyOptions += `<option value="${i}" ${i===qty?'selected':''}>${i} PINs</option>`;
       }
@@ -2286,7 +2289,8 @@ function toggleMonthly(){
 function resetAll(){
   selectedTier = 'light';
   selectedMode = 'tier';
-  gpPinCount = {gp:1, sgp:50};
+  gpPinCount = {gp:1, sgp:1};
+  gpStandalonePinCount = {gp:1, sgp:50};
   slPop.value = 100000;
   slRetailPct.value = 1.25;
   slHomeMult.value = 5;
@@ -2515,4 +2519,3 @@ function onPincodeChangeTop(){
 
 </body>
 </html>
-
