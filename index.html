@@ -309,9 +309,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .section{margin-bottom:1.75rem}
 .section-title{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:0.25rem;display:flex;align-items:center;gap:6px}
 .section-sub{font-size:12px;color:var(--text-tertiary);margin-bottom:0.9rem}
-.slider-row{margin-bottom:1.1rem}
-.slider-label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
-.slider-label{font-size:13px;color:var(--text-primary);font-weight:500}
+.slider-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:0.75rem}
+.slider-row{background:var(--bg-secondary);border-radius:var(--radius-md);padding:7px 10px}
+.slider-label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.slider-label{font-size:11.5px;color:var(--text-primary);font-weight:600}
+.slider-hint{display:none}
 .slider-hint{font-size:11px;color:var(--text-tertiary)}
 .slider-value{font-size:14px;font-weight:600;color:var(--lmi-dark-blue);min-width:70px;text-align:right}
 .slider-count{font-size:11px;font-weight:400;color:var(--text-tertiary);margin-left:2px}
@@ -319,12 +321,13 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .derived-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-secondary);border-radius:var(--radius-md);margin-bottom:8px;font-size:12.5px}
 .derived-row .lbl{color:var(--text-secondary)}
 .derived-row .val{font-weight:600;color:var(--text-primary)}
-.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:0.5rem}
-.plan-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 12px}
-.plan-card .pname{font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:2px}
-.plan-card .pprice{font-size:11px;color:var(--text-tertiary);margin-bottom:8px}
-.plan-card input[type=range]{margin-bottom:4px}
-.plan-card .pval{font-size:13px;font-weight:600;color:var(--lmi-dark-blue);text-align:right}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0.5rem}
+.plan-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:7px 10px}
+.plan-card-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+.plan-card .pname{font-size:11.5px;font-weight:600;color:var(--text-primary)}
+.plan-card .pprice{font-size:10px;color:var(--text-tertiary);margin-bottom:4px}
+.plan-card input[type=range]{margin:0;display:block}
+.plan-card .pval{font-size:13px;font-weight:700;color:var(--lmi-blue);background:var(--lmi-soft-blue);padding:1px 6px;border-radius:6px}
 .plan-sum-note{font-size:11px;color:var(--text-tertiary);text-align:right;margin-top:2px}
 .plan-sum-note.warn{color:var(--red-dark);font-weight:600}
 .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1rem}
@@ -360,20 +363,21 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .reset-btn{font-size:12px;padding:7px 14px;margin-top:0.5rem;background:transparent;border:0.5px solid var(--border-secondary);border-radius:var(--radius-md);cursor:pointer;color:var(--text-secondary)}
 .reset-btn:hover{background:var(--bg-secondary)}
 
-.summary-banner{background:var(--lmi-dark-blue);border-radius:var(--radius-lg);padding:0.6rem 0.85rem;margin-bottom:0;color:white}
-.summary-banner-head{font-size:10px;font-weight:600;letter-spacing:0.02em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:0.45rem;display:flex;align-items:center;gap:5px}
-.summary-banner-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.summary-banner-item{background:rgba(255,255,255,0.08);border-radius:var(--radius-md);padding:0.4rem 0.4rem;text-align:center}
+.summary-banner{background:var(--lmi-dark-blue);border-radius:var(--radius-lg);padding:0.4rem 0.7rem;margin-bottom:0;color:white}
+.summary-banner-head{font-size:10px;font-weight:600;letter-spacing:0.02em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:0.3rem;display:flex;align-items:center;gap:5px}
+.summary-banner-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.summary-banner-item{background:rgba(255,255,255,0.08);border-radius:var(--radius-md);padding:4px 6px;display:flex;align-items:center;justify-content:space-between;gap:6px}
 .summary-banner-item.total{background:var(--lmi-yellow);color:var(--lmi-dark-blue)}
-.sb-label{font-size:10px;color:rgba(255,255,255,0.75);margin-bottom:2px;font-weight:500}
-.summary-banner-item.total .sb-label{color:rgba(45,58,140,0.75)}
-.sb-val{font-size:14px;font-weight:700}
+.sb-label{font-size:10px;color:rgba(255,255,255,0.75);font-weight:500;white-space:nowrap}
+.summary-banner-item.total{justify-content:space-between}.summary-banner-item.total .sb-label{color:rgba(45,58,140,0.75)}
+.sb-val{font-size:13px;font-weight:700}
 
-.assumption-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.assumption-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:10px 12px}
-.ac-label{font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:6px}
-.assumption-card input[type=range]{margin-bottom:4px}
-.ac-val{font-size:13px;font-weight:600;color:var(--lmi-dark-blue);text-align:right}
+.assumption-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.assumption-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:7px 10px}
+.ac-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.ac-label{font-size:11.5px;font-weight:600;color:var(--text-primary)}
+.assumption-card input[type=range]{margin:0;display:block}
+.ac-val{font-size:13px;font-weight:700;color:var(--lmi-blue);background:var(--lmi-soft-blue);padding:1px 6px;border-radius:6px;white-space:nowrap}
 
 .ent-fixed-strip{display:flex;align-items:flex-start;gap:10px;background:var(--amber-light);border:0.5px solid var(--amber);border-radius:var(--radius-md);padding:10px 12px;margin-bottom:0.5rem}
 .ent-fixed-strip i{font-size:18px;color:var(--amber-dark);flex-shrink:0;margin-top:2px}
@@ -412,25 +416,29 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .gp-yr-total{background:var(--lmi-soft-blue)}
 .gp-yr-label{font-size:8.5px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.02em;margin-bottom:1px}
 .gp-yr-val{font-size:11px;font-weight:700;color:var(--lmi-dark-blue)}
-.gp-income-select{width:100%;padding:3px 5px;font-size:10.5px;border:0.5px solid var(--border-secondary);border-radius:5px;background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;cursor:pointer;margin-bottom:3px}
+.gp-income-select{width:auto;min-width:80px;max-width:140px;padding:3px 5px;font-size:10.5px;border:0.5px solid var(--border-secondary);border-radius:5px;background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;cursor:pointer}
+.gp-select-onetime-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.gp-onetime-inline{display:flex;align-items:center;gap:4px;background:var(--amber-light);border-radius:4px;padding:3px 7px;flex:1}
+.gp-onetime-inline .gp-onetime-label{font-size:9px;color:var(--amber-dark);font-weight:600;white-space:nowrap}
+.gp-onetime-inline .gp-onetime-val{font-size:11px;font-weight:700;color:var(--amber-dark);margin-left:auto}
 .gp-income-select:focus{outline:none;border-color:var(--lmi-blue)}
 .tier-income-card{border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary);cursor:pointer;transition:border-color 0.15s,transform 0.1s}
 .tier-income-card:hover{transform:translateY(-1px)}
 .tier-income-card.featured{border:2px solid var(--lmi-blue)}
-.tic-head{padding:7px 8px 5px}
-.tic-name{font-size:12px;font-weight:600;color:var(--text-primary)}
-.tic-share{font-size:10px;color:var(--text-secondary);margin-top:1px;display:none}
-.tic-body{padding:6px 8px 8px;border-top:0.5px solid var(--border-tertiary)}
-.tic-3yr-label{font-size:9px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.02em;margin-bottom:1px;display:none}
-.tic-3yr-val{font-size:13px;font-weight:700;color:var(--lmi-dark-blue)}
-.t1 .tic-head{background:var(--amber-light)}
-.t2 .tic-head{background:var(--green-light)}
-.t3 .tic-head{background:#E6F1FB}
-.t4 .tic-head{background:#FBEAF0}
-.t5 .tic-head{background:#EEEDFE}
-.t6 .tic-head{background:#FAECE7}
 .tier-income-card.selected{border:2px solid var(--lmi-dark-blue);box-shadow:0 1px 4px rgba(0,0,0,0.12)}
+.tic-inner{padding:5px 8px;display:flex;flex-direction:column;gap:1px}
+.tic-name{font-size:11px;font-weight:600;color:var(--text-primary)}
+.tic-row{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-top:1px}
+.tic-3yr-val{font-size:13px;font-weight:700;color:var(--lmi-dark-blue)}
+.tic-bev{font-size:9px;color:var(--text-tertiary);white-space:nowrap}
+.tic-bev strong{color:var(--lmi-dark-blue)}
 .tier-income-card.selected .tic-3yr-val{color:var(--lmi-dark-blue)}
+.t1 .tic-inner{background:var(--amber-light)}
+.t2 .tic-inner{background:var(--green-light)}
+.t3 .tic-inner{background:#E6F1FB}
+.t4 .tic-inner{background:#FBEAF0}
+.t5 .tic-inner{background:#EEEDFE}
+.t6 .tic-inner{background:#FAECE7}
 
 .income-sticky-header{position:sticky;top:60px;background:var(--bg-tertiary);z-index:5;padding-top:0.5rem;padding-bottom:0.6rem;border-bottom:0.5px solid var(--border-secondary);margin-bottom:1rem;margin-left:-1.5rem;margin-right:-1.5rem;padding-left:1.5rem;padding-right:1.5rem}
 /* Collapsible pincode bar */
@@ -438,8 +446,6 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .sticky-title-row{overflow:hidden;transition:max-height 0.25s ease,opacity 0.2s ease,margin 0.25s ease;max-height:40px;opacity:1}
 .income-sticky-header.pin-collapsed .pin-topbar-wrap{max-height:0!important;opacity:0;margin-bottom:0}
 .income-sticky-header.pin-collapsed .sticky-title-row{max-height:0!important;opacity:0}
-.pin-collapse-btn{font-size:10px;color:var(--text-tertiary);cursor:pointer;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:3px;padding:1px 0;margin-bottom:3px;user-select:none;background:none;border:none;font-family:inherit;width:100%}
-.pin-collapse-btn:hover{color:var(--lmi-blue)}
 .income-scroll-body{padding-top:0.25rem}
 
 @media (max-width:650px){
@@ -486,7 +492,6 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
   .tic-3yr-val{font-size:10px}
   .tic-bev{font-size:7.5px}
   .gp-mini-label{font-size:7.5px;margin-bottom:1px;margin-top:3px}
-  .pin-collapse-btn{font-size:9.5px;padding:0;margin-bottom:2px}
   .income-sticky-header>.sticky-title-row{display:none}
   .income-sticky-header .gp-mini-label{display:block;font-size:8px;margin-bottom:2px;margin-top:4px}
   .income-sticky-header #gp-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
@@ -788,12 +793,6 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
         <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Income potential calculator</span>
       </div>
 
-      <button class="pin-collapse-btn" id="pin-collapse-btn" onclick="togglePinBar()">
-        <i class="ti ti-map-pin" style="font-size:11px"></i>
-        <span id="pin-collapse-label">📍 Show pin code bar</span>
-        <i class="ti ti-chevron-down" id="pin-collapse-icon" style="font-size:10px"></i>
-      </button>
-
       <div class="pin-topbar-wrap" id="pin-topbar-wrap">
         <div class="pin-topbar">
         <select class="pin-topbar-select" id="pin-state-top" onchange="onStateChangeTop()">
@@ -852,40 +851,38 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
       <div class="section-title"><i class="ti ti-users" aria-hidden="true"></i> Your market</div>
       <div class="section-sub">All 6 franchise tiers are calculated from the same market assumptions below — same population, same capture %, same plan mix. Change any slider and all 6 update together.</div>
 
+      <div class="slider-grid">
       <div class="slider-row">
         <div class="slider-label-row">
-          <span class="slider-label">Population in your pincode</span>
+          <span class="slider-label">Population</span>
           <span class="slider-value" id="val-pop">1,00,000</span>
         </div>
         <input type="range" id="sl-pop" min="10000" max="500000" step="5000" value="100000">
-        <div class="slider-hint">Default 1,00,000 — typical urban pincode</div>
       </div>
 
       <div class="slider-row">
         <div class="slider-label-row">
-          <span class="slider-label">Retail stores (% of population)</span>
+          <span class="slider-label">Retail stores %</span>
           <span class="slider-value" id="val-retailpct">1.25%</span>
         </div>
         <input type="range" id="sl-retailpct" min="0.5" max="3" step="0.05" value="1.25">
-        <div class="slider-hint">Default 1.25% of population — suggested, adjustable</div>
       </div>
 
       <div class="slider-row">
         <div class="slider-label-row">
-          <span class="slider-label">Home-based businesses (× retail stores)</span>
+          <span class="slider-label">Home-based (× retail)</span>
           <span class="slider-value" id="val-homemult">5.0x</span>
         </div>
         <input type="range" id="sl-homemult" min="2" max="10" step="0.5" value="5">
-        <div class="slider-hint">Default 5x the retail store count — suggested, adjustable</div>
       </div>
 
       <div class="slider-row">
         <div class="slider-label-row">
-          <span class="slider-label">Market capture in first 3 months</span>
+          <span class="slider-label">Market capture</span>
           <span class="slider-value" id="val-capture">20%</span>
         </div>
         <input type="range" id="sl-capture" min="5" max="50" step="1" value="10">
-        <div class="slider-hint">% of total businesses you onboard as paid listings by month 3</div>
+      </div>
       </div>
 
     </div>
@@ -971,24 +968,9 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
       <div class="section-sub">How your captured listings split across the 3 starter plans — drag any slider, the others rebalance to keep the total at 100%.</div>
 
       <div class="plan-grid">
-        <div class="plan-card">
-          <div class="pname">LMI Social</div>
-          <div class="pprice">₹149/mo</div>
-          <input type="range" id="sl-plan149" min="0" max="100" step="1" value="50">
-          <div class="pval" id="val-plan149">50%</div>
-        </div>
-        <div class="plan-card">
-          <div class="pname">LMI Star Rated</div>
-          <div class="pprice">₹199/mo</div>
-          <input type="range" id="sl-plan199" min="0" max="100" step="1" value="30">
-          <div class="pval" id="val-plan199">30%</div>
-        </div>
-        <div class="plan-card">
-          <div class="pname">LMI Lead Magnet</div>
-          <div class="pprice">₹249/mo</div>
-          <input type="range" id="sl-plan249" min="0" max="100" step="1" value="20">
-          <div class="pval" id="val-plan249">20%</div>
-        </div>
+        <div class="plan-card"><div class="plan-card-header"><div class="pname">LMI Social</div><div class="pval" id="val-plan149">50%</div></div><div class="pprice">₹149/mo</div><input type="range" id="sl-plan149" min="0" max="100" step="1" value="50"></div>
+        <div class="plan-card"><div class="plan-card-header"><div class="pname">LMI Star Rated</div><div class="pval" id="val-plan199">30%</div></div><div class="pprice">₹199/mo</div><input type="range" id="sl-plan199" min="0" max="100" step="1" value="30"></div>
+        <div class="plan-card"><div class="plan-card-header"><div class="pname">LMI Lead Magnet</div><div class="pval" id="val-plan249">20%</div></div><div class="pprice">₹249/mo</div><input type="range" id="sl-plan249" min="0" max="100" step="1" value="20"></div>
       </div>
       <div class="plan-sum-note" id="plan-sum-note">Total: 100%</div>
     </div>
@@ -998,20 +980,17 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
       <div class="section-sub">Month-on-month new subscriber growth, set separately for each year. Defaults are realistic and match List My India's actual onboarding curve — adjust if you expect faster or slower uptake.</div>
 
       <div class="assumption-grid">
-        <div class="assumption-card">
-          <div class="ac-label">Year 1 growth</div>
+                <div class="assumption-card">
+          <div class="ac-header"><div class="ac-label">Year 1 growth</div><div class="ac-val" id="val-growth-y1">7.5%/mo</div></div>
           <input type="range" id="sl-growth-y1" min="2" max="15" step="0.5" value="7.5">
-          <div class="ac-val" id="val-growth-y1">7.5%/mo</div>
         </div>
-        <div class="assumption-card">
-          <div class="ac-label">Year 2 growth</div>
+                <div class="assumption-card">
+          <div class="ac-header"><div class="ac-label">Year 2 growth</div><div class="ac-val" id="val-growth-y2">4.0%/mo</div></div>
           <input type="range" id="sl-growth-y2" min="1" max="10" step="0.5" value="4">
-          <div class="ac-val" id="val-growth-y2">4.0%/mo</div>
         </div>
-        <div class="assumption-card">
-          <div class="ac-label">Year 3 growth</div>
+                <div class="assumption-card">
+          <div class="ac-header"><div class="ac-label">Year 3 growth</div><div class="ac-val" id="val-growth-y3">3.0%/mo</div></div>
           <input type="range" id="sl-growth-y3" min="0.5" max="8" step="0.5" value="3">
-          <div class="ac-val" id="val-growth-y3">3.0%/mo</div>
         </div>
       </div>
     </div>
@@ -1021,20 +1000,17 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
       <div class="section-sub">% of subscribers who don't renew each month. Typically highest in year 1 as the market settles, then stabilizes.</div>
 
       <div class="assumption-grid">
-        <div class="assumption-card">
-          <div class="ac-label">Year 1 churn</div>
+                <div class="assumption-card">
+          <div class="ac-header"><div class="ac-label">Year 1 churn</div><div class="ac-val" id="val-churn-y1">2.5%/mo</div></div>
           <input type="range" id="sl-churn-y1" min="0.5" max="6" step="0.25" value="2.5">
-          <div class="ac-val" id="val-churn-y1">2.5%/mo</div>
         </div>
-        <div class="assumption-card">
-          <div class="ac-label">Year 2 churn</div>
+                <div class="assumption-card">
+          <div class="ac-header"><div class="ac-label">Year 2 churn</div><div class="ac-val" id="val-churn-y2">2.0%/mo</div></div>
           <input type="range" id="sl-churn-y2" min="0.5" max="5" step="0.25" value="2">
-          <div class="ac-val" id="val-churn-y2">2.0%/mo</div>
         </div>
-        <div class="assumption-card">
-          <div class="ac-label">Year 3 churn</div>
+                <div class="assumption-card">
+          <div class="ac-header"><div class="ac-label">Year 3 churn</div><div class="ac-val" id="val-churn-y3">1.5%/mo</div></div>
           <input type="range" id="sl-churn-y3" min="0.5" max="4" step="0.25" value="1.5">
-          <div class="ac-val" id="val-churn-y3">1.5%/mo</div>
         </div>
       </div>
     </div>
@@ -2069,46 +2045,24 @@ function switchTierTab(group, btn){
 
 function togglePinBar(forceCollapse){
   const hdr = document.querySelector('.income-sticky-header');
-  const label = document.getElementById('pin-collapse-label');
-  const icon = document.getElementById('pin-collapse-icon');
   if(!hdr) return;
-  // On mobile, default is expanded (no pin-collapsed class = collapsed via CSS)
-  // We use data-pin-open to track open state on mobile
-  const isMobile = window.innerWidth <= 650;
-  if(isMobile){
-    const isOpen = hdr.dataset.pinOpen === '1';
-    if(forceCollapse === true && !isOpen) return;
-    if(forceCollapse === false && isOpen) return;
-    hdr.dataset.pinOpen = isOpen ? '0' : '1';
-    const nowOpen = hdr.dataset.pinOpen === '1';
-    hdr.classList.toggle('pin-collapsed', !nowOpen);
-    if(label) label.textContent = nowOpen ? '📍 Collapse' : '📍 Show pin code bar';
-    if(icon) icon.className = nowOpen ? 'ti ti-chevron-up' : 'ti ti-chevron-down';
-  } else {
-    const isCollapsed = hdr.classList.contains('pin-collapsed');
-    if(forceCollapse === true && isCollapsed) return;
-    if(forceCollapse === false && !isCollapsed) return;
-    hdr.classList.toggle('pin-collapsed');
-    const collapsed = hdr.classList.contains('pin-collapsed');
-    if(label) label.textContent = collapsed ? '📍 Show pin code bar' : '📍 Collapse pin code bar';
-    if(icon) icon.className = collapsed ? 'ti ti-chevron-down' : 'ti ti-chevron-up';
-  }
+  const isCollapsed = hdr.classList.contains('pin-collapsed');
+  if(forceCollapse === true && isCollapsed) return;
+  if(forceCollapse === false && !isCollapsed) return;
+  hdr.classList.toggle('pin-collapsed', forceCollapse === true);
 }
 
-// Auto-collapse pincode bar on scroll down, restore on scroll up
+// Auto-collapse pincode bar on scroll down, restore when back to top
 (function(){
   let lastScrollY = 0;
-  let pinAutoCollapsed = false;
   window.addEventListener('scroll', ()=>{
     const panel = document.getElementById('panel-income');
     if(!panel || !panel.classList.contains('active')) return;
     const y = window.scrollY;
-    if(y > lastScrollY && y > 120 && !pinAutoCollapsed){
-      togglePinBar(true); // collapse
-      pinAutoCollapsed = true;
-    } else if(y < lastScrollY - 40 && pinAutoCollapsed){
-      togglePinBar(false); // restore on scroll up
-      pinAutoCollapsed = false;
+    if(y > 80){
+      togglePinBar(true);   // collapsed once scrolled down
+    } else {
+      togglePinBar(false);  // show again only when back near top
     }
     lastScrollY = y;
   }, {passive:true});
@@ -2532,15 +2486,11 @@ function renderTierCards(tierList, computeForTier){
     }
 
     html += `<div class="tier-income-card ${t.cls} ${isSelected?'selected':''}" onclick="selectTier('${t.key}')">
-      <div class="tic-head">
+      <div class="tic-inner">
         <div class="tic-name">${t.name}</div>
-        <div class="tic-share">${Math.round(t.share*100)}% share</div>
-      </div>
-      <div class="tic-body">
-        <div class="tic-3yr-label">3-year income</div>
-        <div class="tic-3yr-val">${fmtCurrency(data.total)}</div>
-        <div style="margin-top:4px;text-align:center">
-          <span style="font-size:9px;color:var(--text-tertiary)">Breakeven: <strong style="color:var(--lmi-dark-blue)">${breakeven?'M'+breakeven:'36+'}</strong></span>
+        <div class="tic-row">
+          <span class="tic-3yr-val">${fmtCurrency(data.total)}</span>
+          <span class="tic-bev">BE: <strong>${breakeven?'M'+breakeven:'36+'}</strong></span>
         </div>
       </div>
     </div>`;
@@ -2574,8 +2524,14 @@ function renderGpMiniCards(gpList, computeForGP){
       </div>
       <div class="gp-income-body">
         <div style="font-size:9.5px;color:var(--text-tertiary);margin-bottom:4px">Pin codes referred by you</div>
-        <select class="gp-income-select" id="gp-income-qty-${g.key}" onchange="updateGpIncomeQty('${g.key}')" onclick="event.stopPropagation()">${qtyOptions}</select>
-        <div class="gp-onetime-row">
+        <div class="gp-select-onetime-row">
+          <select class="gp-income-select" id="gp-income-qty-${g.key}" onchange="updateGpIncomeQty('${g.key}')" onclick="event.stopPropagation()">${qtyOptions}</select>
+          <div class="gp-onetime-inline" id="gp-onetime-inline-${g.key}">
+            <span class="gp-onetime-label" id="gp-onetime-label-${g.key}">On ${data.tierLabel}</span>
+            <span class="gp-onetime-val" id="gp-onetime-val-${g.key}">${fmtCurrency(data.onetimeTotal)}</span>
+          </div>
+        </div>
+        <div class="gp-onetime-row" style="display:none">
           <span class="gp-onetime-label">One-time on ${data.tierLabel} fee</span>
           <span class="gp-onetime-val">${fmtCurrency(data.onetimeTotal)}</span>
         </div>
