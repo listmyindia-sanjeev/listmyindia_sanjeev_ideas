@@ -377,19 +377,82 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .income-scroll-body{padding-top:0.25rem}
 
 @media (max-width:650px){
-  .tier-income-grid{gap:5px}
-  .income-sticky-header .tic-head{padding:5px 4px 3px}
-  .income-sticky-header .tic-body{padding:3px 4px 5px}
+  /* ── Sticky header: mobile layout ── */
+  .income-sticky-header{
+    margin-left:-1rem;margin-right:-1rem;
+    padding-left:1rem;padding-right:1rem;
+    padding-top:0.4rem;padding-bottom:0.4rem;
+    top:44px;
+  }
+  /* Hide on mobile: title row, GP section, GP label */
+  .income-sticky-header>.sticky-title-row{display:none}
+  .income-sticky-header .gp-mini-label{display:none}
+  .income-sticky-header #gp-mini-grid{display:none}
+  /* Pincode bar: stack dropdowns vertically, smaller */
+  .pin-topbar{padding:4px 6px;gap:4px;flex-wrap:nowrap;overflow-x:auto}
+  .pin-topbar-select{font-size:10px;padding:3px 4px;max-width:none;flex:1;min-width:0}
+  .pin-topbar-chips{gap:4px;flex-wrap:nowrap}
+  .pin-topbar-chip{font-size:9px;padding:2px 6px}
+  .pin-topbar-apply{font-size:10px;padding:3px 8px}
+  /* Tier cards: horizontally scrollable strip */
+  .tier-income-grid{
+    display:flex;gap:5px;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;padding-bottom:2px;
+    scroll-snap-type:x mandatory;
+  }
+  .tier-income-grid::-webkit-scrollbar{display:none}
+  .tier-income-card{
+    flex:0 0 calc(33% - 4px);min-width:90px;
+    scroll-snap-align:start;
+  }
+  .income-sticky-header .tic-head{padding:5px 5px 3px}
+  .income-sticky-header .tic-body{padding:3px 5px 5px}
   .income-sticky-header .tic-name{font-size:9px;line-height:1.2}
-  .income-sticky-header .tic-3yr-val{font-size:10px}
-  .income-sticky-header{margin-left:-1rem;margin-right:-1rem;padding-left:1rem;padding-right:1rem}
+  .income-sticky-header .tic-3yr-val{font-size:11px}
+  .income-sticky-header .tic-share{display:none}
+  /* Tier label: smaller */
+  .income-sticky-header .gp-mini-label:last-of-type{
+    font-size:9px;margin-bottom:3px;margin-top:4px;
+  }
+  /* Tier label in sticky header: keep but compact */
+  .income-sticky-header .sticky-tiers-label{
+    font-size:9px;margin-bottom:3px;margin-top:4px;display:block;
+  }
+  /* Summary banner: more compact */
+  .summary-banner{padding:0.4rem 0.6rem;margin-top:5px}
+  .summary-banner-head{font-size:9px;margin-bottom:3px}
+  .summary-banner-grid{
+    grid-template-columns:repeat(4,1fr);
+    gap:3px;
+  }
+  .summary-banner-item{padding:3px 2px}
+  .sb-label{font-size:8px}
+  .sb-val{font-size:11px}
 }
-
-footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-tertiary)}
 
 @media (max-width:650px){
   .plan-grid,.metric-grid{grid-template-columns:1fr}
+  /* GP cards move to scroll body - make them more readable on mobile */
+  .gp-income-grid{grid-template-columns:1fr}
+  .gp-yr-grid{grid-template-columns:repeat(4,1fr);gap:3px}
+  .gp-yr-cell{padding:3px 2px}
+  .gp-yr-label{font-size:8px}
+  .gp-yr-val{font-size:10px}
+  /* Sliders: full width labels */
+  .slider-label-row{flex-wrap:wrap}
+  /* Enterprise section: full width buttons */
+  .staff-toggle-row{grid-template-columns:1fr 1fr}
+  /* Pin select grid in scroll body: stack to 1 col */
+  .pin-select-grid{grid-template-columns:1fr}
+  /* Tiers grid in franchise tab: 1 col on very small */
+  .tiers-grid{grid-template-columns:1fr}
+  /* Questionnaire table: allow horizontal scroll */
+  .plan-compare-table{font-size:10px}
+  .plan-compare-table th,.plan-compare-table td{padding:4px 5px}
 }
+
+footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-tertiary)}
 </style>
 </head>
 <body>
@@ -523,7 +586,7 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
   <div class="module-panel" id="panel-income">
     <div class="income-sticky-header">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.4rem">
+      <div class="sticky-title-row" style="display:flex;align-items:center;gap:8px;margin-bottom:0.4rem">
         <span class="lmi-badge">List My India™</span>
         <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Income potential calculator</span>
       </div>
@@ -548,7 +611,7 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
       <div class="gp-mini-label">Referral programme</div>
       <div class="gp-income-grid" id="gp-mini-grid"></div>
 
-      <div class="gp-mini-label" style="margin-top:6px">Franchise tiers</div>
+      <div class="gp-mini-label sticky-tiers-label" style="margin-top:6px">Franchise tiers</div>
       <div class="tier-income-grid" id="tier-income-grid"></div>
 
       <div class="summary-banner" style="margin-top:8px">
