@@ -318,6 +318,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .slider-count{font-size:11px;font-weight:400;color:var(--text-tertiary);margin-left:2px}
 input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .derived-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-secondary);border-radius:var(--radius-md);margin-bottom:8px;font-size:12.5px}
+.vas-derived-row{flex-wrap:wrap;gap:4px}
+.vas-yr-grid{display:flex;gap:12px;align-items:center}
+.vas-yr-item{display:flex;flex-direction:column;align-items:center;gap:1px}
+.vas-yr-label{font-size:9px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.03em}
+.vas-yr-val{font-size:12px;font-weight:600;color:var(--green-dark)}
+.vas-yr-total .vas-yr-val{color:var(--lmi-dark-blue);font-size:13px}
+.vas-yr-total .vas-yr-label{color:var(--lmi-blue)}
 .derived-row .lbl{color:var(--text-secondary)}
 .derived-row .val{font-weight:600;color:var(--text-primary)}
 .plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:0}
@@ -447,8 +454,50 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .income-sticky-header.pin-collapsed .sticky-title-row{max-height:0!important;opacity:0}
 .income-scroll-body{padding-top:0.25rem}
 
-@media (max-width:650px){
-  /* ── 1. Nav: hide icons, ultra-compact text, all tabs fit ── */
+/* ── PIN Availability Checker ── */
+.pac-wrap{background:white;border:1px solid var(--border-secondary);border-radius:var(--radius-lg);padding:12px 14px;margin-bottom:1rem;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+.pac-title{font-size:12px;font-weight:700;color:var(--lmi-dark-blue);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.pac-rows{display:flex;flex-direction:column;gap:6px}
+.pac-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pac-select{padding:5px 8px;font-size:11.5px;border:1px solid var(--border-secondary);border-radius:6px;background:var(--bg-secondary);color:var(--text-primary);font-family:inherit;cursor:pointer;min-width:110px;flex:1}
+.pac-add-btn{width:26px;height:26px;border-radius:50%;background:var(--lmi-blue);color:white;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pac-remove-btn{width:26px;height:26px;border-radius:50%;background:var(--bg-tertiary);color:var(--text-secondary);border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pac-check-btn{padding:5px 14px;font-size:11.5px;font-weight:600;background:var(--lmi-dark-blue);color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit;flex-shrink:0}
+.pac-check-btn:hover{background:var(--lmi-blue)}
+.pac-results{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.pac-result-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;font-size:11.5px;flex-wrap:wrap;background:var(--bg-secondary)}
+.pac-pin-label{font-weight:700;color:var(--text-primary);min-width:60px}
+.pac-badge{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap}
+.pac-available{background:#D4EDDA;color:#155724}
+.pac-gp-booked{background:#FFF3CD;color:#856404}
+.pac-sgp-booked{background:#D1ECF1;color:#0C5460}
+.pac-fp-booked{background:#F8D7DA;color:#721C24}
+.pac-action-btn{padding:3px 10px;font-size:10.5px;font-weight:700;border:none;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.pac-book-btn{background:var(--lmi-yellow);color:var(--lmi-dark-blue)}
+.pac-book-btn:hover{background:#E5C200}
+.pac-waitlist-btn{background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)}
+.pac-sgp-counter{font-size:11px;color:var(--lmi-dark-blue);font-weight:600;margin-top:6px;padding:4px 10px;background:var(--lmi-soft-blue);border-radius:6px;display:inline-block}
+.pac-sgp-warning{font-size:10.5px;color:var(--amber-dark);margin-top:4px}
+.pac-decl{font-size:10.5px;color:var(--text-secondary);margin-top:6px;padding:6px 10px;background:#FFFDE7;border-radius:6px;border-left:3px solid var(--lmi-yellow);line-height:1.5}
+.pac-proceed-btn{margin-top:8px;padding:7px 18px;font-size:12px;font-weight:700;background:var(--lmi-blue);color:white;border:none;border-radius:var(--radius-md);cursor:pointer;font-family:inherit}
+.pac-proceed-btn:hover{background:var(--lmi-dark-blue);color:var(--lmi-yellow)}
+.pac-proceed-btn:disabled{background:var(--bg-tertiary);color:var(--text-tertiary);cursor:not-allowed}
+.pac-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;align-items:center;justify-content:center}
+.pac-modal-overlay.open{display:flex}
+.pac-modal{background:white;border-radius:var(--radius-lg);padding:20px 22px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,0.2)}
+.pac-modal-title{font-size:14px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:4px}
+.pac-modal-sub{font-size:11px;color:var(--text-tertiary);margin-bottom:12px}
+.pac-form-field{margin-bottom:9px}
+.pac-form-field label{display:block;font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:3px}
+.pac-form-field input,.pac-form-field select,.pac-form-field textarea{width:100%;padding:6px 9px;font-size:12px;border:1px solid var(--border-secondary);border-radius:6px;font-family:inherit;box-sizing:border-box}
+.pac-form-field textarea{resize:vertical;height:50px}
+.pac-form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pac-modal-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.pac-submit-btn{padding:8px 20px;font-size:12px;font-weight:700;background:var(--lmi-blue);color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit}
+.pac-submit-btn:hover{background:var(--lmi-dark-blue);color:var(--lmi-yellow)}
+.pac-cancel-btn{padding:8px 14px;font-size:12px;background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border-secondary);border-radius:6px;cursor:pointer;font-family:inherit}
+.pac-success-msg{text-align:center;padding:16px;color:var(--green-dark);font-weight:600;font-size:13px}
+@media(max-width:650px){.pac-select{font-size:10.5px;min-width:70px}.pac-result-row{font-size:10.5px}.pac-form-row{grid-template-columns:1fr}}
   .module-nav-inner{padding:0 0.25rem;gap:0}
   .module-btn{padding:6px 8px;font-size:11px;gap:0;flex:1;justify-content:center}
   .module-btn i{display:none}
@@ -614,6 +663,41 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
   .val-share{font-size:11px}
 }
 
+/* ── Slab Pricing Card ── */
+.slab-card{background:#FFFDF0;border:2px solid #F5D100;border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:1rem;margin-top:0.75rem;color:var(--text-primary);position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(245,209,0,0.25)}
+.slab-card::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(245,209,0,0.15);border-radius:50%}
+.slab-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.slab-card-title{font-size:13px;font-weight:700;color:var(--lmi-dark-blue)}
+.slab-card-subtitle{font-size:10.5px;color:var(--text-secondary);margin-top:2px}
+.slab-live-badge{background:var(--lmi-dark-blue);color:var(--lmi-yellow);font-size:9.5px;font-weight:700;padding:2px 10px;border-radius:10px;display:flex;align-items:center;gap:4px}
+.slab-live-dot{width:6px;height:6px;background:var(--lmi-yellow);border-radius:50%;animation:slab-blink 1.2s infinite}
+@keyframes slab-blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.slab-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.slab-metric{background:var(--lmi-dark-blue);border-radius:8px;padding:8px 10px;text-align:center}
+.slab-metric-val{font-size:15px;font-weight:700;color:var(--lmi-yellow)}
+.slab-metric-label{font-size:9px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.04em;margin-top:2px}
+.slab-progress-wrap{margin-bottom:10px}
+.slab-progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary);margin-bottom:5px;font-weight:500}
+.slab-progress-bar{height:8px;background:rgba(45,58,140,0.12);border-radius:4px;overflow:hidden;border:1px solid rgba(45,58,140,0.15)}
+.slab-progress-fill{height:100%;background:linear-gradient(90deg,#F5D100,#F59E0B);border-radius:4px;transition:width 0.6s ease}
+.slab-urgency{background:var(--lmi-dark-blue);border-radius:6px;padding:8px 12px;font-size:11px;color:rgba(255,255,255,0.9);margin-bottom:10px;line-height:1.6}
+.slab-urgency strong{color:var(--lmi-yellow)}
+.slab-table-wrap{overflow-x:auto;margin-bottom:6px;border-radius:8px;overflow:hidden;border:1px solid rgba(45,58,140,0.15)}
+.slab-table{width:100%;border-collapse:collapse;font-size:11px}
+.slab-table th{padding:6px 10px;text-align:center;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:white;background:var(--lmi-dark-blue);border-bottom:none}
+.slab-table th:first-child{text-align:left}
+.slab-table td{padding:5px 10px;text-align:center;border-bottom:1px solid rgba(45,58,140,0.08);color:var(--text-primary);background:white}
+.slab-table td:first-child{text-align:left;font-size:10px;color:var(--text-secondary);font-weight:500}
+.slab-table tr.slab-current{background:#FFFDE7!important}
+.slab-table tr.slab-current td{color:var(--lmi-dark-blue);font-weight:700;background:#FFFDE7}
+.slab-table tr.slab-current td:first-child{color:var(--lmi-dark-blue)}
+.slab-tag{font-size:8px;padding:2px 6px;border-radius:4px;font-weight:700}
+.slab-tag-current{background:var(--lmi-dark-blue);color:var(--lmi-yellow)}
+.slab-tag-next{background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)}
+.slab-up{color:#15803D;font-weight:700}
+.slab-down{color:#B91C1C}
+@media(max-width:650px){.slab-metrics{grid-template-columns:repeat(3,1fr)}.slab-metric-val{font-size:13px}}
+
 @media (max-width:650px){
   /* ── Discount bar: stack vertically ── */
   .dt-row{flex-direction:column;gap:8px;align-items:flex-start}
@@ -657,6 +741,7 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
   .mobile-tier-expand{display:none}
   .mobile-tier-detail{display:none}
   #mobile-ent-table,#mobile-entr-table{display:none}
+  .tiers-grid .tier-card{display:block}
 }
 footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-tertiary)}
 </style>
@@ -709,6 +794,23 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
   <div class="module-panel" id="panel-franchise">
 
     <div id="tab-fp">
+      <div class="pac-wrap" id="pac-fp">
+        <div class="pac-title"><i class="ti ti-map-pin"></i> Check Franchise Partner availability</div>
+        <div class="pac-rows" id="pac-fp-rows">
+          <div class="pac-row" data-row="0">
+            <select class="pac-select pac-state" onchange="pacStateChange(this,'fp',0)"><option value="">State / UT</option></select>
+            <select class="pac-select pac-district" onchange="pacDistrictChange(this,'fp',0)" disabled><option value="">District</option></select>
+            <select class="pac-select pac-pin" disabled><option value="">Pin code</option></select>
+          </div>
+        </div>
+        <div style="margin-top:8px">
+          <button class="pac-check-btn" onclick="pacCheck('fp')"><i class="ti ti-search"></i> Check Availability</button>
+        </div>
+        <div class="pac-results" id="pac-fp-results"></div>
+        <div class="pac-decl" id="pac-fp-decl" style="display:none">
+          📋 <strong>Declaration required:</strong> By proceeding, you declare that you reside in the selected pin code area for at least the last 5 years and have valid address proof (Aadhaar / voter ID / utility bill) to verify this claim.
+        </div>
+      </div>
 
     <div class="discount-toggle-bar">
       <div class="dt-row">
@@ -756,26 +858,58 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
     </div>
 
     <div id="tab-gp" style="display:none">
+      <div class="pac-wrap" id="pac-gp">
+        <div class="pac-title"><i class="ti ti-map-pin"></i> Check Growth Partner availability</div>
+        <div class="pac-rows" id="pac-gp-rows">
+          <div class="pac-row" data-row="0">
+            <select class="pac-select pac-state" onchange="pacStateChange(this,'gp',0)"><option value="">State / UT</option></select>
+            <select class="pac-select pac-district" onchange="pacDistrictChange(this,'gp',0)" disabled><option value="">District</option></select>
+            <select class="pac-select pac-pin" disabled><option value="">Pin code</option></select>
+            <button class="pac-add-btn" onclick="pacAddRow('gp')" title="Add pin code">+</button>
+          </div>
+        </div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <button class="pac-check-btn" onclick="pacCheck('gp')"><i class="ti ti-search"></i> Check Availability</button>
+        </div>
+        <div class="pac-results" id="pac-gp-results"></div>
+      </div>
       <div class="plan-group">
         <div class="plan-head">
           <span class="plan-tag entrepreneur" style="background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)">Growth Partner Programme</span>
           <span class="plan-desc">Earn by referring Franchise Partners — no office, no operations required.</span>
         </div>
         <div id="growth-partner-grid-gp"></div>
-        <p class="footnote">* Growth Partner earns 5% of the referred Franchise Partner's gross monthly commission. Pin code token is exclusive of GST (₹1,500 + ₹270 GST = ₹1,770 all-in for 1 pin code). Booking is strictly first-come-first-served. Rates shown are the currently active slab — see your Growth Partner agreement for the full slab table.</p>
       </div>
+      <div id="slab-card-gp"></div>
       <button class="cta-link-btn" onclick="goToFranchiseSub('income')">See Income Potential →</button>
     </div>
 
     <div id="tab-sgp" style="display:none">
+      <div class="pac-wrap" id="pac-sgp">
+        <div class="pac-title"><i class="ti ti-map-pin"></i> Check Super Growth Partner availability</div>
+        <div class="pac-rows" id="pac-sgp-rows">
+          <div class="pac-row" data-row="0">
+            <select class="pac-select pac-state" onchange="pacStateChange(this,'sgp',0)"><option value="">State / UT</option></select>
+            <select class="pac-select pac-district" onchange="pacDistrictChange(this,'sgp',0)" disabled><option value="">District</option></select>
+            <select class="pac-select pac-pin" disabled><option value="">Pin code</option></select>
+            <button class="pac-add-btn" onclick="pacAddRow('sgp')" title="Add pin code">+</button>
+          </div>
+        </div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <button class="pac-check-btn" onclick="pacCheck('sgp')"><i class="ti ti-search"></i> Check Availability</button>
+          <span class="pac-sgp-counter" id="pac-sgp-count">0 pin codes selected</span>
+        </div>
+        <div class="pac-sgp-warning" id="pac-sgp-warning" style="display:none">⚠️ Minimum 50 pin codes required. You may book 25 now (paying for 50) with commitment to finalise remaining 25 within 7 days.</div>
+        <div class="pac-results" id="pac-sgp-results"></div>
+      </div>
       <div class="plan-group">
         <div class="plan-head">
           <span class="plan-tag entrepreneur" style="background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)">Super Growth Partner Programme</span>
           <span class="plan-desc">Pan-India territory, minimum 50 pin codes — maximum reach, passive income at scale.</span>
         </div>
         <div id="growth-partner-grid-sgp"></div>
-        <p class="footnote">* Super Growth Partner earns 2.5% of the referred Franchise Partner's gross monthly commission across all booked pin codes. Minimum 50 pin codes at ₹500+GST each. Pan-India scope — no zone restriction. Rates shown are the currently active slab.</p>
       </div>
+      <div id="slab-card-sgp"></div>
       <button class="cta-link-btn" onclick="goToFranchiseSub('income')">See Income Potential →</button>
     </div>
 
@@ -1026,7 +1160,15 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
             <input type="range" id="sl-vas-price" min="100" max="2000" step="50" value="350">
           </div>
         </div>
-        <div class="derived-row"><span class="lbl">Estimated additional VAS income (Year 1)</span><span class="val" id="d-vas-y1">₹0</span></div>
+        <div class="derived-row vas-derived-row">
+          <span class="lbl">VAS income</span>
+          <span class="vas-yr-grid">
+            <span class="vas-yr-item"><span class="vas-yr-label">Year 1</span><span class="vas-yr-val" id="d-vas-y1">₹0</span></span>
+            <span class="vas-yr-item"><span class="vas-yr-label">Year 2</span><span class="vas-yr-val" id="d-vas-y2">₹0</span></span>
+            <span class="vas-yr-item"><span class="vas-yr-label">Year 3</span><span class="vas-yr-val" id="d-vas-y3">₹0</span></span>
+            <span class="vas-yr-item vas-yr-total"><span class="vas-yr-label">3-yr total</span><span class="vas-yr-val" id="d-vas-total">₹0</span></span>
+          </span>
+        </div>
       </div>
     </div>
 
@@ -1065,6 +1207,13 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
 
 
+</div>
+
+<!-- PIN Availability Checker Booking Modal -->
+<div class="pac-modal-overlay" id="pac-modal">
+  <div class="pac-modal">
+    <div id="pac-modal-body"></div>
+  </div>
 </div>
 
 <footer>List My India Growthworks Private Limited &middot; Internal use only</footer>
@@ -1466,7 +1615,8 @@ let selectedMode = 'tier'; // 'tier' or 'gp'
 let gpPinCount = {gp:1, sgp:1};
 let gpStandalonePinCount = {gp:1, sgp:50};
 // Module-level cache — populated by calculateIncome(), read by computeForGP() and updateGpIncomeQty()
-let _subs149=[], _subs199=[], _subs249=[], _selectedFranchiseFee=100000, _selectedTierLabel='Light';
+let _subs149=[], _subs199=[], _subs249=[], _subsTotal=[], _selectedFranchiseFee=100000, _selectedTierLabel='Light';
+let _vasOn=false, _vasAdoptPct=0.08, _vasPrice=350;
 
 const planSliders = {
   149: document.getElementById('sl-plan149'),
@@ -2046,9 +2196,397 @@ function togglePinBar(forceCollapse){
   }, {passive:true});
 })();
 
+// ── PIN AVAILABILITY CHECKER ──
+const PAC_DB = {"400058":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400068":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400053":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400069":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400059":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400099":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai","state":"Maharashtra"},"400056":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"401107":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Thane","state":"Maharashtra"},"400092":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"401105":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Thane","state":"Maharashtra"},"401101":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Thane","state":"Maharashtra"},"401208":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Palghar","state":"Maharashtra"},"401201":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Palghar","state":"Maharashtra"},"401202":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Palghar","state":"Maharashtra"},"401203":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Palghar","state":"Maharashtra"},"401209":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Palghar","state":"Maharashtra"},"401305":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Palghar","state":"Maharashtra"},"401303":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Palghar","state":"Maharashtra"},"400020":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai","state":"Maharashtra"},"400004":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai","state":"Maharashtra"},"400007":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai","state":"Maharashtra"},"400008":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai","state":"Maharashtra"},"400028":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai","state":"Maharashtra"},"400014":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai","state":"Maharashtra"},"400025":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai","state":"Maharashtra"},"400050":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400051":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400052":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400055":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400029":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai","state":"Maharashtra"},"400098":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400054":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400060":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400102":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400063":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400065":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400104":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400097":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400064":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400101":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"400067":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Mumbai Suburban","state":"Maharashtra"},"846004":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Darbhanga","state":"Bihar"},"847211":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"847238":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"847222":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"847226":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"847225":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"847223":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"847102":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"847304":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"843320":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Sitamarhi","state":"Bihar"},"843328":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Sitamarhi","state":"Bihar"},"843301":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Sitamarhi","state":"Bihar"},"843302":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Sitamarhi","state":"Bihar"},"843303":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Sitamarhi","state":"Bihar"},"843324":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Sitamarhi","state":"Bihar"},"847308":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"847452":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"847108":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Madhubani","state":"Bihar"},"852201":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Saharsa","state":"Bihar"},"800001":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Patna","state":"Bihar"},"800004":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Patna","state":"Bihar"},"800007":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Patna","state":"Bihar"},"800008":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Patna","state":"Bihar"},"844101":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"Vaishali","state":"Bihar"},"848101":{"sgp":null,"gp":"Rajeev Kumar","fp":null,"district":"Samastipur","state":"Bihar"},"842001":{"sgp":null,"gp":"Shubham Kumar","fp":null,"district":"Muzaffarpur","state":"Bihar"},"400705":{"sgp":null,"gp":"Nand Kishor","fp":null,"district":"Thane","state":"Maharashtra"},"700016":{"sgp":null,"gp":"Rajib Roy","fp":null,"district":"Kolkata","state":"West Bengal"},"700019":{"sgp":null,"gp":"Rajib Roy","fp":null,"district":"Kolkata","state":"West Bengal"},"700027":{"sgp":null,"gp":"Rajib Roy","fp":null,"district":"Kolkata","state":"West Bengal"},"700064":{"sgp":null,"gp":"Rajib Roy","fp":null,"district":"Kolkata","state":"West Bengal"},"700091":{"sgp":null,"gp":"Rajib Roy","fp":null,"district":"Kolkata","state":"West Bengal"},"201017":{"sgp":null,"gp":null,"fp":"Finalised","district":"Ghaziabad","state":"Uttar Pradesh"}};
+
+// Google Form URLs — update these with your actual form IDs
+const PAC_FORMS = {
+  gp:  'https://docs.google.com/forms/d/e/YOUR_GP_FORM_ID/viewform',
+  sgp: 'https://docs.google.com/forms/d/e/YOUR_SGP_FORM_ID/viewform',
+  fp:  'https://docs.google.com/forms/d/e/YOUR_FP_FORM_ID/viewform',
+  waitlist: 'https://docs.google.com/forms/d/e/YOUR_WAITLIST_FORM_ID/viewform'
+};
+
+// Pincode availability status per partner type
+function pacGetStatus(pin, partnerType){
+  const d = PAC_DB[pin];
+  if(!d) return {status:'available', msg:'Available to book', detail:null};
+  if(partnerType === 'gp'){
+    if(d.fp) return {status:'fp_booked', msg:'Franchise Partner already appointed — not available', detail:'A Franchise Partner has been appointed for this pin code.'};
+    if(d.sgp) return {status:'sgp_booked', msg:'Booked by Super Growth Partner', detail:`SGP: ${d.sgp} — You may request to become a Growth Partner, subject to SGP acceptance.`};
+    if(d.gp) return {status:'gp_booked', msg:'Growth Partner already appointed', detail:`GP: ${d.gp}`};
+    return {status:'available', msg:'Available to book', detail:null};
+  }
+  if(partnerType === 'sgp'){
+    if(d.fp) return {status:'fp_booked', msg:'Franchise already booked — not available', detail:'A Franchise Partner has been appointed for this pin code.'};
+    if(d.sgp) return {status:'sgp_booked', msg:'Already booked by Super Growth Partner', detail:`SGP: ${d.sgp}`};
+    if(d.gp) return {status:'gp_booked', msg:'Growth Partner already appointed — not available', detail:`GP: ${d.gp} is already appointed. Join the waitlist.`};
+    return {status:'available', msg:'Available to book', detail:null};
+  }
+  if(partnerType === 'fp'){
+    if(d.fp) return {status:'fp_booked', msg:'Franchise Partner already appointed', detail:'This pin code already has an active Franchise Partner.'};
+    if(d.sgp && d.gp) return {status:'sgp_booked', msg:'SGP & GP already appointed', detail:`SGP: ${d.sgp} · GP: ${d.gp}. Join the waitlist — they may refer you.`};
+    if(d.sgp) return {status:'sgp_booked', msg:'Super Growth Partner appointed', detail:`SGP: ${d.sgp} has booked this pin code. Join waitlist.`};
+    if(d.gp) return {status:'gp_booked', msg:'Growth Partner appointed', detail:`GP: ${d.gp} has booked this pin code. Join waitlist.`};
+    return {status:'available', msg:'Available — direct booking open', detail:null};
+  }
+  return {status:'available', msg:'Available', detail:null};
+}
+
+function pacGetSelectedPins(type){
+  const rows = document.querySelectorAll(`#pac-${type}-rows .pac-row`);
+  const pins = [];
+  rows.forEach(row=>{
+    const pin = row.querySelector('.pac-pin').value;
+    if(pin) pins.push(pin);
+  });
+  return pins;
+}
+
+function pacStateChange(sel, type, idx){
+  const state = sel.value;
+  const row = sel.closest('.pac-row');
+  const distSel = row.querySelector('.pac-district');
+  const pinSel = row.querySelector('.pac-pin');
+  distSel.innerHTML = '<option value="">District</option>';
+  pinSel.innerHTML = '<option value="">Pin code</option>';
+  distSel.disabled = true; pinSel.disabled = true;
+  if(!state || !PINCODE_DATA[state]) return;
+  Object.keys(PINCODE_DATA[state]).sort().forEach(d=>{
+    distSel.innerHTML += `<option value="${d}">${d}</option>`;
+  });
+  distSel.disabled = false;
+  distSel.onchange = ()=>pacDistrictChange(distSel, type, idx);
+}
+
+function pacDistrictChange(sel, type, idx){
+  const row = sel.closest('.pac-row');
+  const stateSel = row.querySelector('.pac-state');
+  const pinSel = row.querySelector('.pac-pin');
+  const state = stateSel.value;
+  const dist = sel.value;
+  pinSel.innerHTML = '<option value="">Pin code</option>';
+  pinSel.disabled = true;
+  if(!state || !dist || !PINCODE_DATA[state] || !PINCODE_DATA[state][dist]) return;
+  const distData = PINCODE_DATA[state][dist];
+  const pins = distData[2] || [];
+  pins.forEach(([pin])=>{
+    const status = pacGetStatus(String(pin), type);
+    const indicator = status.status==='available' ? '✅' : status.status==='fp_booked' ? '🔴' : '🟡';
+    pinSel.innerHTML += `<option value="${pin}">${indicator} ${pin}</option>`;
+  });
+  pinSel.disabled = false;
+  if(type==='sgp') pinSel.onchange = ()=>pacUpdateSGPCount();
+}
+
+function pacAddRow(type){
+  const container = document.getElementById(`pac-${type}-rows`);
+  const rows = container.querySelectorAll('.pac-row');
+  const idx = rows.length;
+  const div = document.createElement('div');
+  div.className = 'pac-row'; div.dataset.row = idx;
+  div.innerHTML = `
+    <select class="pac-select pac-state" onchange="pacStateChange(this,'${type}',${idx})"><option value="">State / UT</option>${pacStateOptions()}</select>
+    <select class="pac-select pac-district" disabled><option value="">District</option></select>
+    <select class="pac-select pac-pin" disabled><option value="">Pin code</option></select>
+    <button class="pac-remove-btn" onclick="pacRemoveRow(this,'${type}')" title="Remove">−</button>`;
+  container.appendChild(div);
+  if(type==='sgp') pacUpdateSGPCount();
+}
+
+function pacRemoveRow(btn, type){
+  btn.closest('.pac-row').remove();
+  if(type==='sgp') pacUpdateSGPCount();
+}
+
+function pacStateOptions(){
+  if(typeof PINCODE_DATA === 'undefined') return '';
+  return Object.keys(PINCODE_DATA).sort().map(s=>`<option value="${s}">${s}</option>`).join('');
+}
+
+function pacUpdateSGPCount(){
+  const pins = pacGetSelectedPins('sgp');
+  const cnt = document.getElementById('pac-sgp-count');
+  const warn = document.getElementById('pac-sgp-warning');
+  const proceed = document.getElementById('pac-sgp-proceed');
+  if(cnt) cnt.textContent = `${pins.length} pin code${pins.length!==1?'s':''} selected`;
+  if(warn) warn.style.display = (pins.length > 0 && pins.length < 50) ? 'block' : 'none';
+  if(proceed){
+    proceed.disabled = pins.length < 25;
+    proceed.textContent = pins.length >= 50 ? `Proceed to book ${pins.length} pin codes` :
+      pins.length >= 25 ? `Proceed (${pins.length}/50 — commit to rest within 7 days)` :
+      `Select at least 25 pin codes (${pins.length} selected)`;
+  }
+}
+
+function pacCheck(type){
+  const pins = pacGetSelectedPins(type);
+  const resultsEl = document.getElementById(`pac-${type}-results`);
+  const declEl = document.getElementById('pac-fp-decl');
+  if(!pins.length){ resultsEl.innerHTML = '<div style="font-size:11.5px;color:var(--text-tertiary);padding:4px 0">Please select at least one pin code to check.</div>'; return; }
+
+  let html = ''; let hasAvailable = false; let availablePins = [];
+  pins.forEach(pin=>{
+    const s = pacGetStatus(pin, type);
+    const badge = s.status==='available' ? `<span class="pac-badge pac-available">✅ Available</span>` :
+      s.status==='fp_booked' ? `<span class="pac-badge pac-fp-booked">🔴 FP Appointed</span>` :
+      s.status==='sgp_booked' ? `<span class="pac-badge pac-sgp-booked">🔵 SGP Booked</span>` :
+      `<span class="pac-badge pac-gp-booked">🟡 GP Appointed</span>`;
+
+    let action = '';
+    if(s.status === 'available'){
+      hasAvailable = true; availablePins.push(pin);
+      action = `<button class="pac-action-btn pac-book-btn" onclick="pacOpenBookingForm('${type}','${pin}')">Book Now →</button>`;
+    } else if(s.status === 'sgp_booked' && type === 'gp'){
+      action = `<button class="pac-action-btn pac-waitlist-btn" onclick="pacOpenWaitlist('${type}','${pin}','sgp_request')">Request via SGP</button>`;
+    } else if((s.status === 'gp_booked' || s.status === 'sgp_booked') && (type === 'fp' || type === 'sgp')){
+      action = `<button class="pac-action-btn pac-waitlist-btn" onclick="pacOpenWaitlist('${type}','${pin}','waitlist')">Join Waitlist</button>`;
+    }
+
+    html += `<div class="pac-result-row">
+      <span class="pac-pin-label">${pin}</span>
+      ${badge}
+      <span style="font-size:10.5px;color:var(--text-tertiary);flex:1">${s.detail||''}</span>
+      ${action}
+    </div>`;
+  });
+  resultsEl.innerHTML = html;
+
+  // SGP: update count & show proceed button
+  if(type === 'sgp'){
+    pacUpdateSGPCount();
+    const availCount = pins.filter(p=>pacGetStatus(p,'sgp').status==='available').length;
+    if(availCount > 0 && !document.getElementById('pac-sgp-proceed')){
+      resultsEl.insertAdjacentHTML('afterend',`<button class="pac-proceed-btn" id="pac-sgp-proceed" onclick="pacProceedSGP()" disabled>Select at least 25 pin codes</button>`);
+      pacUpdateSGPCount();
+    }
+  }
+  // FP: show declaration if available
+  if(type === 'fp' && declEl) declEl.style.display = hasAvailable ? 'block' : 'none';
+}
+
+function pacProceedSGP(){
+  const pins = pacGetSelectedPins('sgp').filter(p=>pacGetStatus(p,'sgp').status==='available');
+  pacOpenBookingForm('sgp', pins.join(','));
+}
+
+function pacOpenBookingForm(type, pins){
+  const typeLabel = type==='gp' ? 'Growth Partner' : type==='sgp' ? 'Super Growth Partner' : 'Franchise Partner';
+  const pinList = pins.split(',');
+  const pinCount = pinList.length;
+  const tokenRate = type==='sgp' ? 500 : type==='gp' ? 1500 : 0;
+  const tokenGst = Math.round(tokenRate * 0.18);
+  const tokenTotal = (tokenRate + tokenGst) * (type==='fp' ? 1 : pinCount);
+  const tokenDisplay = type==='fp' ? '' :
+    `<div style="background:var(--lmi-soft-blue);padding:8px 10px;border-radius:6px;margin-bottom:10px;font-size:11.5px">
+      <strong>Token amount:</strong> ${pinCount} pin code${pinCount>1?'s':''} × ₹${tokenRate.toLocaleString('en-IN')} + GST = <strong>₹${tokenTotal.toLocaleString('en-IN')}</strong>
+      ${pinCount >= 25 && pinCount < 50 && type==='sgp' ? '<br><span style="color:var(--amber-dark);font-size:10.5px">⚠️ Paying for 50 pins. Remaining '+(50-pinCount)+' pins must be finalised within 7 days.</span>' : ''}
+    </div>`;
+
+  const decl = type==='fp' ? `<div class="pac-decl" style="margin-bottom:10px">📋 I declare that I reside in pin code <strong>${pins}</strong> for at least the last 5 years and have valid address proof (Aadhaar / Voter ID / Utility Bill) to verify this claim.</div>` :
+    type==='sgp' && pinCount < 50 ? `<div class="pac-decl" style="margin-bottom:10px">📋 I commit to finalise the remaining <strong>${50-pinCount} pin codes</strong> within 7 days of booking. Failure to do so will result in forfeiture of the partial booking amount for unselected pins.</div>` : '';
+
+  document.getElementById('pac-modal-body').innerHTML = `
+    <div class="pac-modal-title">Book as ${typeLabel}</div>
+    <div class="pac-modal-sub">Pin code${pinList.length>1?'s':''}: <strong>${pins}</strong></div>
+    ${tokenDisplay}
+    ${decl}
+    <div class="pac-form-row">
+      <div class="pac-form-field"><label>Full Name *</label><input type="text" id="pac-f-name" placeholder="As per Aadhaar"></div>
+      <div class="pac-form-field"><label>Mobile *</label><input type="tel" id="pac-f-phone" placeholder="+91 XXXXX XXXXX"></div>
+    </div>
+    <div class="pac-form-field"><label>Email *</label><input type="email" id="pac-f-email" placeholder="your@email.com"></div>
+    <div class="pac-form-field"><label>City / Area you operate in *</label><input type="text" id="pac-f-city" placeholder="City or locality"></div>
+    ${type==='fp' ? `<div class="pac-form-field"><label>Years of residence in pin code ${pins} *</label><input type="number" id="pac-f-years" min="5" placeholder="Min. 5 years required"></div>` : ''}
+    ${type==='gp'||type==='sgp' ? `<div class="pac-form-field"><label>How did you hear about List My India?</label><select id="pac-f-source"><option>Social media</option><option>Friend / referral</option><option>WhatsApp</option><option>Website</option><option>Other</option></select></div>` : ''}
+    <div class="pac-form-field"><label>Message (optional)</label><textarea id="pac-f-msg" placeholder="Any specific questions or context..."></textarea></div>
+    <div style="font-size:10px;color:var(--text-tertiary);margin-top:6px">By submitting, you confirm interest in booking. Our team will contact you within 24 hours to complete the process and share payment details.</div>
+    <div class="pac-modal-actions">
+      <button class="pac-cancel-btn" onclick="pacCloseModal()">Cancel</button>
+      <button class="pac-submit-btn" onclick="pacSubmitForm('${type}','${pins}')">Submit Interest →</button>
+    </div>`;
+  document.getElementById('pac-modal').classList.add('open');
+}
+
+function pacOpenWaitlist(type, pin, reason){
+  const typeLabel = type==='gp' ? 'Growth Partner' : type==='sgp' ? 'Super Growth Partner' : 'Franchise Partner';
+  const reasonLabel = reason==='sgp_request' ? 'Request via Super Growth Partner' : 'Join Waitlist';
+  document.getElementById('pac-modal-body').innerHTML = `
+    <div class="pac-modal-title">${reasonLabel}</div>
+    <div class="pac-modal-sub">Pin code: <strong>${pin}</strong> · Partner type: ${typeLabel}</div>
+    <div class="pac-decl" style="margin-bottom:10px">ℹ️ ${reason==='sgp_request' ? 'Your request to become a Growth Partner for this pin code will be sent to the appointed Super Growth Partner for acceptance.' : 'You will be added to the waitlist. If the current booking is cancelled or transferred, you will be notified first.'}</div>
+    <div class="pac-form-row">
+      <div class="pac-form-field"><label>Full Name *</label><input type="text" id="pac-f-name" placeholder="Your full name"></div>
+      <div class="pac-form-field"><label>Mobile *</label><input type="tel" id="pac-f-phone" placeholder="+91 XXXXX XXXXX"></div>
+    </div>
+    <div class="pac-form-field"><label>Email *</label><input type="email" id="pac-f-email" placeholder="your@email.com"></div>
+    <div class="pac-modal-actions">
+      <button class="pac-cancel-btn" onclick="pacCloseModal()">Cancel</button>
+      <button class="pac-submit-btn" onclick="pacSubmitForm('${type}_waitlist','${pin}')">Submit →</button>
+    </div>`;
+  document.getElementById('pac-modal').classList.add('open');
+}
+
+function pacSubmitForm(type, pins){
+  const name = (document.getElementById('pac-f-name')||{}).value||'';
+  const phone = (document.getElementById('pac-f-phone')||{}).value||'';
+  const email = (document.getElementById('pac-f-email')||{}).value||'';
+  if(!name||!phone||!email){ alert('Please fill in Name, Mobile and Email.'); return; }
+  // Open Google Form in new tab (pre-filled where possible)
+  const formUrl = PAC_FORMS[type.replace('_waitlist','')] || PAC_FORMS.waitlist;
+  window.open(formUrl, '_blank');
+  document.getElementById('pac-modal-body').innerHTML = `
+    <div class="pac-success-msg">
+      ✅ Form opened in new tab!<br>
+      <span style="font-size:11px;color:var(--text-tertiary);font-weight:400">Please complete and submit the form in the new tab. Our team will contact you within 24 hours.</span>
+    </div>
+    <div class="pac-modal-actions"><button class="pac-cancel-btn" onclick="pacCloseModal()">Close</button></div>`;
+}
+
+function pacCloseModal(){
+  document.getElementById('pac-modal').classList.remove('open');
+}
+document.getElementById('pac-modal').addEventListener('click', e=>{
+  if(e.target === document.getElementById('pac-modal')) pacCloseModal();
+});
+
+// Init state dropdowns in all PAC checkers when PINCODE_DATA is ready
+function pacInitDropdowns(){
+  if(typeof PINCODE_DATA === 'undefined') return;
+  const opts = '<option value="">State / UT</option>' + pacStateOptions();
+  document.querySelectorAll('.pac-state').forEach(sel=>{ sel.innerHTML = opts; });
+}
+// Call after pincode data loads (it's in script block 4)
+window.addEventListener('DOMContentLoaded', ()=>{ setTimeout(pacInitDropdowns, 200); });
+
+// ── SLAB PRICING DYNAMIC CARD ──
+const SLABS = [
+  // {minPartners, maxPartners, gpRate1, gpRate5, sgpRate50, onetimePct, monthlyPct}
+  {min:1000, max:Infinity, gpRate1:7500, gpRate5:5000, sgpRate50:2500, onetimePct:10, monthlyPct:0,  label:'1,000+'},
+  {min:501,  max:999,      gpRate1:7500, gpRate5:5000, sgpRate50:2500, onetimePct:10, monthlyPct:2,  label:'501–1,000'},
+  {min:201,  max:500,      gpRate1:7500, gpRate5:5000, sgpRate50:2500, onetimePct:10, monthlyPct:3,  label:'201–500'},
+  {min:101,  max:200,      gpRate1:5000, gpRate5:3500, sgpRate50:1750, onetimePct:5,  monthlyPct:5,  label:'101–200'},
+  {min:1,    max:100,      gpRate1:1500, gpRate5:1000, sgpRate50:500,  onetimePct:5,  monthlyPct:5,  label:'Up to 100'},
+];
+
+function slabGetCurrent(totalBooked){
+  // Reverse order — current slab = where totalBooked falls
+  for(const s of [...SLABS].reverse()){
+    if(totalBooked >= s.min) return s;
+  }
+  return SLABS[SLABS.length-1];
+}
+
+function slabGetNext(currentSlab){
+  const idx = SLABS.indexOf(currentSlab);
+  return idx > 0 ? SLABS[idx-1] : null; // SLABS is descending, so previous = better
+}
+
+function slabPinsBooked(){
+  // Count from PAC_DB
+  if(typeof PAC_DB === 'undefined') return {gp:0, sgp:0, total:0};
+  let gp=0, sgp=0;
+  Object.values(PAC_DB).forEach(d=>{ if(d.gp) gp++; if(d.sgp) sgp++; });
+  return {gp, sgp, total:gp+sgp};
+}
+
+function renderSlabCard(type){
+  const el = document.getElementById(`slab-card-${type}`);
+  if(!el) return;
+
+  const {gp, sgp, total} = slabPinsBooked();
+  const current = slabGetCurrent(total);
+  const next = slabGetNext(current);
+
+  const toNext = next ? (next.min - total) : 0;
+  const progress = next
+    ? Math.min(100, Math.round(((total - current.min) / (next.min - current.min)) * 100))
+    : 100;
+
+  const isGP = type === 'gp';
+  const rateKey = isGP ? 'gpRate1' : 'sgpRate50';
+  const rateKey5 = 'gpRate5';
+  const currentRate = current[rateKey];
+  const nextRate = next ? next[rateKey] : null;
+  const rateWithGst = Math.round(currentRate * 1.18);
+  const nextRateWithGst = nextRate ? Math.round(nextRate * 1.18) : null;
+
+  const urgencyMsg = next
+    ? `Only <strong>${toNext} more pin code${toNext!==1?'s':''}</strong> needed to move to the next slab (${next.label} active partners). Token price <strong>rises to ₹${Math.round(next[rateKey]*1.18).toLocaleString('en-IN')}+GST</strong> and monthly income benefit ${next.monthlyPct > current.monthlyPct ? 'increases to '+next.monthlyPct+'%' : 'stays at '+current.monthlyPct+'%'}.`
+    : 'You are at the <strong>highest active slab</strong> — maximum pricing tier reached.';
+
+  // Build slab table
+  let tableRows = '';
+  SLABS.slice().reverse().forEach(s=>{
+    const isCurr = s === current;
+    const isNxt = s === next;
+    const rate = s[rateKey];
+    const rateGst = Math.round(rate*1.18);
+    tableRows += `<tr class="${isCurr?'slab-current':''}">
+      <td>${s.label}${isCurr?' <span class="slab-tag slab-tag-current">CURRENT</span>':''}${isNxt?' <span class="slab-tag slab-tag-next">NEXT ↑</span>':''}</td>
+      <td>₹${rateGst.toLocaleString('en-IN')}</td>
+      ${isGP ? `<td>₹${Math.round(s.gpRate5*1.18).toLocaleString('en-IN')}</td>` : ''}
+      <td class="${isCurr?'':'slab-down'}">${s.onetimePct}%</td>
+      <td class="${s.monthlyPct>0?'slab-up':'slab-down'}">${s.monthlyPct>0?s.monthlyPct+'%':'—'}</td>
+    </tr>`;
+  });
+
+  el.innerHTML = `<div class="slab-card">
+    <div class="slab-card-header">
+      <div>
+        <div class="slab-card-title">🏷️ ${isGP ? 'Growth Partner' : 'Super Growth Partner'} — Live Pricing Slab</div>
+        <div class="slab-card-subtitle">Token price increases as more partners join. Book early — lock in the lowest rate.</div>
+      </div>
+      <div class="slab-live-badge"><span class="slab-live-dot"></span> Live</div>
+    </div>
+
+    <div class="slab-metrics">
+      <div class="slab-metric">
+        <div class="slab-metric-val">${total}</div>
+        <div class="slab-metric-label">Total Pins Booked</div>
+      </div>
+      <div class="slab-metric">
+        <div class="slab-metric-val">₹${rateWithGst.toLocaleString('en-IN')}</div>
+        <div class="slab-metric-label">Current rate /pin (+GST)</div>
+      </div>
+      <div class="slab-metric">
+        <div class="slab-metric-val">${toNext > 0 ? toNext : '✓'}</div>
+        <div class="slab-metric-label">${toNext > 0 ? 'Pins to next slab' : 'Best slab'}</div>
+      </div>
+    </div>
+
+    ${next ? `<div class="slab-progress-wrap">
+      <div class="slab-progress-label">
+        <span>Slab: ${current.label} active partners</span>
+        <span>${total} / ${next.min} → next slab</span>
+      </div>
+      <div class="slab-progress-bar"><div class="slab-progress-fill" style="width:${progress}%"></div></div>
+    </div>` : ''}
+
+    <div class="slab-urgency">⚡ ${urgencyMsg}</div>
+
+    <div class="slab-table-wrap">
+      <table class="slab-table">
+        <thead><tr>
+          <th>Active Partners</th>
+          <th>Token /pin</th>
+          ${isGP ? '<th>5+ pins rate</th>' : ''}
+          <th>One-time %</th>
+          <th>Monthly %</th>
+        </tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// Render on load and on tab switch
+document.addEventListener('DOMContentLoaded', ()=>{
+  setTimeout(()=>{ renderSlabCard('gp'); renderSlabCard('sgp'); }, 100);
+});
+
 function initShowMore(){
   if(window.innerWidth > 650) return;
-  // Wrap long description paragraphs with show-more toggle
   document.querySelectorAll('.section-desc,.plan-desc,.bd-section-label~p').forEach(el=>{
     if(el.dataset.showMore) return;
     el.dataset.showMore = '1';
@@ -2144,11 +2682,13 @@ function calculateIncome(){
   const subs199 = subsTotal.map(s=>s*planPct[199]);
   const subs249 = subsTotal.map(s=>s*planPct[249]);
   // Cache at module level so computeForGP can use them outside calculateIncome
-  _subs149=subs149; _subs199=subs199; _subs249=subs249;
+  _subs149=subs149; _subs199=subs199; _subs249=subs249; _subsTotal=subsTotal;
 
   const vasOn = vasToggle.checked;
   const vasAdoptPct = parseInt(slVasAdopt.value)/100;
   const vasPrice = parseFloat(slVasPrice.value);
+  // Cache for use in computeForGP outside calculateIncome scope
+  _vasOn = vasOn; _vasAdoptPct = vasAdoptPct; _vasPrice = vasPrice;
   set('val-vas-adopt', Math.round(vasAdoptPct*100)+'%');
   set('val-vas-price', '₹'+Math.round(vasPrice));
 
@@ -2256,7 +2796,8 @@ function calculateIncome(){
     const fpGrossCommission = [];
     for(let m=1;m<=36;m++){
       const subRev = s149[m-1]*149 + s199[m-1]*199 + s249[m-1]*249;
-      fpGrossCommission.push(subRev * t.share);
+      const vasIncome = _vasOn ? (_subsTotal[m-1]||0)*_vasAdoptPct*_vasPrice*t.share : 0;
+      fpGrossCommission.push(subRev * t.share + vasIncome);
     }
     const onetimePerPin = Math.round(fee * gp.onetimePct/100);
     const onetimeTotal = onetimePerPin * qty;
@@ -2280,8 +2821,14 @@ function calculateIncome(){
   selectedLabel = selectedTierObj.name + ' tier';
   selectedRevSharePct = Math.round(selectedTierObj.share*100);
   selectedCost = selectedTierObj.cost;
-  const vasY1 = vasOn ? subsTotal.slice(0,12).reduce((a,s)=>a+s*vasAdoptPct*vasPrice*selectedTierObj.share,0) : 0;
+  const vasY1 = vasOn ? selectedData.monthlyVas.slice(0,12).reduce((a,b)=>a+b,0) : 0;
+  const vasY2 = vasOn ? selectedData.monthlyVas.slice(12,24).reduce((a,b)=>a+b,0) : 0;
+  const vasY3 = vasOn ? selectedData.monthlyVas.slice(24,36).reduce((a,b)=>a+b,0) : 0;
+  const vasTotal3 = vasY1 + vasY2 + vasY3;
   set('d-vas-y1', fmtCurrency(vasY1));
+  set('d-vas-y2', fmtCurrency(vasY2));
+  set('d-vas-y3', fmtCurrency(vasY3));
+  set('d-vas-total', fmtCurrency(vasTotal3));
 
   set('sb-y1', fmtCurrency(selectedData.y1));
   set('sb-y2', fmtCurrency(selectedData.y2));
@@ -2789,4 +3336,3 @@ function onPincodeChangeTop(){
 
 </body>
 </html>
-
