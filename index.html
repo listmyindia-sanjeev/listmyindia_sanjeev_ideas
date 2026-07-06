@@ -128,14 +128,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .tab.active{background:var(--lmi-blue);color:white;border-color:var(--lmi-blue)}
 
 .plan-group{margin-bottom:0.75rem}
-.plan-head{display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;flex-wrap:wrap}
+.plan-head{display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;flex-wrap:nowrap;overflow:hidden;min-width:0}
 .plan-tag{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:0.02em}
 .plan-tag.entrepreneur{background:var(--green-light);color:var(--green-dark)}
 .plan-tag.enterprise{background:#EEEDFE;color:#3C3489}
-.plan-desc{font-size:12px;color:var(--text-secondary)}
-.plan-pop-hint{font-size:11px;font-weight:600;color:var(--green-dark);background:var(--green-light);padding:1px 7px;border-radius:8px;white-space:nowrap}
+.plan-desc{font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plan-pop-hint{font-size:11px;font-weight:600;color:var(--green-dark);background:var(--green-light);padding:2px 8px;border-radius:8px;white-space:nowrap;flex-shrink:0}
 .plan-pop-hint--ent{color:#3C3489;background:#EEEDFE}
-.tiers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:1rem}
+.tiers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
 .tier-card{border:1.5px solid rgba(255,255,255,0.9);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-primary);box-shadow:3px 4px 12px rgba(0,0,0,0.18)}
 .tier-card.recommended{border:2px solid var(--lmi-blue)}
 .tier-head{padding:10px 12px 8px;position:relative}
@@ -327,7 +327,7 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .vas-yr-total .vas-yr-label{color:var(--lmi-blue)}
 .derived-row .lbl{color:var(--text-secondary)}
 .derived-row .val{font-weight:600;color:var(--text-primary)}
-.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:0}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr)!important;gap:6px;margin-bottom:0}
 .plan-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:5px 9px}
 .plan-card-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
 .plan-card .pname{font-size:11.5px;font-weight:600;color:var(--text-primary)}
@@ -454,7 +454,23 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .income-sticky-header.pin-collapsed .sticky-title-row{max-height:0!important;opacity:0}
 .income-scroll-body{padding-top:0.25rem}
 
-/* ── PIN Availability Checker ── */
+/* Franchise Partners top row: PAC left, discount right */
+.fp-top-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem;align-items:start}
+.fp-top-row .pac-wrap{margin-bottom:0}
+.fp-discount-panel{margin-bottom:0;height:100%;box-sizing:border-box}
+/* GP/SGP: main card left, slab right */
+.gp-two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start;margin-bottom:1rem}
+.gp-two-col .gp-card{box-shadow:3px 4px 10px rgba(0,0,0,0.12)}
+.gp-two-col .slab-card{margin:0;height:100%;box-sizing:border-box}
+@media(max-width:650px){
+  .fp-top-row{grid-template-columns:1fr}
+  .gp-two-col{grid-template-columns:1fr}
+}
+/* Income potential pin code selector */
+.income-pin-bar{background:white;border:1px solid var(--border-secondary);border-radius:var(--radius-lg);padding:8px 12px;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,0.06);transition:max-height 0.3s ease,opacity 0.3s ease,margin 0.3s ease,padding 0.3s ease;max-height:80px;overflow:hidden}
+.income-pin-bar.collapsed{max-height:0;opacity:0;margin-bottom:0;padding-top:0;padding-bottom:0}
+.income-pin-bar-inner{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.income-pin-rec{font-size:11px;padding:3px 10px;border-radius:6px;background:var(--lmi-soft-blue);color:var(--lmi-dark-blue);font-weight:600;white-space:nowrap}
 .pac-wrap{background:white;border:1px solid var(--border-secondary);border-radius:var(--radius-lg);padding:12px 14px;margin-bottom:1rem;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
 .pac-title{font-size:12px;font-weight:700;color:var(--lmi-dark-blue);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .pac-rows{display:flex;flex-direction:column;gap:6px}
@@ -542,7 +558,7 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
   .gp-mini-label{font-size:7.5px;margin-bottom:1px;margin-top:3px}
   .income-sticky-header>.sticky-title-row{display:none}
   .income-sticky-header .gp-mini-label{display:block;font-size:8px;margin-bottom:2px;margin-top:4px}
-  .income-sticky-header #gp-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .income-sticky-header #gp-mini-grid{display:grid!important;grid-template-columns:1fr 1fr;gap:4px}
   .gp-income-card{padding:5px 7px}
   .gp-income-head{padding:4px 6px}
   .gp-income-name{font-size:9.5px}
@@ -661,6 +677,34 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
   .val-fee-offer,.val-fee-special{font-size:10px}
   .val-total{font-size:10.5px}
   .val-share{font-size:11px}
+  /* ── Income pin bar: wrap dropdowns on mobile ── */
+  .income-pin-bar{padding:5px 8px;margin-bottom:4px}
+  .income-pin-bar-inner{flex-wrap:wrap;gap:4px}
+  .income-pin-bar-inner .pac-select{max-width:none!important;flex:1;min-width:80px;font-size:10px!important;padding:3px 4px!important}
+  .income-pin-bar-inner span:first-child{width:100%;margin-bottom:2px}
+  /* ── PAC modal: full width on mobile ── */
+  .pac-modal{width:96%;max-width:none;padding:14px 12px;max-height:85vh}
+  .pac-modal-title{font-size:13px}
+  .pac-form-row{grid-template-columns:1fr}
+  .pac-modal-actions{flex-direction:column-reverse;gap:6px}
+  .pac-modal-actions button{width:100%;text-align:center}
+  /* ── Slab table: horizontal scroll on mobile ── */
+  .slab-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .slab-table{min-width:340px;font-size:10px}
+  .slab-table th,.slab-table td{padding:4px 6px}
+  .slab-metrics{gap:5px}
+  .slab-metric{padding:5px 6px}
+  .slab-metric-val{font-size:13px}
+  .slab-metric-label{font-size:8px}
+  /* ── Summary banner: compact on mobile ── */
+  .summary-banner{padding:6px 8px}
+  .summary-banner-grid{gap:3px}
+  .sb-val{font-size:11px}
+  .sb-label{font-size:9px}
+  /* ── FP top row full width on mobile ── */
+  .fp-top-row{grid-template-columns:1fr}
+  /* ── GP booking form on mobile ── */
+  .pac-booking-fee-display{font-size:10.5px}
 }
 
 /* ── Slab Pricing Card ── */
@@ -741,7 +785,14 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
   .mobile-tier-expand{display:none}
   .mobile-tier-detail{display:none}
   #mobile-ent-table,#mobile-entr-table{display:none}
-  .tiers-grid .tier-card{display:block}
+  .tiers-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important}
+  .tiers-grid .tier-card{display:block!important}
+  /* Income potential: always show GP cards and tier cards on desktop */
+  .gp-income-card{display:block!important}
+  .tier-income-card{display:block!important}
+  /* Remove tab bars on desktop */
+  .gp-tab-bar{display:none!important}
+  .tier-tab-bar{display:none!important}
 }
 footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-tertiary)}
 </style>
@@ -753,6 +804,7 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
     <span class="topbar-brand">List My India™</span>
     <span class="topbar-divider">·</span>
     <span class="topbar-title">Project Hub — Internal Prototypes</span>
+    <span style="margin-left:auto;font-size:11.5px;color:rgba(255,255,255,0.75);font-weight:500">👋 Hello Pradip ji</span>
   </div>
 </div>
 
@@ -794,7 +846,7 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
   <div class="module-panel" id="panel-franchise">
 
     <div id="tab-fp">
-      <div class="pac-wrap" id="pac-fp">
+      <div class="pac-wrap" id="pac-fp" style="margin-bottom:1rem">
         <div class="pac-title"><i class="ti ti-map-pin"></i> Check Franchise Partner availability</div>
         <div class="pac-rows" id="pac-fp-rows">
           <div class="pac-row" data-row="0">
@@ -803,53 +855,45 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
             <select class="pac-select pac-pin" disabled><option value="">Pin code</option></select>
           </div>
         </div>
-        <div style="margin-top:8px">
+        <div style="margin-top:8px;margin-bottom:10px">
           <button class="pac-check-btn" onclick="pacCheck('fp')"><i class="ti ti-search"></i> Check Availability</button>
         </div>
         <div class="pac-results" id="pac-fp-results"></div>
         <div class="pac-decl" id="pac-fp-decl" style="display:none">
           📋 <strong>Declaration required:</strong> By proceeding, you declare that you reside in the selected pin code area for at least the last 5 years and have valid address proof (Aadhaar / voter ID / utility bill) to verify this claim.
         </div>
-      </div>
 
-    <div class="discount-toggle-bar">
-      <div class="dt-row">
-        <div class="dt-field">
-          <label class="dt-field-label">Age group</label>
-          <select class="dt-select" id="dt-age" onchange="updateDiscountFromInputs()">
-            <option value="under30">Under 30 years</option>
-            <option value="30to49">30 – 49 years</option>
-            <option value="50plus" selected>50 years or above</option>
-          </select>
-        </div>
-        <div class="dt-field">
-          <label class="dt-field-label">Gender</label>
-          <div class="dt-gender-row">
+        <!-- Age & Gender merged inside PAC card -->
+        <div style="border-top:1px solid var(--border-tertiary);margin-top:10px;padding-top:8px;display:flex;align-items:center;gap:16px;flex-wrap:nowrap">
+          <span style="font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap">Discount eligibility</span>
+          <div class="dt-field" style="flex-direction:row;align-items:center;gap:6px">
+            <label class="dt-field-label" style="white-space:nowrap">Age</label>
+            <select class="dt-select" id="dt-age" onchange="updateDiscountFromInputs()">
+              <option value="under30">Under 30</option>
+              <option value="30to49">30–49 yrs</option>
+              <option value="50plus" selected>50+ yrs</option>
+            </select>
+          </div>
+          <div class="dt-gender-row" style="gap:10px">
             <label class="dt-gender-opt"><input type="radio" name="dt-gender" value="male" checked onchange="updateDiscountFromInputs()"> Male</label>
             <label class="dt-gender-opt"><input type="radio" name="dt-gender" value="female" onchange="updateDiscountFromInputs()"> Female</label>
           </div>
-        </div>
-        <div class="dt-badges">
-          <div class="dt-plan-badge"><span class="dt-plan-label">Entrepreneur Plan</span><span id="dt-badge-ent" class="dt-no-discount">Regular pricing</span></div>
-          <div class="dt-plan-badge"><span class="dt-plan-label">Enterprise Plan</span><span id="dt-badge-entr" class="dt-no-discount">Regular pricing</span></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
+            <span id="dt-badge-ent" class="dt-no-discount">Regular pricing</span>
+            <span style="color:var(--border-secondary)">|</span>
+            <span id="dt-badge-entr" class="dt-no-discount">Regular pricing</span>
+          </div>
         </div>
       </div>
-    </div>
 
     <div class="plan-group">
-      <div class="plan-head">
-        <span class="plan-tag entrepreneur">Entrepreneur Plan</span>
-        <span class="plan-desc">Low investment · No office required · Work from home or small setup · <span class="plan-pop-hint">📍 Suitable for pin codes with population up to 1 lakh</span></span>
-      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;flex-wrap:nowrap"><span class="plan-tag entrepreneur" style="flex-shrink:0">Entrepreneur Plan</span><span class="plan-desc" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Low investment · No office required · Work from home</span><span class="plan-pop-hint" style="flex-shrink:0">📍 Up to 1 lakh</span></div>
       <div class="tiers-grid" id="entrepreneur-tiers-grid"></div>
       <div id="mobile-ent-table"></div>
     </div>
 
     <div class="plan-group">
-      <div class="plan-head">
-        <span class="plan-tag enterprise">Enterprise Plan</span>
-        <span class="plan-desc">Higher investment · Office setup required · Built for scale · <span class="plan-pop-hint plan-pop-hint--ent">🏙️ Recommended for pin codes with 1.5 lakh+ population, preferably urban areas</span></span>
-      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;flex-wrap:nowrap"><span class="plan-tag enterprise" style="flex-shrink:0">Enterprise Plan</span><span class="plan-desc" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Higher investment · Office setup required · Built for scale</span><span class="plan-pop-hint plan-pop-hint--ent" style="flex-shrink:0">🏙️ 1.5 lakh+</span></div>
       <div class="tiers-grid" id="enterprise-tiers-grid"></div>
       <div id="mobile-entr-table"></div>
     </div>
@@ -873,14 +917,16 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
         </div>
         <div class="pac-results" id="pac-gp-results"></div>
       </div>
-      <div class="plan-group">
-        <div class="plan-head">
-          <span class="plan-tag entrepreneur" style="background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)">Growth Partner Programme</span>
-          <span class="plan-desc">Earn by referring Franchise Partners — no office, no operations required.</span>
+      <div class="gp-two-col">
+        <div class="plan-group" style="margin-bottom:0">
+          <div class="plan-head">
+            <span class="plan-tag entrepreneur" style="background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)">Growth Partner Programme</span>
+            <span class="plan-desc">Earn by referring Franchise Partners — no office, no operations required.</span>
+          </div>
+          <div id="growth-partner-grid-gp"></div>
         </div>
-        <div id="growth-partner-grid-gp"></div>
+        <div id="slab-card-gp"></div>
       </div>
-      <div id="slab-card-gp"></div>
       <button class="cta-link-btn" onclick="goToFranchiseSub('income')">See Income Potential →</button>
     </div>
 
@@ -902,14 +948,16 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
         <div class="pac-sgp-warning" id="pac-sgp-warning" style="display:none">⚠️ Minimum 50 pin codes required. You may book 25 now (paying for 50) with commitment to finalise remaining 25 within 7 days.</div>
         <div class="pac-results" id="pac-sgp-results"></div>
       </div>
-      <div class="plan-group">
-        <div class="plan-head">
-          <span class="plan-tag entrepreneur" style="background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)">Super Growth Partner Programme</span>
-          <span class="plan-desc">Pan-India territory, minimum 50 pin codes — maximum reach, passive income at scale.</span>
+      <div class="gp-two-col">
+        <div class="plan-group" style="margin-bottom:0">
+          <div class="plan-head">
+            <span class="plan-tag entrepreneur" style="background:var(--lmi-soft-blue);color:var(--lmi-dark-blue)">Super Growth Partner Programme</span>
+            <span class="plan-desc">Pan-India territory, minimum 50 pin codes — maximum reach, passive income at scale.</span>
+          </div>
+          <div id="growth-partner-grid-sgp"></div>
         </div>
-        <div id="growth-partner-grid-sgp"></div>
+        <div id="slab-card-sgp"></div>
       </div>
-      <div id="slab-card-sgp"></div>
       <button class="cta-link-btn" onclick="goToFranchiseSub('income')">See Income Potential →</button>
     </div>
 
@@ -926,24 +974,18 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
         <span style="font-size:13px;font-weight:600;color:var(--text-primary)">Income potential calculator</span>
       </div>
 
-      <div class="pin-topbar-wrap" id="pin-topbar-wrap">
-        <div class="pin-topbar">
-        <select class="pin-topbar-select" id="pin-state-top" onchange="onStateChangeTop()">
-          <option value="">📍 State</option>
-        </select>
-        <select class="pin-topbar-select" id="pin-district-top" onchange="onDistrictChangeTop()" disabled>
-          <option value="">District</option>
-        </select>
-        <select class="pin-topbar-select" id="pin-code-top" onchange="onPincodeChangeTop()" disabled>
-          <option value="">Pin code</option>
-        </select>
-        <div class="pin-topbar-chips" id="pin-topbar-chips" style="display:none">
-          <span class="pin-topbar-chip pin-topbar-chip-pop" id="ptb-pop">—</span>
-          <span class="pin-topbar-chip" id="ptb-rec">—</span>
-          <button class="pin-topbar-apply" id="ptb-apply" onclick="applyFromTopbar()">Apply →</button>
+      <!-- Pin code selector in sticky header -->
+      <div class="income-pin-bar" id="income-pin-bar" style="margin-bottom:6px;border-radius:6px;padding:5px 10px">
+        <div class="income-pin-bar-inner">
+          <span style="font-size:10.5px;font-weight:700;color:var(--lmi-dark-blue);white-space:nowrap">📍 Select Pin Code</span>
+          <select class="pac-select" id="inc-state" onchange="incOnState()" style="flex:1;max-width:180px;font-size:10.5px;padding:3px 6px"><option value="">State / UT</option></select>
+          <select class="pac-select" id="inc-district" onchange="incOnDistrict()" disabled style="flex:1;max-width:180px;font-size:10.5px;padding:3px 6px"><option value="">District</option></select>
+          <select class="pac-select" id="inc-pin" onchange="incOnPin()" disabled style="flex:1;max-width:200px;font-size:10.5px;padding:3px 6px"><option value="">Pin code</option></select>
+          <span id="inc-pin-result" style="font-size:10.5px;color:var(--text-secondary)"></span>
         </div>
       </div>
-      </div><!-- /pin-topbar-wrap -->
+
+
 
       <div class="gp-mini-label">Referral programme</div>
       <div class="gp-income-grid" id="gp-mini-grid"></div>
@@ -977,8 +1019,6 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
     </div>
 
     <div class="income-scroll-body">
-
-    
 
     <div class="section">
       <div class="section-title"><i class="ti ti-users" aria-hidden="true"></i> Your market</div>
@@ -2119,6 +2159,7 @@ function setStaffCount(n){
 }
 
 function initMobileTabs(){
+  if(window.innerWidth > 650) return; // desktop: all cards visible, no tabs needed
   // ── GP/SGP tab bar ──
   const gpGrid = document.getElementById('gp-mini-grid');
   if(gpGrid){
@@ -2170,6 +2211,213 @@ function switchTierTab(group, btn){
     c.classList.toggle('tier-tab-active', c.dataset.tierGroup===group);
   });
 }
+
+// Booking fee calculator for FP
+const PAC_TIER_FEES = {
+  quickstart:50000, ultralight:75000, light:100000,
+  bronze:300000, silver:400000, gold:500000
+};
+const PAC_TIER_MRP = {
+  quickstart:100000, ultralight:150000, light:200000,
+  bronze:600000, silver:800000, gold:1000000
+};
+// Get population for a pin code from PINCODE_DATA
+function pacGetPinPop(pin){
+  if(typeof PINCODE_DATA === 'undefined') return null;
+  for(const state of Object.values(PINCODE_DATA)){
+    for(const dist of Object.values(state)){
+      const pins = dist[2] || [];
+      const found = pins.find(([p]) => String(p) === String(pin));
+      if(found) return found[1] || null;
+    }
+  }
+  return null;
+}
+
+// Get tier recommendation from population
+function pacGetTierRec(pop){
+  if(typeof TIER_BRACKETS === 'undefined') return {key:'light', name:'Light (Tier 3)', reason:'Default recommendation.'};
+  return TIER_BRACKETS.find(b => pop <= b.max) || TIER_BRACKETS[TIER_BRACKETS.length-1];
+}
+
+function pacUpdateBookingFee(){
+  const plan = (document.getElementById('pac-f-plan')||{}).value;
+  const display = document.getElementById('pac-booking-fee-display');
+  const submitBtn = document.getElementById('pac-final-submit');
+  if(!plan || !display) return;
+  const fee = PAC_TIER_FEES[plan];
+  const mrp = PAC_TIER_MRP[plan];
+  const bookingAmt = Math.round(fee * 0.05);
+  const bookingAmtGst = Math.round(bookingAmt * 1.18);
+  const balance = fee - bookingAmt;
+  const planName = document.getElementById('pac-f-plan').options[document.getElementById('pac-f-plan').selectedIndex].text.split(':')[1]?.split('(')[0]?.trim() || plan;
+  display.style.display = 'block';
+  display.innerHTML = `<strong>📋 Booking Fee Breakup</strong><br>
+    Franchise fee (offer): <strong>₹${fee.toLocaleString('en-IN')}</strong> (MRP: <s>₹${mrp.toLocaleString('en-IN')}</s>)<br>
+    <span style="color:var(--lmi-blue)">5% booking amount: <strong>₹${bookingAmtGst.toLocaleString('en-IN')}</strong> (incl. 18% GST) — payable now</span><br>
+    Balance on completion: ₹${balance.toLocaleString('en-IN')} + GST (within 30 days)<br>
+    <span style="font-size:10px;color:var(--amber-dark)">⚠️ Booking amount is forfeited if onboarding not completed within 30 days</span>`;
+}
+
+function pacSendAadhaarOTP(){
+  const aadhaar = (document.getElementById('pac-f-aadhaar')||{}).value;
+  if(!aadhaar || aadhaar.length !== 12 || !/^\d{12}$/.test(aadhaar)){
+    alert('Please enter a valid 12-digit Aadhaar number.');
+    return;
+  }
+  const btn = document.getElementById('pac-aadhaar-otp-btn');
+  const status = document.getElementById('pac-aadhaar-status');
+  btn.textContent = 'OTP Sent ✓';
+  btn.style.background = 'var(--green-dark)';
+  btn.disabled = true;
+  // Show OTP input
+  status.innerHTML = '<input type="text" id="pac-otp-input" placeholder="Enter OTP" maxlength="6" style="padding:4px 8px;border:1px solid var(--border-secondary);border-radius:4px;width:100px;font-size:11.5px;margin-right:6px"><button onclick="pacVerifyOTP()" style="padding:4px 10px;background:var(--lmi-blue);color:white;border:none;border-radius:4px;cursor:pointer;font-size:11px">Verify</button>';
+}
+
+// Valid referral codes (9555614476 for testing; will be dynamic in production)
+const PAC_VALID_REFERRAL_CODES = ['9555614476'];
+
+function pacToggleReferral(choice){
+  const wrap = document.getElementById('pac-ref-code-wrap');
+  const submitBtn = document.getElementById('pac-final-submit');
+  if(choice === 'yes'){
+    if(wrap) wrap.style.display = 'block';
+    // Keep submit disabled until code verified
+    if(submitBtn) submitBtn.disabled = true;
+  } else {
+    // No referral code - redirect to waitlist
+    if(wrap) wrap.style.display = 'none';
+    // Replace submit button with waitlist button
+    if(submitBtn){
+      submitBtn.textContent = '📋 Join Waitlist →';
+      submitBtn.disabled = false;
+      submitBtn.onclick = ()=>{ pacCloseModal(); alert('You have been added to the waitlist. Our team will contact you when a slot opens for this pin code.'); };
+    }
+  }
+}
+
+function pacVerifyReferral(){
+  const code = (document.getElementById('pac-referral-code')||{}).value?.trim();
+  const status = document.getElementById('pac-referral-status');
+  const submitBtn = document.getElementById('pac-final-submit');
+  if(!code){ if(status) status.innerHTML = '<span style="color:var(--red-dark)">Please enter a referral code.</span>'; return; }
+  if(PAC_VALID_REFERRAL_CODES.includes(code)){
+    if(status) status.innerHTML = '<span style="color:var(--green-dark);font-weight:600">✅ Referral code verified successfully!</span>';
+    window._pacReferralVerified = true;
+    if(submitBtn){
+      submitBtn.disabled = false;
+      submitBtn.textContent = '💳 Pay & Reserve Pin Code →';
+      submitBtn.onclick = null; // restore default onclick
+    }
+  } else {
+    if(status) status.innerHTML = '<span style="color:var(--red-dark);font-weight:600">❌ Invalid referral code. Please check with your Growth/Super Growth Partner.</span>';
+    window._pacReferralVerified = false;
+  }
+}
+
+function pacVerifyOTP(){
+  const otp = (document.getElementById('pac-otp-input')||{}).value;
+  if(!otp || otp.length < 4){ alert('Enter OTP'); return; }
+  // Simulate verification (integrate Digio SDK in production)
+  const status = document.getElementById('pac-aadhaar-status');
+  status.innerHTML = '<span style="color:var(--green-dark);font-weight:600">✅ Aadhaar verified — payment link enabled</span>';
+  const submitBtn = document.getElementById('pac-final-submit');
+  if(submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '💳 Pay & Reserve Pin Code →'; }
+}
+
+// ── INCOME POTENTIAL PIN CODE SELECTOR ──
+function incInitDropdowns(){
+  const stateEl = document.getElementById('inc-state');
+  if(!stateEl || stateEl.options.length > 1) return;
+  Object.keys(PINCODE_DATA).sort().forEach(s=>{
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    stateEl.appendChild(opt);
+  });
+}
+
+function incOnState(){
+  const state = document.getElementById('inc-state').value;
+  const distEl = document.getElementById('inc-district');
+  const pinEl = document.getElementById('inc-pin');
+  distEl.innerHTML = '<option value="">District</option>';
+  pinEl.innerHTML = '<option value="">Pin code</option>';
+  distEl.disabled = true; pinEl.disabled = true;
+  document.getElementById('inc-pin-result').textContent = '';
+  if(!state || !PINCODE_DATA[state]) return;
+  Object.keys(PINCODE_DATA[state]).sort().forEach(d=>{
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = d;
+    distEl.appendChild(opt);
+  });
+  distEl.disabled = false;
+}
+
+function incOnDistrict(){
+  const state = document.getElementById('inc-state').value;
+  const dist = document.getElementById('inc-district').value;
+  const pinEl = document.getElementById('inc-pin');
+  pinEl.innerHTML = '<option value="">Pin code</option>';
+  pinEl.disabled = true;
+  document.getElementById('inc-pin-result').textContent = '';
+  if(!state || !dist || !PINCODE_DATA[state]?.[dist]) return;
+  const pins = PINCODE_DATA[state][dist][2] || [];
+  pins.forEach(([pin, pop])=>{
+    const opt = document.createElement('option');
+    opt.value = pin;
+    opt.textContent = `${pin}${pop ? ' (pop: '+pop.toLocaleString('en-IN')+')' : ''}`;
+    pinEl.appendChild(opt);
+  });
+  pinEl.disabled = false;
+}
+
+function incOnPin(){
+  const state = document.getElementById('inc-state').value;
+  const dist = document.getElementById('inc-district').value;
+  const pin = document.getElementById('inc-pin').value;
+  const resultEl = document.getElementById('inc-pin-result');
+  if(!pin) return;
+
+  // Get population
+  const pins = PINCODE_DATA[state]?.[dist]?.[2] || [];
+  const found = pins.find(([p])=>String(p)===String(pin));
+  const pop = found ? found[1] : null;
+
+  if(pop){
+    // 1. Set population slider
+    const slPop = document.getElementById('sl-pop');
+    if(slPop){
+      slPop.value = Math.min(Math.max(pop, parseInt(slPop.min)), parseInt(slPop.max));
+      // Trigger change to update display and recalc
+      slPop.dispatchEvent(new Event('input'));
+    }
+
+    // 2. Get tier recommendation
+    const rec = (typeof TIER_BRACKETS!=='undefined') ? TIER_BRACKETS.find(b=>pop<=b.max) || TIER_BRACKETS[TIER_BRACKETS.length-1] : null;
+    if(rec){
+      // 3. Select the recommended tier
+      if(typeof selectTier === 'function') selectTier(rec.key);
+      resultEl.innerHTML = `<span class="income-pin-rec">💡 ${rec.name} suggested · Pop: ${pop.toLocaleString('en-IN')}</span>`;
+    } else {
+      resultEl.innerHTML = `<span class="income-pin-rec">Pop: ${pop.toLocaleString('en-IN')}</span>`;
+    }
+  } else {
+    resultEl.textContent = 'Population data not available';
+  }
+}
+
+// Auto-collapse income pin bar on scroll down, restore on scroll up
+(function(){
+  let lastY = 0;
+  window.addEventListener('scroll', ()=>{
+    const panel = document.getElementById('panel-income');
+    const bar = document.getElementById('income-pin-bar');
+    if(!panel || !panel.classList.contains('active') || !bar) return;
+    const y = window.scrollY;
+    bar.classList.toggle('collapsed', y > 100);
+    lastY = y;
+  }, {passive:true});
+})();
 
 function togglePinBar(forceCollapse){
   const hdr = document.querySelector('.income-sticky-header');
@@ -2270,10 +2518,11 @@ function pacDistrictChange(sel, type, idx){
   if(!state || !dist || !PINCODE_DATA[state] || !PINCODE_DATA[state][dist]) return;
   const distData = PINCODE_DATA[state][dist];
   const pins = distData[2] || [];
-  pins.forEach(([pin])=>{
+  pins.forEach(([pin, pop])=>{
     const status = pacGetStatus(String(pin), type);
     const indicator = status.status==='available' ? '✅' : status.status==='fp_booked' ? '🔴' : '🟡';
-    pinSel.innerHTML += `<option value="${pin}">${indicator} ${pin}</option>`;
+    const popLabel = pop ? ` (pop: ${pop.toLocaleString('en-IN')})` : '';
+    pinSel.innerHTML += `<option value="${pin}" data-pop="${pop||0}">${indicator} ${pin}${popLabel}</option>`;
   });
   pinSel.disabled = false;
   if(type==='sgp') pinSel.onchange = ()=>pacUpdateSGPCount();
@@ -2281,6 +2530,7 @@ function pacDistrictChange(sel, type, idx){
 
 function pacAddRow(type){
   const container = document.getElementById(`pac-${type}-rows`);
+  if(!container) return;
   const rows = container.querySelectorAll('.pac-row');
   const idx = rows.length;
   const div = document.createElement('div');
@@ -2336,7 +2586,7 @@ function pacCheck(type){
     let action = '';
     if(s.status === 'available'){
       hasAvailable = true; availablePins.push(pin);
-      action = `<button class="pac-action-btn pac-book-btn" onclick="pacOpenBookingForm('${type}','${pin}')">Book Now →</button>`;
+      action = ''; // Book Now moved to suggestion card below
     } else if(s.status === 'sgp_booked' && type === 'gp'){
       action = `<button class="pac-action-btn pac-waitlist-btn" onclick="pacOpenWaitlist('${type}','${pin}','sgp_request')">Request via SGP</button>`;
     } else if((s.status === 'gp_booked' || s.status === 'sgp_booked') && (type === 'fp' || type === 'sgp')){
@@ -2355,14 +2605,63 @@ function pacCheck(type){
   // SGP: update count & show proceed button
   if(type === 'sgp'){
     pacUpdateSGPCount();
-    const availCount = pins.filter(p=>pacGetStatus(p,'sgp').status==='available').length;
-    if(availCount > 0 && !document.getElementById('pac-sgp-proceed')){
-      resultsEl.insertAdjacentHTML('afterend',`<button class="pac-proceed-btn" id="pac-sgp-proceed" onclick="pacProceedSGP()" disabled>Select at least 25 pin codes</button>`);
+    const availPins = pins.filter(p=>pacGetStatus(p,'sgp').status==='available');
+    const existing = document.getElementById('pac-sgp-proceed');
+    if(existing) existing.remove();
+    if(availPins.length > 0){
+      resultsEl.insertAdjacentHTML('afterend',`<div id="pac-sgp-summary"></div><button class="pac-proceed-btn" id="pac-sgp-proceed" onclick="pacProceedSGP()" disabled>Select at least 25 pin codes</button>`);
       pacUpdateSGPCount();
     }
   }
-  // FP: show declaration if available
-  if(type === 'fp' && declEl) declEl.style.display = hasAvailable ? 'block' : 'none';
+  // GP/FP: single Book Now summary
+  if(type === 'gp'){
+    const availPins = pins.filter(p=>pacGetStatus(p,'gp').status==='available');
+    const existing = document.getElementById('pac-gp-proceed');
+    if(existing) existing.remove();
+    if(availPins.length > 0){
+      const qty = availPins.length;
+      const rate = qty >= 5 ? 1000 : 1500;
+      const rateGst = Math.round(rate*1.18);
+      const total = rateGst * qty;
+      resultsEl.insertAdjacentHTML('afterend',`<div id="pac-gp-summary" style="background:var(--lmi-soft-blue);border-radius:8px;padding:8px 12px;margin-top:8px;font-size:11.5px">
+        <strong>${qty} available pin code${qty>1?'s':''} selected</strong> · Rate: ₹${rateGst.toLocaleString('en-IN')}/pin (${qty>=5?'5+ pin discount':'1-pin rate'} +GST) · <strong>Total token: ₹${total.toLocaleString('en-IN')}</strong>
+      </div><button class="pac-proceed-btn" id="pac-gp-proceed" onclick="pacOpenBookingForm('gp','${availPins.join(',')}')">📌 Book ${qty} Pin Code${qty>1?'s':''} →</button>`);
+    }
+  }
+  // FP: show declaration + tier recommendation if available
+  if(type === 'fp' && declEl){
+    declEl.style.display = hasAvailable ? 'block' : 'none';
+    // Show tier recommendation for available pins
+    if(hasAvailable && availablePins.length > 0){
+      const pin = availablePins[0];
+      const pop = pacGetPinPop(pin);
+      if(pop){
+        const rec = pacGetTierRec(pop);
+        let recHtml = document.getElementById('pac-fp-tier-rec');
+        if(!recHtml){
+          declEl.insertAdjacentHTML('afterend', `<div id="pac-fp-tier-rec"></div>`);
+          recHtml = document.getElementById('pac-fp-tier-rec');
+        }
+        recHtml.innerHTML = `<div style="background:#FFFDE7;border:1.5px solid var(--lmi-yellow);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:11.5px">
+          <div style="font-weight:700;color:var(--lmi-dark-blue);margin-bottom:4px">💡 Suggested plan for pin code ${pin} (Pop: ${pop.toLocaleString('en-IN')})</div>
+          <div style="font-size:13px;font-weight:700;color:var(--lmi-blue);margin-bottom:4px">${rec.name}</div>
+          <div style="color:var(--text-secondary);line-height:1.5">${rec.reason}</div>
+          <div style="margin-top:6px;font-size:10.5px;color:var(--text-tertiary)">You can change the plan in the booking form below.</div>
+          <div style="text-align:center;margin-top:12px">
+            <button onclick="pacOpenBookingForm('fp','${pin}')" style="padding:10px 32px;font-size:13px;font-weight:700;background:var(--lmi-dark-blue);color:var(--lmi-yellow);border:none;border-radius:8px;cursor:pointer;font-family:inherit;letter-spacing:0.02em;box-shadow:0 3px 8px rgba(45,58,140,0.3)">💳 Book Now — Pay &amp; Reserve Pin Code →</button>
+          </div>
+        </div>`;
+        // Store suggested tier for pre-selection in booking form
+        window._pacSuggestedTier = rec.key;
+      } else {
+        // No population data — show simple fallback Book Now button
+        const fallback = document.getElementById('pac-fp-book-fallback');
+        const fallbackBtn = document.getElementById('pac-fp-book-btn');
+        if(fallback){ fallback.style.display = 'block'; }
+        if(fallbackBtn){ fallbackBtn.onclick = ()=>pacOpenBookingForm('fp', pin); }
+      }
+    }
+  }
 }
 
 function pacProceedSGP(){
@@ -2371,6 +2670,40 @@ function pacProceedSGP(){
 }
 
 function pacOpenBookingForm(type, pins){
+  // For FP: show age & gender confirmation panel before opening booking form
+  if(type === 'fp'){
+    const age = (document.getElementById('dt-age')||{}).value || '50plus';
+    const gender = (document.querySelector('input[name="dt-gender"]:checked')||{}).value || 'male';
+    const ageLabel = age==='under30' ? 'Under 30 years' : age==='30to49' ? '30–49 years' : '50 years or above';
+    const genderLabel = gender==='female' ? 'Female' : 'Male';
+    const hasDiscount = age==='under30' || (gender==='female' && age==='30to49');
+    const discountNote = hasDiscount
+      ? `<span style="color:var(--green-dark);font-weight:600">✅ ${age==='under30'?'Young Entrepreneur':'Women Entrepreneur'} special discount applies to your booking.</span>`
+      : `<span style="color:var(--amber-dark);font-weight:600">ℹ️ Regular pricing — no special discount for this profile.</span>`;
+
+    // Show confirmation in modal first
+    document.getElementById('pac-modal-body').innerHTML = `
+      <div class="pac-modal-title">⚠️ Confirm your profile before booking</div>
+      <div class="pac-modal-sub">Discount is linked to age and gender — please verify before proceeding.</div>
+      <div style="background:var(--lmi-soft-blue);border-radius:8px;padding:12px 14px;margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div><div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;margin-bottom:2px">Age Group</div><div style="font-size:14px;font-weight:700;color:var(--lmi-dark-blue)">${ageLabel}</div></div>
+          <div><div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;margin-bottom:2px">Gender</div><div style="font-size:14px;font-weight:700;color:var(--lmi-dark-blue)">${genderLabel}</div></div>
+        </div>
+        <div style="font-size:11.5px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.08)">${discountNote}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:14px">If these details are incorrect, click <strong>Go Back</strong> to update your age and gender selection above.</div>
+      <div class="pac-modal-actions">
+        <button class="pac-cancel-btn" onclick="pacCloseModal()">← Go Back & Update</button>
+        <button class="pac-submit-btn" onclick="pacContinueBooking('${type}','${pins}')">✅ Confirmed — Continue →</button>
+      </div>`;
+    document.getElementById('pac-modal').classList.add('open');
+    return;
+  }
+  pacContinueBooking(type, pins);
+}
+
+function pacContinueBooking(type, pins){
   const typeLabel = type==='gp' ? 'Growth Partner' : type==='sgp' ? 'Super Growth Partner' : 'Franchise Partner';
   const pinList = pins.split(',');
   const pinCount = pinList.length;
@@ -2383,12 +2716,64 @@ function pacOpenBookingForm(type, pins){
       ${pinCount >= 25 && pinCount < 50 && type==='sgp' ? '<br><span style="color:var(--amber-dark);font-size:10.5px">⚠️ Paying for 50 pins. Remaining '+(50-pinCount)+' pins must be finalised within 7 days.</span>' : ''}
     </div>`;
 
+  const planSelector = type==='fp' ? `<div class="pac-form-field"><label>Select Franchise Plan *</label><select id="pac-f-plan" onchange="pacUpdateBookingFee()" ><option value="">-- Choose Plan --</option><option value="quickstart">Tier 1: Quick Start (₹50K offer / ₹1L MRP)</option><option value="ultralight">Tier 2: Ultra Light (₹75K offer / ₹1.5L MRP)</option><option value="light">Tier 3: Light (₹1L offer / ₹2L MRP)</option><option value="bronze">Tier 4: Bronze (₹3L offer / ₹6L MRP)</option><option value="silver">Tier 5: Silver (₹4L offer / ₹8L MRP)</option><option value="gold">Tier 6: Gold (₹5L offer / ₹10L MRP)</option></select></div><div id="pac-booking-fee-display" style="display:none;background:var(--lmi-soft-blue);padding:8px 12px;border-radius:6px;margin-bottom:10px;font-size:11.5px"></div>` : '';
   const decl = type==='fp' ? `<div class="pac-decl" style="margin-bottom:10px">📋 I declare that I reside in pin code <strong>${pins}</strong> for at least the last 5 years and have valid address proof (Aadhaar / Voter ID / Utility Bill) to verify this claim.</div>` :
     type==='sgp' && pinCount < 50 ? `<div class="pac-decl" style="margin-bottom:10px">📋 I commit to finalise the remaining <strong>${50-pinCount} pin codes</strong> within 7 days of booking. Failure to do so will result in forfeiture of the partial booking amount for unselected pins.</div>` : '';
 
   document.getElementById('pac-modal-body').innerHTML = `
     <div class="pac-modal-title">Book as ${typeLabel}</div>
-    <div class="pac-modal-sub">Pin code${pinList.length>1?'s':''}: <strong>${pins}</strong></div>
+    <div class="pac-modal-sub" style="line-height:1.8">
+      ${pinList.map(p => {
+        const d = PAC_DB[p] || {};
+        const pop = pacGetPinPop(p);
+        const popStr = pop ? ` · Pop: ${pop.toLocaleString('en-IN')}` : '';
+        const loc = (d.district && d.state) ? `${d.district}, ${d.state}` : (d.state || '');
+        return `<span style="display:inline-flex;align-items:center;gap:6px;margin-right:8px">
+          <strong>${p}</strong>${loc ? ` — ${loc}` : ''}${popStr}
+        </span>`;
+      }).join('<br>')}
+    </div>
+
+    ${type === 'fp' ? (() => {
+      const pin = pinList[0];
+      const d = PAC_DB[pin] || {};
+      const hasGP = !!d.gp;
+      const hasSGP = !!d.sgp;
+      if(!hasGP && !hasSGP){
+        return `<div style="background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11.5px">
+          <div style="font-weight:700;color:#15803D;margin-bottom:3px">📋 Partner Record for Pin Code ${pin}</div>
+          <div style="color:#166534">No Growth Partner or Super Growth Partner assigned yet for this pin code.</div>
+          <div style="color:var(--text-tertiary);font-size:10.5px;margin-top:3px">You will be directly onboarded by List My India team.</div>
+        </div>`;
+      }
+      let partnerHtml = `<div style="background:var(--lmi-soft-blue);border:1.5px solid #C5CAF0;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11.5px">
+        <div style="font-weight:700;color:var(--lmi-dark-blue);margin-bottom:6px">📋 Partner Record for Pin Code ${pin}</div>`;
+      if(hasSGP) partnerHtml += `<div style="margin-bottom:4px">🔵 <strong>Super Growth Partner:</strong> ${d.sgp}</div>`;
+      if(hasGP)  partnerHtml += `<div style="margin-bottom:4px">🟡 <strong>Growth Partner:</strong> ${d.gp}</div>`;
+      const referralLabel = hasGP ? `Growth Partner (${d.gp})` : `Super Growth Partner (${d.sgp})`;
+      partnerHtml += `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #C5CAF0">
+        <div style="font-size:11px;color:var(--lmi-dark-blue);font-weight:600;margin-bottom:6px">Do you have a referral code from your ${referralLabel}?</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;padding:8px 10px;border-radius:6px;border:1.5px solid #C5CAF0;background:white" onclick="pacToggleReferral('no')">
+            <input type="radio" name="pac-ref-choice" value="no" id="pac-ref-no" style="width:14px;height:14px"> 
+            <span><strong>No, I don't have a referral code</strong><br><span style="font-size:10.5px;color:var(--text-tertiary)">You will be added to the waitlist and contacted when a slot opens.</span></span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;padding:8px 10px;border-radius:6px;border:1.5px solid #C5CAF0;background:white" onclick="pacToggleReferral('yes')">
+            <input type="radio" name="pac-ref-choice" value="yes" id="pac-ref-yes" style="width:14px;height:14px">
+            <span><strong>Yes, I have a referral code</strong><br><span style="font-size:10.5px;color:var(--text-tertiary)">Enter and verify to proceed to booking.</span></span>
+          </label>
+        </div>
+        <div id="pac-ref-code-wrap" style="display:none;margin-top:8px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="pac-referral-code" placeholder="Enter referral code" style="flex:1;padding:6px 10px;border:1.5px solid #C5CAF0;border-radius:6px;font-size:12px;font-family:inherit">
+            <button onclick="pacVerifyReferral()" style="padding:6px 14px;background:var(--lmi-dark-blue);color:white;border:none;border-radius:6px;font-size:11.5px;cursor:pointer;font-family:inherit;white-space:nowrap">Verify</button>
+          </div>
+          <div id="pac-referral-status" style="font-size:10.5px;margin-top:4px;color:var(--text-tertiary)">Enter the referral code to verify and proceed.</div>
+        </div>
+      </div></div>`;
+      return partnerHtml;
+    })() : ''}
+    ${planSelector}
     ${tokenDisplay}
     ${decl}
     <div class="pac-form-row">
@@ -2397,15 +2782,22 @@ function pacOpenBookingForm(type, pins){
     </div>
     <div class="pac-form-field"><label>Email *</label><input type="email" id="pac-f-email" placeholder="your@email.com"></div>
     <div class="pac-form-field"><label>City / Area you operate in *</label><input type="text" id="pac-f-city" placeholder="City or locality"></div>
-    ${type==='fp' ? `<div class="pac-form-field"><label>Years of residence in pin code ${pins} *</label><input type="number" id="pac-f-years" min="5" placeholder="Min. 5 years required"></div>` : ''}
+    ${type==='fp' ? `<div class="pac-form-row"><div class="pac-form-field"><label>Years of residence in pin code ${pins} *</label><input type="number" id="pac-f-years" min="5" placeholder="Min. 5 years required"></div><div class="pac-form-field"><label>Aadhaar Number *</label><input type="text" id="pac-f-aadhaar" maxlength="12" placeholder="12-digit Aadhaar no." pattern="[0-9]{12}"></div></div><div class="pac-form-field" style="display:flex;align-items:center;gap:10px"><button type="button" id="pac-aadhaar-otp-btn" onclick="pacSendAadhaarOTP()" style="padding:6px 14px;background:var(--lmi-blue);color:white;border:none;border-radius:6px;font-size:11.5px;cursor:pointer;font-family:inherit">Send OTP (Digio)</button><span id="pac-aadhaar-status" style="font-size:10.5px;color:var(--text-tertiary)">Verify Aadhaar to enable payment</span></div>` : ''}
     ${type==='gp'||type==='sgp' ? `<div class="pac-form-field"><label>How did you hear about List My India?</label><select id="pac-f-source"><option>Social media</option><option>Friend / referral</option><option>WhatsApp</option><option>Website</option><option>Other</option></select></div>` : ''}
     <div class="pac-form-field"><label>Message (optional)</label><textarea id="pac-f-msg" placeholder="Any specific questions or context..."></textarea></div>
     <div style="font-size:10px;color:var(--text-tertiary);margin-top:6px">By submitting, you confirm interest in booking. Our team will contact you within 24 hours to complete the process and share payment details.</div>
     <div class="pac-modal-actions">
       <button class="pac-cancel-btn" onclick="pacCloseModal()">Cancel</button>
-      <button class="pac-submit-btn" onclick="pacSubmitForm('${type}','${pins}')">Submit Interest →</button>
+      <button class="pac-submit-btn" id="pac-final-submit" onclick="pacSubmitForm('${type}','${pins}')" ${type==='fp'?'disabled':''}>💳 Pay &amp; Reserve Pin Code →</button>
     </div>`;
   document.getElementById('pac-modal').classList.add('open');
+  // Pre-select suggested tier for FP
+  if(type === 'fp' && window._pacSuggestedTier){
+    setTimeout(()=>{
+      const planSel = document.getElementById('pac-f-plan');
+      if(planSel){ planSel.value = window._pacSuggestedTier; pacUpdateBookingFee(); }
+    }, 50);
+  }
 }
 
 function pacOpenWaitlist(type, pin, reason){
@@ -2432,15 +2824,59 @@ function pacSubmitForm(type, pins){
   const phone = (document.getElementById('pac-f-phone')||{}).value||'';
   const email = (document.getElementById('pac-f-email')||{}).value||'';
   if(!name||!phone||!email){ alert('Please fill in Name, Mobile and Email.'); return; }
-  // Open Google Form in new tab (pre-filled where possible)
+
+  // Build pin location summary
+  const pinList = pins.split(',');
+  const pinSummary = pinList.map(p=>{
+    const d = PAC_DB[p] || {};
+    const pop = pacGetPinPop(p);
+    const loc = [d.district, d.state].filter(Boolean).join(', ');
+    return `<tr>
+      <td style="padding:4px 8px;font-weight:600">${p}</td>
+      <td style="padding:4px 8px;color:var(--text-secondary)">${loc||'—'}</td>
+      ${pop ? `<td style="padding:4px 8px;color:var(--text-tertiary)">${pop.toLocaleString('en-IN')}</td>` : '<td style="padding:4px 8px">—</td>'}
+    </tr>`;
+  }).join('');
+
+  // Plan & fee summary for FP
+  const plan = (document.getElementById('pac-f-plan')||{});
+  const planText = plan.options ? plan.options[plan.selectedIndex]?.text : '';
+  const feeDisplay = document.getElementById('pac-booking-fee-display');
+  const feeSummary = feeDisplay ? feeDisplay.innerHTML : '';
+
+  // Open Google Form in new tab
   const formUrl = PAC_FORMS[type.replace('_waitlist','')] || PAC_FORMS.waitlist;
   window.open(formUrl, '_blank');
+
   document.getElementById('pac-modal-body').innerHTML = `
-    <div class="pac-success-msg">
-      ✅ Form opened in new tab!<br>
-      <span style="font-size:11px;color:var(--text-tertiary);font-weight:400">Please complete and submit the form in the new tab. Our team will contact you within 24 hours.</span>
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-size:20px;margin-bottom:4px">✅</div>
+      <div style="font-size:14px;font-weight:700;color:var(--green-dark)">Booking request submitted!</div>
+      <div style="font-size:11px;color:var(--text-tertiary);margin-top:3px">Our team will contact you within 24 hours to complete payment and documentation.</div>
     </div>
-    <div class="pac-modal-actions"><button class="pac-cancel-btn" onclick="pacCloseModal()">Close</button></div>`;
+
+    <div style="background:var(--lmi-soft-blue);border-radius:8px;padding:10px 12px;margin-bottom:10px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--lmi-dark-blue);margin-bottom:6px">📍 Pin Code Summary</div>
+      <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+        <thead><tr style="border-bottom:1px solid #C5CAF0">
+          <th style="padding:3px 8px;text-align:left;font-size:10px;color:var(--text-secondary)">Pin Code</th>
+          <th style="padding:3px 8px;text-align:left;font-size:10px;color:var(--text-secondary)">District, State</th>
+          <th style="padding:3px 8px;text-align:left;font-size:10px;color:var(--text-secondary)">Population</th>
+        </tr></thead>
+        <tbody>${pinSummary}</tbody>
+      </table>
+    </div>
+
+    ${planText ? `<div style="background:#FFFDE7;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:11.5px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--lmi-dark-blue);margin-bottom:5px">📋 Plan & Payment</div>
+      <div><strong>Plan:</strong> ${planText}</div>
+      ${feeSummary ? `<div style="margin-top:4px">${feeSummary}</div>` : ''}
+    </div>` : ''}
+
+    <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:12px;line-height:1.5">
+      A Google Form has been opened in a new tab — please complete and submit it to finalise your request.
+    </div>
+    <div class="pac-modal-actions"><button class="pac-submit-btn" onclick="pacCloseModal()">Close</button></div>`;
 }
 
 function pacCloseModal(){
@@ -2457,7 +2893,10 @@ function pacInitDropdowns(){
   document.querySelectorAll('.pac-state').forEach(sel=>{ sel.innerHTML = opts; });
 }
 // Call after pincode data loads (it's in script block 4)
-window.addEventListener('DOMContentLoaded', ()=>{ setTimeout(pacInitDropdowns, 200); });
+window.addEventListener('DOMContentLoaded', ()=>{
+  setTimeout(pacInitDropdowns, 200);
+  setTimeout(incInitDropdowns, 250);
+});
 
 // ── SLAB PRICING DYNAMIC CARD ──
 const SLABS = [
@@ -3267,6 +3706,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initPincodeTopbar(){
   const stateEl = document.getElementById('pin-state-top');
+  if(!stateEl) return; // element removed from sticky header
   const states = Object.keys(PINCODE_DATA).sort();
   states.forEach(s => {
     const opt = document.createElement('option');
@@ -3276,7 +3716,9 @@ function initPincodeTopbar(){
 }
 
 function onStateChangeTop(){
-  const state = document.getElementById('pin-state-top').value;
+  const stateEl = document.getElementById('pin-state-top');
+  if(!stateEl) return;
+  const state = stateEl.value;
   const distEl = document.getElementById('pin-district-top');
   const pinEl = document.getElementById('pin-code-top');
   distEl.innerHTML = '<option value="">District</option>';
@@ -3336,4 +3778,3 @@ function onPincodeChangeTop(){
 
 </body>
 </html>
-
