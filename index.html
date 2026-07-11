@@ -2600,14 +2600,12 @@ function pacCheck(type){
       const partnerName = s.status==='sgp_booked' ? (PAC_DB[pin]?.sgp||'SGP') : (PAC_DB[pin]?.gp||'GP');
       const partnerType = s.status==='sgp_booked' ? 'Super Growth Partner' : 'Growth Partner';
       const uid = pin+'_'+Date.now();
-      action = `<div style="display:flex;flex-direction:column;gap:5px;min-width:200px">
-        <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;border:1.5px solid var(--lmi-blue);border-radius:6px;cursor:pointer;font-size:11.5px;font-weight:600;color:var(--lmi-dark-blue);background:white" onclick="pacFPReferralFlow('${pin}','${partnerName}','${partnerType}');document.getElementById('rb1_${uid}').checked=true">
-          <input type="radio" id="rb1_${uid}" name="fp_choice_${uid}" style="accent-color:var(--lmi-blue)">
-          I have a referral code
+      action = `<div style="display:flex;gap:8px;flex-wrap:nowrap;align-items:center">
+        <label style="display:flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--lmi-blue);border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--lmi-dark-blue);background:white;white-space:nowrap" onclick="pacFPReferralFlow('${pin}','${partnerName}','${partnerType}');document.getElementById('rb1_${uid}').checked=true">
+          <input type="radio" id="rb1_${uid}" name="fp_choice_${uid}" style="accent-color:var(--lmi-blue)"> I have a referral code
         </label>
-        <label style="display:flex;align-items:center;gap:7px;padding:5px 10px;border:1.5px solid var(--border-secondary);border-radius:6px;cursor:pointer;font-size:11.5px;color:var(--text-secondary);background:white" onclick="pacFPJoinWaitlist('${pin}');document.getElementById('rb2_${uid}').checked=true">
-          <input type="radio" id="rb2_${uid}" name="fp_choice_${uid}" style="accent-color:var(--lmi-blue)">
-          I don't have a referral code
+        <label style="display:flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--border-secondary);border-radius:6px;cursor:pointer;font-size:12px;color:var(--text-secondary);background:white;white-space:nowrap" onclick="pacFPJoinWaitlist('${pin}');document.getElementById('rb2_${uid}').checked=true">
+          <input type="radio" id="rb2_${uid}" name="fp_choice_${uid}" style="accent-color:var(--lmi-blue)"> I don't have a referral code
         </label>
       </div>`;
     } else if((s.status === 'gp_booked' || s.status === 'sgp_booked') && type === 'sgp'){
