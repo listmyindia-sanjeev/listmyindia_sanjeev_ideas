@@ -500,9 +500,9 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .pac-proceed-btn:disabled{background:var(--bg-tertiary);color:var(--text-tertiary);cursor:not-allowed}
 .pac-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;align-items:center;justify-content:center;padding:1rem}
 .pac-modal-overlay.open{display:flex}
-.pac-modal{background:white;border-radius:var(--radius-lg);padding:16px 20px;width:480px;max-width:90vw;max-height:88vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,0.2)}
+.pac-modal{background:white;border-radius:var(--radius-lg);padding:16px 20px;width:480px;max-width:min(480px,90vw);max-height:88vh;overflow-y:auto;overflow-x:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.2);box-sizing:border-box}
 /* Sequential sections */
-.seq-section{border:1px solid var(--border-secondary);border-radius:8px;margin-bottom:6px;overflow:hidden;transition:all 0.2s}
+.seq-section{border:1px solid var(--border-secondary);border-radius:8px;margin-bottom:6px;overflow:hidden;transition:all 0.2s;word-break:break-word}
 .seq-section.locked{opacity:0.45;pointer-events:none}
 .seq-section.done{border-color:#86EFAC;background:#F0FDF4}
 .seq-header{display:flex;align-items:center;gap:8px;padding:7px 11px;background:var(--bg-secondary);cursor:default}
@@ -518,6 +518,7 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .seq-next-btn:disabled{background:var(--bg-tertiary);color:var(--text-tertiary);cursor:not-allowed}
 .seq-edit-btn{font-size:10px;color:var(--lmi-blue);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline}
 .seq-summary-chip{display:inline-flex;align-items:center;gap:4px;background:var(--lmi-soft-blue);color:var(--lmi-dark-blue);font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:6px;margin-top:3px}
+.pac-modal-body-wrap{width:100%;box-sizing:border-box;overflow:hidden}
 .pac-modal-title{font-size:13px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:3px}
 .pac-modal-sub{font-size:11px;color:var(--text-tertiary);margin-bottom:12px}
 .pac-form-field{margin-bottom:7px}
@@ -1251,8 +1252,8 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
 <!-- PIN Availability Checker Booking Modal -->
 <div class="pac-modal-overlay" id="pac-modal">
-  <div class="pac-modal">
-    <div id="pac-modal-body"></div>
+  <div class="pac-modal" style="width:480px;max-width:min(480px,90vw);box-sizing:border-box">
+    <div id="pac-modal-body" style="width:100%;overflow:hidden;box-sizing:border-box"></div>
   </div>
 </div>
 
