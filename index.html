@@ -909,10 +909,13 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
             <select class="pac-select pac-state" onchange="pacStateChange(this,'gp',0)"><option value="">State / UT</option></select>
             <select class="pac-select pac-district" onchange="pacDistrictChange(this,'gp',0)" disabled><option value="">District</option></select>
             <select class="pac-select pac-pin" disabled><option value="">Pin code</option></select>
-            <button class="pac-add-btn" onclick="pacAddRow('gp')" title="Add pin code">+</button>
+            <span style="width:26px;flex-shrink:0;display:inline-block"></span>
           </div>
         </div>
-        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="margin-top:6px;display:flex;justify-content:flex-end">
+          <button class="pac-add-btn" onclick="pacAddRow('gp')" title="Add pin code">+</button>
+        </div>
+        <div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <button class="pac-check-btn" onclick="pacCheck('gp')"><i class="ti ti-search"></i> Check Availability</button>
         </div>
         <div class="pac-results" id="pac-gp-results"></div>
@@ -938,10 +941,13 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
             <select class="pac-select pac-state" onchange="pacStateChange(this,'sgp',0)"><option value="">State / UT</option></select>
             <select class="pac-select pac-district" onchange="pacDistrictChange(this,'sgp',0)" disabled><option value="">District</option></select>
             <select class="pac-select pac-pin" disabled><option value="">Pin code</option></select>
-            <button class="pac-add-btn" onclick="pacAddRow('sgp')" title="Add pin code">+</button>
+            <span style="width:26px;flex-shrink:0;display:inline-block"></span>
           </div>
         </div>
-        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="margin-top:6px;display:flex;justify-content:flex-end">
+          <button class="pac-add-btn" onclick="pacAddRow('sgp')" title="Add pin code">+</button>
+        </div>
+        <div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <button class="pac-check-btn" onclick="pacCheck('sgp')"><i class="ti ti-search"></i> Check Availability</button>
           <span class="pac-sgp-counter" id="pac-sgp-count">0 pin codes selected</span>
         </div>
@@ -1226,6 +1232,10 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
 
       <button class="reset-btn" onclick="toggleMonthly()" id="monthly-toggle-btn"><i class="ti ti-calendar" aria-hidden="true"></i> View monthly breakup</button>
 
+      <div style="background:#FFF8E1;border:1px solid #F59E0B;border-radius:6px;padding:7px 12px;margin-top:8px;font-size:10.5px;color:#92400E;line-height:1.5">
+        🎁 <strong>Lifetime referral bonus — 5% Amazon voucher (not included above):</strong> Paid to whichever stakeholder (GP, SGP, or FP) first refers a paid business listing using their referral code. <strong>Strictly one stakeholder per business — no exceptions, no splitting.</strong>
+      </div>
+
       <div id="monthly-breakup" style="display:none;margin-top:1rem">
         <table class="summary-table">
           <thead><tr><th>Month</th><th style="text-align:right">Gross revenue</th><th style="text-align:right">Expenses</th><th style="text-align:right">Net income</th></tr></thead>
@@ -1327,6 +1337,10 @@ function goToFranchiseSub(sub){
       goToFpSub('tiers');
     } else {
       showTab(sub);
+      // Ensure income model is calculated so interim revenue shows correct data
+      if((sub==='gp' || sub==='sgp') && typeof calculateIncome==='function'){
+        setTimeout(()=>{ calculateIncome(); }, 50);
+      }
     }
   }
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1429,13 +1443,9 @@ const fsSections=[
 <tr class="pc-ent"><td><strong>Ultra Light</strong></td><td>35%</td><td>₹1L <span style="font-size:9px;color:#888">(~₹1.23L incl. GST)</span></td><td>₹9K + GST</td><td>M4</td><td>₹2.6L</td></tr>
 <tr class="pc-ent pc-pop"><td><strong>Light ⭐</strong></td><td>40%</td><td>₹1.6L <span style="font-size:9px;color:#888">(~₹1.88L incl. GST)</span></td><td>₹12K + GST</td><td>M5</td><td>₹2.9L</td></tr>
 <tr class="pc-biz"><td><strong>Bronze</strong></td><td>55%</td><td>₹5.76L <span style="font-size:9px;color:#888">(~₹6.79L incl. GST)</span></td><td>₹55K + GST</td><td>M4</td><td>₹16.4L</td><td rowspan="3" class="pc-biz-note">Default: Pop 2L · 20% capture · 40/35/25 mix — adjustable in calculator</td></tr>
-<tr class="pc-biz"><td><strong>Silver</strong></td><td>60%</td><td>₹6.76L <span style="font-size:9px;color:#888">(~₹7.97L incl. GST)</span></td><td>₹57K + GST</td><td>M4</td><td>₹18.0L</td></tr>
-<tr class="pc-biz"><td><strong>Gold</strong></td><td>65%</td><td>₹7.76L <span style="font-size:9px;color:#888">(~₹9.15L incl. GST)</span></td><td>₹60K + GST</td><td>M4</td><td>₹19.5L</td></tr>
 </tbody></table></div>
-<p class="plan-disclaimer">⚠️ Indicative estimates only. Entrepreneur plan: pop 1,00,000 · 10% capture · plan mix 50/30/20 · solo home-based operation. Enterprise plan: pop 2,00,000 · 20% capture with active sales team · plan mix 40/35/25 · office with 1 marketing staff. Monthly marketing &amp; maintenance costs are non-negotiable and fixed per your franchise agreement — they build your local brand visibility. Variable costs (rent, conveyance, electricity/water/pantry, staff salary) are adjustable in the Income Potential calculator. Growth: 7.5%→3% per month, tapering. Churn: 2.5%→1.5%. All figures exclude GST.</p>
+<p class="plan-disclaimer">⚠️ Indicative estimates only. Entrepreneur plan: pop 1,00,000 · 10% capture · plan mix 50/30/20 · solo home-based operation. Enterprise plan: pop 2,00,000 · 20% capture with active sales team · plan mix 40/35/25 · office with 1 marketing staff. Maintenance is a fixed monthly platform fee; for first 12 months, ₹10 is credited per new free verified registration. Marketing &amp; advertising and conveyance are self-spend by FP (paid locally, proof required). Variable costs (rent, electricity/water/pantry, staff salary) are adjustable in the Income Potential calculator. Annual subscription (Superfone + Truecaller + Email ID): ₹12,000. Referral Amazon voucher (5%): lifetime, paid to the first referring stakeholder only — strictly one per business, no exceptions. Growth: 7.5%→3% per month, tapering. Churn: 2.5%→1.5%. All figures exclude GST.</p>
 `,options:[
-      {text:"Gold · 65% share",score:3,tier:"Gold"},
-      {text:"Silver · 60% share",score:3,tier:"Silver"},
       {text:"Bronze · 55% share",score:2,tier:"Bronze"},
       {text:"Light · 40% share",score:2,tier:"Light"},
       {text:"Ultra Light · 35% share",score:1,tier:"Ultra Light"},
@@ -1450,7 +1460,7 @@ const fsSections=[
       {text:"Family support confirmed",score:2},
       {text:"Loan / credit expected within 30 days",score:1},
       {text:"Not yet arranged",score:0}]},
-    {id:"q11",text:"Office or working space availability",hint:"Enterprise tiers (Bronze/Silver/Gold) require a dedicated commercial office — minimum 200 sq.ft, ~₹30,000/mo rent + ₹2L one-time interiors. Entrepreneur tiers can operate from home.",type:"radio",options:[
+    {id:"q11",text:"Office or working space availability",hint:"Enterprise tier (Bronze) require a dedicated commercial office — minimum 200 sq.ft, ~₹30,000/mo rent + ₹2L one-time interiors. Entrepreneur tiers can operate from home.",type:"radio",options:[
       {text:"Yes, dedicated commercial space (200+ sq.ft)",score:3},
       {text:"Yes, shared or home office space available",score:2},
       {text:"No office yet — but can arrange within 30 days (Enterprise tier)",score:1},
@@ -1581,8 +1591,7 @@ function fsEvaluate(){
     'Ultra Light':{inv:'₹75,000 fee (+18% GST) · total upfront ~₹1.04L excl. GST (~₹1.23L incl. GST)',share:'35%',run:'₹9,000/mo + 18% GST'},
     'Light':{inv:'₹1,00,000 fee (+18% GST) · total upfront ~₹1.59L excl. GST (~₹1.88L incl. GST)',share:'40%',run:'₹12,000/mo + 18% GST'},
     'Bronze':{inv:'₹3,00,000 fee (+18% GST) · total upfront ~₹5.76L excl. GST (~₹6.79L incl. GST)',share:'55%',run:'₹55,000/mo + 18% GST'},
-    'Silver':{inv:'₹4,00,000 fee (+18% GST) · total upfront ~₹6.76L excl. GST (~₹7.97L incl. GST)',share:'60%',run:'₹57,000/mo + 18% GST'},
-    'Gold':{inv:'₹5,00,000 fee (+18% GST) · total upfront ~₹7.76L excl. GST (~₹9.15L incl. GST)',share:'65%',run:'₹60,000/mo + 18% GST'}
+    
   };
 
   let verdict,cls,msg;
@@ -1811,30 +1820,22 @@ function computeDefaultTierFinancials(share, cost, investment, isEnterprise){
 const franchiseTierData = [
   // mrp = full MRP; fee = limited period offer; youngFee = Young (<30) / Women (<50) special
   {key:'quickstart', cls:'te1', plan:'entrepreneur', rank:'Tier 1', name:'Quick Start', sub:'Lightest entry point', bestFor:'first-time, solo starters',
-   mrp:100000, fee:50000, youngFee:25000, share:0.30, sub_:19175, setup:0, office:0, runningCost:6000,
-   breakup:[['Franchise fee (offer rate)',50000],['Year-1 subscription bundle',19175],['QR Code Printer',10000]],
-   monthlyExpense:[['Maintenance',1000],['Conveyance',0],['Marketing & advertising',5000]]},
+   mrp:100000, fee:50000, youngFee:25000, share:0.30, sub_:12000, setup:0, office:0, runningCost:6000,
+   breakup:[['Franchise fee (offer rate)',50000],['Annual subscription — Superfone + Truecaller + Email ID',12000],['QR Code Printer',30000]],
+   monthlyExpense:[['Maintenance — platform support (fixed)',1000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Conveyance (self-spend by FP, proof required)',0],['Marketing & advertising (self-spend by FP, proof required)',5000]]},
   {key:'ultralight', cls:'te2', plan:'entrepreneur', rank:'Tier 2', name:'Ultra Light', sub:'Slightly larger reach', bestFor:'side-hustlers testing the model',
-   mrp:150000, fee:75000, youngFee:35000, share:0.35, sub_:19175, setup:0, office:0, runningCost:9000,
-   breakup:[['Franchise fee (offer rate)',75000],['Year-1 subscription bundle',19175],['QR Code Printer',10000]],
-   monthlyExpense:[['Maintenance',2000],['Conveyance',0],['Marketing & advertising',7000]]},
+   mrp:150000, fee:75000, youngFee:35000, share:0.35, sub_:12000, setup:0, office:0, runningCost:9000,
+   breakup:[['Franchise fee (offer rate)',75000],['Annual subscription — Superfone + Truecaller + Email ID',12000],['QR Code Printer',30000]],
+   monthlyExpense:[['Maintenance — platform support (fixed)',2000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Conveyance (self-spend by FP, proof required)',0],['Marketing & advertising (self-spend by FP, proof required)',7000]]},
   {key:'light', cls:'te3', plan:'entrepreneur', rank:'Tier 3', name:'Light', sub:'Most popular entry tier', bestFor:'serious full-time operators', recommended:true,
-   mrp:200000, fee:100000, youngFee:50000, share:0.40, sub_:19175, setup:30000, office:0, runningCost:12000,
-   breakup:[['Franchise fee (offer rate)',100000],['Year-1 subscription bundle',19175],['Setup fee (incl. billboard/digital ad)',30000],['QR Code Printer',10000]],
-   monthlyExpense:[['Maintenance',3000],['Conveyance',0],['Marketing & advertising',9000]]},
+   mrp:200000, fee:100000, youngFee:50000, share:0.40, sub_:12000, setup:30000, office:0, runningCost:12000,
+   breakup:[['Franchise fee (offer rate)',100000],['Annual subscription — Superfone + Truecaller + Email ID',12000],['Setup fee (incl. billboard/digital ad)',30000],['QR Code Printer',30000]],
+   monthlyExpense:[['Maintenance — platform support (fixed)',3000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Conveyance (self-spend by FP, proof required)',0],['Marketing & advertising (self-spend by FP, proof required)',9000]]},
   {key:'bronze', cls:'tb1', plan:'enterprise', rank:'Tier 4', name:'Bronze', sub:'Office-based: Entry Enterprise', bestFor:'building a small team-led office',
-   mrp:600000, fee:300000, youngFee:200000, share:0.55, sub_:19175, setup:46500, office:200000, runningCost:55000,
-   breakup:[['Franchise fee (offer rate)',300000],['Year-1 subscription bundle',19175],['Setup fee (dashboards + billboard)',46500],['Office interiors (min. 200 sq.ft)',200000],['QR Code Printer',10000]],
-   monthlyExpense:[['Maintenance (fixed)',5000],['Marketing & advertising (fixed)',10000],['Office rent',20000],['Conveyance',2000],['Electricity, water & pantry',3000],['1 Marketing Executive',15000]]},
-  {key:'silver', cls:'tb2', plan:'enterprise', rank:'Tier 5', name:'Silver', sub:'Office-based: Mid Level Operation', bestFor:'Mid level team size',
-   mrp:800000, fee:400000, youngFee:300000, share:0.60, sub_:19175, setup:46500, office:200000, runningCost:57000,
-   breakup:[['Franchise fee (offer rate)',400000],['Year-1 subscription bundle',19175],['Setup fee (dashboards + billboard)',46500],['Office interiors (min. 200 sq.ft)',200000],['QR Code Printer',10000]],
-   monthlyExpense:[['Maintenance (fixed)',5000],['Marketing & advertising (fixed)',12000],['Office rent',20000],['Conveyance',2000],['Electricity, water & pantry',3000],['1 Marketing Executive',15000]]},
-  {key:'gold', cls:'tb3', plan:'enterprise', rank:'Tier 6', name:'Gold', sub:'Office-based: Highest Revenue Share', bestFor:'Visionary Partners',
-   mrp:1000000, fee:500000, youngFee:400000, share:0.65, sub_:19175, setup:46500, office:200000, runningCost:60000,
-   breakup:[['Franchise fee (offer rate)',500000],['Year-1 subscription bundle',19175],['Setup fee (dashboards + billboard)',46500],['Office interiors (min. 200 sq.ft)',200000],['QR Code Printer',10000]],
-   monthlyExpense:[['Maintenance (fixed)',5000],['Marketing & advertising (fixed)',15000],['Office rent',20000],['Conveyance',2000],['Electricity, water & pantry',3000],['1 Marketing Executive',15000]]}
-];
+   mrp:600000, fee:300000, youngFee:200000, share:0.55, sub_:12000, setup:46500, office:200000, runningCost:55000,
+   breakup:[['Franchise fee (offer rate)',300000],['Annual subscription — Superfone + Truecaller + Email ID',12000],['Setup fee (dashboards + billboard)',46500],['Office interiors (min. 200 sq.ft)',200000],['QR Code Printer',30000]],
+   monthlyExpense:[['Maintenance — platform support (fixed)',5000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Marketing & advertising (self-spend by FP, proof required)',10000],['Office rent',20000],['Conveyance (self-spend by FP, proof required)',2000],['Electricity, water & pantry',3000],['1 Marketing Executive',15000]]},
+  ];
 
 function renderFranchiseTierCards(){
   const entGrid = document.getElementById('entrepreneur-tiers-grid');
@@ -1908,14 +1909,24 @@ function renderFranchiseTierCards(){
     breakupHtml += `<table class="bd-table" style="margin-top:4px">
       <tr class="bd-section-row"><td colspan="2">Monthly running cost</td></tr>`;
     t.monthlyExpense.forEach(([label,val])=>{
-      const isFixed = label.includes('(fixed)');
-      const cleanLabel = label.replace(' (fixed)','');
-      breakupHtml += `<tr class="${isFixed?'bd-fixed-row':''}"><td>${cleanLabel}</td><td>${fmtCurrency(val)}/mo</td></tr>`;
+      if(val==='variable'){
+        breakupHtml += `<tr class="bd-fixed-row" style="color:var(--green-dark)"><td>${label.replace(' (fixed)','').replace(' — ₹10/new free registration (variable)','')}<br><span style="font-size:10px;color:var(--green-dark);font-style:italic">💚 ₹10 credit per new free verified registration — deducted from maintenance payable (applicable for first 12 months only)</span></td><td style="font-size:11px;color:var(--green-dark);font-weight:600">− ₹10/registration</td></tr>`;
+      } else if(label.includes('self-spend')){
+        const cleanLabel = label.replace(' (fixed)','').replace(' (self-spend by FP, proof required)','');
+        breakupHtml += `<tr><td>${cleanLabel} <span style="font-size:10px;background:#E8F4FD;color:#0066AA;padding:1px 5px;border-radius:3px;font-weight:600">Self-spend · Proof reqd.</span></td><td>${fmtCurrency(val)}/mo</td></tr>`;
+      } else {
+        const isFixed = label.includes('(fixed)');
+        const cleanLabel = label.replace(' (fixed)','').replace(' — platform support','');
+        breakupHtml += `<tr class="${isFixed?'bd-fixed-row':''}"><td>${cleanLabel}</td><td>${fmtCurrency(val)}/mo</td></tr>`;
+      }
     });
     breakupHtml += `
       <tr class="bd-subtotal-row"><td>Subtotal (excl. GST)</td><td>${fmtCurrency(t.runningCost)}/mo</td></tr>
       <tr class="bd-gst-row"><td>+ 18% GST</td><td>+ ${fmtCurrency(runningGst)}/mo</td></tr>
       <tr class="bd-total-row"><td>Total running (incl. GST)</td><td>${fmtCurrency(t.runningCost+runningGst)}/mo</td></tr>
+      <tr style="background:#FFF8E1"><td colspan="2" style="padding:6px 10px;font-size:11px;color:#B45309">
+        🎁 <strong>Lifetime referral bonus — 5% Amazon voucher:</strong> Earned by whoever refers the paid business listing first using their referral code (GP, SGP, or FP). <strong>Only one stakeholder receives this per business, without any exception — no splitting, no dual payment.</strong>
+      </td></tr>
     </table>
     <div class="bd-note">GST @ 18% applies on all items. Fixed costs 🔒 are non-negotiable minimums.</div>`;
 
@@ -1954,6 +1965,9 @@ function renderFranchiseTierCards(){
       ${discountStrip}
       <div class="tier-3yr-line" onclick="goToFranchiseSub('income');selectTier('${t.key}')">
         3-year income potential: <strong>see estimate →</strong>
+      </div>
+      <div style="font-size:10.5px;background:#FFF8E1;border:1px solid #F59E0B;border-radius:5px;padding:4px 8px;margin-top:4px;color:#92400E">
+        🎁 <strong>Lifetime referral bonus — 5% Amazon voucher:</strong> Paid to the first person who refers a paid business listing using their referral code. Only one stakeholder (GP, SGP, or FP) receives this per business — no exceptions, no splitting.
       </div>
     </div>`;
   }
@@ -2021,7 +2035,7 @@ function renderMobilePlanTables(){
 
     const totalRow = tiers.map((t,i) => {
       const fee = isSpecial ? t.youngFee : t.fee;
-      const extras = (t.sub_||0) + (t.setup||0) + (t.office||0) + 10000;
+      const extras = (t.sub_||0) + (t.setup||0) + (t.office||0) + 30000; // QR Code Printer
       const total = fee + extras;
       const totalGst = Math.round(total*0.18);
       return `<td class="${i===recIdx?'col-rec':''}"><span class="val-total">${fmtRound10k(total+totalGst)}</span></td>`;
@@ -2096,15 +2110,61 @@ function renderGrowthPartnerCards(){
           <select class="gp-select" id="gp-qty-${gp.key}" onchange="updateGpCard('${gp.key}')">${qtyOptions}</select>
         </div>
         <div class="tier-row"><span class="t-label">Rate per pin code (+18% GST)</span><span class="t-val" id="gp-rate-${gp.key}">${fmtCurrency(rateWithGst)}</span></div>
+        <div id="gp-rate-note-${gp.key}" style="font-size:10px;color:var(--text-tertiary);text-align:right;padding:1px 0">${gp.key==='gp'?(defaultQty>=5?`5+ pin discount: ₹${rate.toLocaleString('en-IN')}/pin`:`1–4 pins: ₹${rate.toLocaleString('en-IN')}/pin`):'₹'+rate.toLocaleString('en-IN')+'/pin'}</div>
         <div class="tier-row"><span class="t-label">Commission on FP gross commission</span><span class="t-val fp-share">${gp.onetimePct}%</span></div>
         <div class="tier-row"><span class="t-label">One-time on franchise fee</span><span class="t-val fp-share">${gp.onetimePct}%</span></div>
         <div class="tier-row"><span class="t-label">Timeline to appoint FP</span><span class="t-val">${gp.timeline}</span></div>
+        <div style="border-top:1px dashed var(--border-tertiary);margin:6px 0 4px;padding-top:6px">
+          <div style="font-size:9px;font-weight:700;color:var(--amber-dark);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">⏳ Interim income — while no FP appointed</div>
+          <div style="background:var(--amber-light);border-radius:5px;padding:6px 9px;font-size:10.5px">
+            <div style="font-weight:600;color:var(--amber-dark);margin-bottom:3px">${gp.key==='gp'?'25%':'12.5%'} of the pin code's gross subscription revenue per month</div>
+            <div style="font-size:9.5px;color:var(--text-tertiary);line-height:1.5">Paid monthly · Applicable for maximum 6 months from go-live or pin code booking date (whichever is later) · Stops immediately when a Franchise Partner is appointed for that pin code</div>
+          </div>
+        </div>
         <div class="tier-row total-row"><span class="t-label">Total token investment</span><span class="t-val total-val" id="gp-total-${gp.key}">${fmtCurrency(totalWithGst)}</span></div>
       </div>
       <div class="tier-3yr-line" onclick="goToFranchiseSub('income')">
         Check income potential: <strong>see estimate →</strong>
       </div>
     </div>`;
+  });
+}
+
+function updateGpInterimCards(){
+  ['gp','sgp'].forEach(key=>{
+    const pct = key==='gp' ? 0.25 : 0.125;
+    const qty = (typeof gpStandalonePinCount!=='undefined' ? gpStandalonePinCount[key] : null) || (key==='sgp'?50:1);
+    let monthly = [];
+
+    if(_subs149.length >= 6){
+      // Use live market model (per pin code — divide by qty since model is already for the whole market)
+      // The _subs arrays represent total listings across all captured market, not per-pin
+      // Use raw numbers directly scaled by qty
+      for(let m=0;m<6;m++){
+        const gross = ((_subs149[m]||0)*149+(_subs199[m]||0)*199+(_subs249[m]||0)*249);
+        monthly.push(Math.round(gross * pct * qty));
+      }
+    } else {
+      // Smart default: pop 1,00,000 · 10% capture · 50/30/20 plan mix · 7.5%→4%→3% growth
+      const baseListings = qty * 750; // 1L pop × 1.25% retail × 5x home-based × 10% capture = 750 × qty
+      const avgPrice = 149*0.5 + 199*0.3 + 249*0.2; // ₹182/mo weighted avg
+      const growthRates = [0.075,0.075,0.075,0.04,0.04,0.03];
+      let listings = baseListings * 0.3; // start at 30% ramp
+      for(let m=0;m<6;m++){
+        if(m>0) listings = listings * (1+growthRates[m]);
+        monthly.push(Math.round(listings * avgPrice * pct));
+      }
+    }
+
+    const total = monthly.reduce((a,b)=>a+b,0);
+    const avgMo = Math.round(total/6);
+    const el = (id)=>document.getElementById(id);
+    if(el(`gp-interim-m1-${key}`)) el(`gp-interim-m1-${key}`).textContent = '~'+fmtCurrency(monthly[0]);
+    if(el(`gp-interim-m3-${key}`)) el(`gp-interim-m3-${key}`).textContent = '~'+fmtCurrency(monthly[2]);
+    if(el(`gp-interim-m6-${key}`)) el(`gp-interim-m6-${key}`).textContent = '~'+fmtCurrency(monthly[5]);
+    if(el(`gp-interim-total-${key}`)){
+      el(`gp-interim-total-${key}`).textContent = '~'+fmtCurrency(total);
+    }
   });
 }
 
@@ -2218,11 +2278,11 @@ function switchTierTab(group, btn){
 // Booking fee calculator for FP
 const PAC_TIER_FEES = {
   quickstart:50000, ultralight:75000, light:100000,
-  bronze:300000, silver:400000, gold:500000
+  bronze:300000
 };
 const PAC_TIER_MRP = {
   quickstart:100000, ultralight:150000, light:200000,
-  bronze:600000, silver:800000, gold:1000000
+  bronze:600000
 };
 // Get population for a pin code from PINCODE_DATA
 function pacGetPinPop(pin){
@@ -2759,8 +2819,6 @@ function pacBuildSequentialModal(){
         <option value="ultralight" ${rec?.key==='ultralight'?'selected':''}>Tier 2: Ultra Light (₹75K offer)</option>
         <option value="light" ${rec?.key==='light'?'selected':''}>Tier 3: Light (₹1L offer)</option>
         <option value="bronze" ${rec?.key==='bronze'?'selected':''}>Tier 4: Bronze (₹3L offer)</option>
-        <option value="silver" ${rec?.key==='silver'?'selected':''}>Tier 5: Silver (₹4L offer)</option>
-        <option value="gold" ${rec?.key==='gold'?'selected':''}>Tier 6: Gold (₹5L offer)</option>
       </select>
       <div id="seq-fee-display" style="font-size:11.5px;padding:7px 10px;background:var(--lmi-soft-blue);border-radius:6px;display:none;margin-bottom:8px"></div>
       <button class="seq-next-btn" onclick="pacSeqStep2(${nextSec})" id="seq-plan-btn">Select Plan →</button>
@@ -2879,7 +2937,7 @@ function pacSeqStep1(){
   const planSec = window._pacFlow.sections.plan;
   const planSecEl = document.getElementById(`seq-sec-${planSec}`);
   if(planSecEl && window._pacFlow.plan){
-    const planNames = {quickstart:'Quick Start',ultralight:'Ultra Light',light:'Light',bronze:'Bronze',silver:'Silver',gold:'Gold'};
+    const planNames = {quickstart:'Quick Start',ultralight:'Ultra Light',light:'Light',bronze:'Bronze',};
     const titleEl = planSecEl.querySelector('.seq-title');
     if(titleEl) titleEl.textContent = `Plan: ${planNames[window._pacFlow.plan]||window._pacFlow.plan} · Token: ₹${window._pacFlow.bookingAmt.toLocaleString('en-IN')}${hasDiscount?' (discounted)':''}`;
   }
@@ -2914,7 +2972,7 @@ function pacSeqStep2(sn){
   const plan = document.getElementById('seq-plan')?.value;
   if(!plan){ alert('Please select a franchise plan.'); return; }
   window._pacFlow.plan = plan;
-  const planNames = {quickstart:'Quick Start',ultralight:'Ultra Light',light:'Light',bronze:'Bronze',silver:'Silver',gold:'Gold'};
+  const planNames = {quickstart:'Quick Start',ultralight:'Ultra Light',light:'Light',bronze:'Bronze',};
   const sec = document.getElementById(`seq-sec-${sn}`);
   if(sec){ sec.classList.remove('active'); sec.classList.add('done');
     sec.querySelector('.seq-done-badge').style.display='';
@@ -2985,7 +3043,7 @@ function pacSeqStep4(sn){
 
 function pacBuildPaySummary(){
   const f = window._pacFlow;
-  const planNames = {quickstart:'Quick Start (Tier 1)',ultralight:'Ultra Light (Tier 2)',light:'Light (Tier 3)',bronze:'Bronze (Tier 4)',silver:'Silver (Tier 5)',gold:'Gold (Tier 6)'};
+  const planNames = {quickstart:'Quick Start (Tier 1)',ultralight:'Ultra Light (Tier 2)',light:'Light (Tier 3)',bronze:'Bronze (Tier 4)',};
   const isWaitlist = f.waitlistMode;
   const body = document.getElementById('seq-pay-body');
   const title = document.getElementById('seq-pay-title');
@@ -3022,7 +3080,7 @@ function pacBuildPaySummary(){
 function pacSeqFinalSubmit(){
   const f = window._pacFlow;
   // Form submission handled internally — no external Google Form redirect
-  const planNames = {quickstart:'Quick Start (Tier 1)',ultralight:'Ultra Light (Tier 2)',light:'Light (Tier 3)',bronze:'Bronze (Tier 4)',silver:'Silver (Tier 5)',gold:'Gold (Tier 6)'};
+  const planNames = {quickstart:'Quick Start (Tier 1)',ultralight:'Ultra Light (Tier 2)',light:'Light (Tier 3)',bronze:'Bronze (Tier 4)',};
   const isWaitlist = f.waitlistMode;
   const ageLabel = f.age==='under30'?'Under 30':f.age==='30to49'?'30–49 years':'50+ years';
   const genderLabel = f.gender==='female'?'Female':'Male';
@@ -3118,16 +3176,17 @@ function pacInitDropdowns(){
 window.addEventListener('DOMContentLoaded', ()=>{
   setTimeout(pacInitDropdowns, 200);
   setTimeout(incInitDropdowns, 250);
+  setTimeout(()=>{ if(typeof updateGpInterimCards==='function') updateGpInterimCards(); }, 300);
 });
 
 // ── SLAB PRICING DYNAMIC CARD ──
 const SLABS = [
   // {minPartners, maxPartners, gpRate1, gpRate5, sgpRate50, onetimePct, monthlyPct}
-  {min:1000, max:Infinity, gpRate1:7500, gpRate5:5000, sgpRate50:2500, onetimePct:10, monthlyPct:0,  label:'1,000+'},
-  {min:501,  max:999,      gpRate1:7500, gpRate5:5000, sgpRate50:2500, onetimePct:10, monthlyPct:2,  label:'501–1,000'},
-  {min:201,  max:500,      gpRate1:7500, gpRate5:5000, sgpRate50:2500, onetimePct:10, monthlyPct:3,  label:'201–500'},
-  {min:101,  max:200,      gpRate1:5000, gpRate5:3500, sgpRate50:1750, onetimePct:5,  monthlyPct:5,  label:'101–200'},
-  {min:1,    max:100,      gpRate1:1500, gpRate5:1000, sgpRate50:500,  onetimePct:5,  monthlyPct:5,  label:'Up to 100'},
+  {min:1000, max:Infinity, gpRate1:7500, gpRate5:5000, sgpRate50:2500, onetimePct:10, monthlyPct:0, sgpOnetimePct:5,  sgpMonthlyPct:0,  label:'1,000+'},
+  {min:501,  max:999,      gpRate1:7500, gpRate5:5000, sgpRate50:2500, onetimePct:10, monthlyPct:2,  sgpOnetimePct:5,  sgpMonthlyPct:1,  label:'501–1,000'},
+  {min:201,  max:500,      gpRate1:7500, gpRate5:5000, sgpRate50:2500, onetimePct:10, monthlyPct:3,  sgpOnetimePct:5,  sgpMonthlyPct:1.5,label:'201–500'},
+  {min:101,  max:200,      gpRate1:5000, gpRate5:3500, sgpRate50:1750, onetimePct:5,  monthlyPct:5,  sgpOnetimePct:2.5,sgpMonthlyPct:2.5,label:'101–200'},
+  {min:1,    max:100,      gpRate1:1500, gpRate5:1000, sgpRate50:500,  onetimePct:5,  monthlyPct:5,  sgpOnetimePct:2.5,sgpMonthlyPct:2.5,label:'Up to 100'},
 ];
 
 function slabGetCurrent(totalBooked){
@@ -3173,7 +3232,7 @@ function renderSlabCard(type){
   const nextRateWithGst = nextRate ? Math.round(nextRate * 1.18) : null;
 
   const urgencyMsg = next
-    ? `Only <strong>${toNext} more pin code${toNext!==1?'s':''}</strong> needed to move to the next slab (${next.label} active partners). Token price <strong>rises to ₹${Math.round(next[rateKey]*1.18).toLocaleString('en-IN')}+GST</strong> and monthly income benefit ${next.monthlyPct > current.monthlyPct ? 'increases to '+next.monthlyPct+'%' : 'stays at '+current.monthlyPct+'%'}.`
+    ? `Only <strong>${toNext} more pin code${toNext!==1?'s':''}</strong> needed to move to the next slab (${next.label} active partners). Token price <strong>rises to ₹${Math.round(next[rateKey]*1.18).toLocaleString('en-IN')}+GST</strong> and monthly income benefit ${(isGP?next.monthlyPct:next.sgpMonthlyPct) > (isGP?current.monthlyPct:current.sgpMonthlyPct) ? 'increases to '+(isGP?next.monthlyPct:next.sgpMonthlyPct)+'%' : 'stays at '+(isGP?current.monthlyPct:current.sgpMonthlyPct)+'%'}.`
     : 'You are at the <strong>highest active slab</strong> — maximum pricing tier reached.';
 
   // Build slab table
@@ -3183,12 +3242,14 @@ function renderSlabCard(type){
     const isNxt = s === next;
     const rate = s[rateKey];
     const rateGst = Math.round(rate*1.18);
+    const showOnetimePct = isGP ? s.onetimePct : (s.sgpOnetimePct ?? s.onetimePct/2);
+    const showMonthlyPct = isGP ? s.monthlyPct : (s.sgpMonthlyPct ?? s.monthlyPct/2);
     tableRows += `<tr class="${isCurr?'slab-current':''}">
       <td>${s.label}${isCurr?' <span class="slab-tag slab-tag-current">CURRENT</span>':''}${isNxt?' <span class="slab-tag slab-tag-next">NEXT ↑</span>':''}</td>
       <td>₹${rateGst.toLocaleString('en-IN')}</td>
       ${isGP ? `<td>₹${Math.round(s.gpRate5*1.18).toLocaleString('en-IN')}</td>` : ''}
-      <td class="${isCurr?'':'slab-down'}">${s.onetimePct}%</td>
-      <td class="${s.monthlyPct>0?'slab-up':'slab-down'}">${s.monthlyPct>0?s.monthlyPct+'%':'—'}</td>
+      <td class="${isCurr?'':'slab-down'}">${showOnetimePct}%</td>
+      <td class="${showMonthlyPct>0?'slab-up':'slab-down'}">${showMonthlyPct>0?showMonthlyPct+'%':'—'}</td>
     </tr>`;
   });
 
@@ -3269,11 +3330,21 @@ window.addEventListener('load', initShowMore);
 function updateGpCard(key){
   const qty = parseInt(document.getElementById('gp-qty-'+key).value);
   gpStandalonePinCount[key] = qty;
+  const gp = growthPartnerData.find(g=>g.key===key);
+  if(!gp) return;
   const rate = gpRateFor(gp, qty);
   const rateWithGst = Math.round(rate * 1.18);
   const totalWithGst = rateWithGst * qty;
-  const rateEl=document.getElementById('gp-rate-'+key); if(rateEl) rateEl.textContent=fmtCurrency(rateWithGst);
-  const totEl=document.getElementById('gp-total-'+key); if(totEl) totEl.textContent=fmtCurrency(totalWithGst);
+  const rateEl = document.getElementById('gp-rate-'+key);
+  const totEl  = document.getElementById('gp-total-'+key);
+  if(rateEl) rateEl.textContent = fmtCurrency(rateWithGst);
+  if(totEl)  totEl.textContent  = fmtCurrency(totalWithGst);
+  // Show discount note for GP (1-4 pins vs 5+)
+  const noteEl = document.getElementById('gp-rate-note-'+key);
+  if(noteEl && key==='gp'){
+    noteEl.textContent = qty >= 5 ? `5+ pin discount: ₹${rate.toLocaleString('en-IN')}/pin + GST` : `1–4 pins: ₹${rate.toLocaleString('en-IN')}/pin + GST`;
+    noteEl.style.color = qty >= 5 ? 'var(--green-dark)' : 'var(--text-tertiary)';
+  }
 }
 
 vasToggle.addEventListener('change', ()=>{
@@ -3378,7 +3449,7 @@ function calculateIncome(){
 
 
   // === Enterprise plan variable costs ===
-  const isEnterpriseTier = ['bronze','silver','gold'].includes(selectedTier) && selectedMode==='tier';
+  const isEnterpriseTier = ['bronze'].includes(selectedTier) && selectedMode==='tier';
   const entSection = document.getElementById('enterprise-vars-section');
   if(entSection) entSection.style.display = isEnterpriseTier ? 'block' : 'none';
 
@@ -3390,11 +3461,9 @@ function calculateIncome(){
   const entVariableTotal = entRent + entConv + entEwp + (entStaff * entSalary);
 
   // Fixed D-table costs per Enterprise tier (non-negotiable marketing + maintenance)
-  const entFixedCosts = {bronze:15000, silver:17000, gold:20000};
+  const entFixedCosts = {bronze:15000};
   const entTotalCosts = {
     bronze: entFixedCosts.bronze + entVariableTotal,
-    silver: entFixedCosts.silver + entVariableTotal,
-    gold:   entFixedCosts.gold   + entVariableTotal
   };
 
   if(slEntRent && isEnterpriseTier){
@@ -3406,7 +3475,7 @@ function calculateIncome(){
     set('d-ent-variable', '₹'+entVariableTotal.toLocaleString('en-IN')+'/mo');
     const selectedFixedCost = entFixedCosts[selectedTier] || 15000;
     set('ent-fixed-val', '₹'+selectedFixedCost.toLocaleString('en-IN')+'/mo');
-    setHTML('ent-fixed-desc', `Maintenance + Marketing & advertising — these build your brand visibility in the locality and cannot be reduced. Currently <strong>₹${selectedFixedCost.toLocaleString('en-IN')}/mo</strong> (highlighted as non-negotiable in your franchise agreement).`);
+    setHTML('ent-fixed-desc', `Maintenance (platform support, fixed) + Marketing & advertising (self-spend by FP locally, proof required) — currently <strong>₹${selectedFixedCost.toLocaleString('en-IN')}/mo</strong>. Marketing is paid directly by FP to local vendors; LMI does not collect this amount.`);
     set('d-ent-total', '₹'+(entFixedCosts[selectedTier]||15000+entVariableTotal).toLocaleString('en-IN')+'/mo');
   }
 
@@ -3415,9 +3484,7 @@ function calculateIncome(){
     {key:'ultralight',name:'Ultra Light',share:0.35,cost:9000,cls:'t2'},
     {key:'light',name:'Light',share:0.40,cost:12000,cls:'t3'},
     {key:'bronze',name:'Bronze',share:0.55,cost:entTotalCosts.bronze,cls:'t4'},
-    {key:'silver',name:'Silver',share:0.60,cost:entTotalCosts.silver,cls:'t5'},
-    {key:'gold',name:'Gold',share:0.65,cost:entTotalCosts.gold,cls:'t6'}
-  ];
+    ];
 
   function computeForTier(revShare, baseCost){
     let monthlyGross=[], monthlyNet=[], monthlyVas=[];
@@ -3446,8 +3513,7 @@ function calculateIncome(){
     qty = qty || gpPinCount[gp.key] || 1;
     const tierList2 = [
       {key:'quickstart',share:0.30},{key:'ultralight',share:0.35},{key:'light',share:0.40},
-      {key:'bronze',share:0.55},{key:'silver',share:0.60},{key:'gold',share:0.65}
-    ];
+      {key:'bronze',share:0.55},];
     const t = tierList2.find(x=>x.key===selectedTier) || tierList2[2];
     const s149 = _subs149.length ? _subs149 : subs149;
     const s199 = _subs199.length ? _subs199 : subs199;
@@ -3527,6 +3593,7 @@ function calculateIncome(){
 
   renderTierCards(tierList, computeForTier);
   renderGpMiniCards(gpList, computeForGP);
+  updateGpInterimCards();
   if(window.innerWidth <= 650) initMobileTabs();
   // Re-render franchise plan cards to sync breakeven with live slider values
   if(typeof renderFranchiseTierCards === 'function') renderFranchiseTierCards();
@@ -3726,6 +3793,15 @@ function renderGpMiniCards(gpList, computeForGP){
           <div class="gp-yr-cell"><div class="gp-yr-label">Y3 Recurring</div><div class="gp-yr-val">${fmtCurrency(data.y3)}</div></div>
           <div class="gp-yr-cell gp-yr-total"><div class="gp-yr-label">3-Yr Total</div><div class="gp-yr-val">${fmtCurrency(data.total)}</div></div>
         </div>
+
+        <!-- Interim revenue block -->
+        <div style="border-top:1px dashed var(--border-tertiary);margin-top:7px;padding-top:7px">
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--amber-dark);margin-bottom:4px">⏳ Interim revenue — while no FP appointed</div>
+          <div style="background:var(--amber-light);border-radius:5px;padding:6px 9px;font-size:10.5px">
+            <div style="font-weight:600;color:var(--amber-dark);margin-bottom:3px">${g.key==='gp'?'25%':'12.5%'} of each pin code's gross subscription revenue per month</div>
+            <div style="font-size:9.5px;color:var(--text-tertiary);line-height:1.5">Paid monthly · Max 6 months from go-live or booking date (whichever is later) · Stops when FP is appointed · Volume depends on actual listing uptake in that pin code</div>
+          </div>
+        </div>
       </div>
     </div>`;
   });
@@ -3825,12 +3901,8 @@ const TIER_BRACKETS = [
     reason:'With a population of 50,000–1,00,000 in this pin code, the Ultra Light tier strikes the right balance. A solo home-based setup with 35% revenue share gives you enough earning potential while keeping investment lean. You have room to grow into the Light tier as your subscriber base matures.'},
   {max:200000,  key:'light',      name:'Light (Tier 3) ⭐',
     reason:'This is the sweet spot. A population of 1,00,000–2,00,000 is exactly what the Light tier is designed for. With 40% revenue share, a motivated full-time operator can build a strong recurring income. This is our most popular tier — active field sales will unlock the full potential of this market.'},
-  {max:400000,  key:'bronze',     name:'Bronze (Tier 4)',
-    reason:'A population of 2,00,000–4,00,000 is too large for a solo home-based operation to serve effectively. The Bronze Enterprise tier gives you a dedicated office and team (55% share), the infrastructure needed to capture 20%+ of this market. The larger subscriber base makes the higher upfront investment worthwhile.'},
-  {max:700000,  key:'silver',     name:'Silver (Tier 5)',
-    reason:'With 4,00,000–7,00,000 people, this is a substantial district-level market. The Silver tier (60% share) provides the revenue share needed to build a profitable enterprise at this scale. A focused sales team with dedicated roles (field + tele-calling) can capture significant recurring revenue.'},
-  {max:Infinity,key:'gold',       name:'Gold (Tier 6)',
-    reason:'A population above 7,00,000 in a single pin code indicates a very high-density urban area. Only the Gold tier (65% revenue share) makes sense here — you need the maximum commission rate to justify the premium office location, larger team, and marketing spend required to compete effectively in such a dense market.'}
+  {max:Infinity,key:'bronze',     name:'Bronze (Tier 4)',
+    reason:'A population of 2,00,000–4,00,000 is too large for a solo home-based operation to serve effectively. The Bronze Enterprise tier gives you a dedicated office and team (55% share), the infrastructure needed to capture 20%+ of this market. The larger subscriber base makes the higher upfront investment worthwhile.'}
 ];
 
 let selectedPinData = null;
@@ -4000,4 +4072,3 @@ function onPincodeChangeTop(){
 
 </body>
 </html>
-
