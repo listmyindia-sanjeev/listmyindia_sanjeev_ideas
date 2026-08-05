@@ -193,9 +193,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .breakdown-panel{display:none;padding:0;background:var(--bg-secondary);border-top:0.5px solid var(--border-tertiary)}
 .breakdown-panel.open{display:block}
 /* Clean breakdown table */
-.bd-table{width:100%;border-collapse:collapse;font-size:11px}
-.bd-table td{padding:5px 10px;vertical-align:top}
-.bd-table td:last-child{text-align:right;white-space:nowrap;font-weight:500;color:var(--text-primary)}
+.bd-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+.bd-table td{padding:5px 8px;vertical-align:top;word-break:break-word;overflow-wrap:break-word}
+.bd-table td:first-child{width:68%}
+.bd-table td:last-child{width:32%;text-align:right;white-space:nowrap;font-weight:500;color:var(--text-primary)}
 .bd-table tr:nth-child(even){background:rgba(0,0,0,0.02)}
 .bd-section-row td{background:var(--lmi-dark-blue);color:rgba(255,255,255,0.8);font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px}
 .bd-mrp-row td{color:var(--text-tertiary);text-decoration:line-through;font-size:10px}
@@ -253,7 +254,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .run-row .t-label,.run-row .t-val{font-size:11px;color:var(--text-tertiary)}
 .run-row{padding-top:2px}
 
-.sec-lbl{font-size:11px;font-weight:600;letter-spacing:0.06em;color:var(--text-tertiary);text-transform:uppercase;margin-bottom:0.5rem;margin-top:0.5rem}
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:0.07em;color:var(--text-tertiary);text-transform:uppercase;margin-bottom:0.5rem;margin-top:1.25rem;display:flex;align-items:center;gap:6px}
+.sec-lbl .sec-icon{font-size:14px}
+.sec-lbl .sec-title{flex:1}
+.sec-lbl .sec-counter{font-size:9px;background:var(--bg-secondary);padding:2px 7px;border-radius:10px;color:var(--text-tertiary);font-weight:600;letter-spacing:0;text-transform:none}
+.sec-group{border-radius:10px;padding:10px 10px 4px;margin-bottom:12px}
+.sec-group.bg-purple{background:#F3F0FF;border:1px solid #D9D3FF}
+.sec-group.bg-blue{background:#EFF6FF;border:1px solid #BFDBFE}
+.sec-group.bg-amber{background:#FFFBEB;border:1px solid #FDE68A}
+.sec-group.bg-green{background:#F0FDF4;border:1px solid #BBF7D0}
+.sec-group.bg-rose{background:#FFF1F2;border:1px solid #FECDD3}
+.sec-group .sec-lbl{margin-top:0;padding:4px 6px;border-radius:6px}
+.sec-group.bg-purple .sec-lbl{color:#5B21B6;background:#EDE9FE}
+.sec-group.bg-blue .sec-lbl{color:#1D4ED8;background:#DBEAFE}
+.sec-group.bg-amber .sec-lbl{color:#92400E;background:#FEF3C7}
+.sec-group.bg-green .sec-lbl{color:#166534;background:#DCFCE7}
+.sec-group.bg-rose .sec-lbl{color:#9F1239;background:#FFE4E6}
+.q-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;margin-right:6px;flex-shrink:0}
+.sec-group.bg-purple .q-num{background:#7C3AED;color:white}
+.sec-group.bg-blue .q-num{background:#2563EB;color:white}
+.sec-group.bg-amber .q-num{background:#D97706;color:white}
+.sec-group.bg-green .q-num{background:#16A34A;color:white}
+.sec-group.bg-rose .q-num{background:#E11D48;color:white}
 .q-block{margin-bottom:1rem;padding:0.875rem 1.1rem;background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--radius-lg)}
 .q-block.answered{border-color:var(--border-secondary)}
 .q-lbl{font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:3px}
@@ -346,11 +368,6 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
 .year-tab.active{background:var(--lmi-blue);color:white;border-color:var(--lmi-blue)}
 .chart-wrap{position:relative;height:240px;margin-bottom:1.25rem}
 .summary-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:0.5rem}
-.plan-compare-note{font-size:11.5px;font-weight:600;color:var(--lmi-dark-blue);margin-bottom:6px}
-.plan-compare-table{width:100%;border-collapse:collapse;font-size:11.5px;min-width:520px}
-.plan-compare-table thead tr{background:var(--lmi-dark-blue);color:white}
-.plan-compare-table th{padding:6px 8px;text-align:left;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:0.03em;white-space:nowrap}
-.plan-compare-table td{padding:6px 8px;border-bottom:0.5px solid var(--border-tertiary);vertical-align:middle}
 .pc-ent-note{font-size:10px;color:var(--text-tertiary);background:#ECEEF9;padding:6px 8px;vertical-align:middle;border-left:2px solid var(--lmi-blue)}
 .pc-biz-note{font-size:10px;color:var(--amber-dark);background:#FDF4E3;padding:6px 8px;vertical-align:middle;border-left:2px solid var(--amber)}
 .pc-ent{background:#F4F5FD}
@@ -663,8 +680,6 @@ input[type=range]{width:100%;accent-color:var(--lmi-blue)}
   .staff-toggle-row{grid-template-columns:1fr 1fr}
   .pin-select-grid{grid-template-columns:1fr}
   .tiers-grid{grid-template-columns:1fr}
-  .plan-compare-table{font-size:10px}
-  .plan-compare-table th,.plan-compare-table td{padding:4px 5px}
   .home-hero{padding:1rem}
   .home-hero-title{font-size:20px}
   .dt-row{flex-direction:column;gap:8px;align-items:flex-start}
@@ -841,8 +856,8 @@ footer{text-align:center;padding:2rem 1rem;font-size:11px;color:var(--text-terti
     <!-- Sub-sub-nav: shown only when Franchise Partners is active -->
     <div class="subsub-nav" id="subsub-nav-fp" style="display:none">
       <div class="subsub-nav-inner">
-        <button class="subsub-btn active" data-subsub="tiers" onclick="goToFpSub('tiers')">Franchise Tiers</button>
-        <button class="subsub-btn" data-subsub="form" onclick="goToFpSub('form')">Screening Questionnaire</button>
+        <button class="subsub-btn active" data-subsub="form" onclick="goToFpSub('form')">Screening Questionnaire</button>
+        <button class="subsub-btn" data-subsub="tiers" onclick="goToFpSub('tiers')">Franchise Tiers</button>
       </div>
     </div>
   </div>
@@ -1332,9 +1347,9 @@ function goToFranchiseSub(sub){
       p.classList.toggle('active', p.id==='panel-franchise');
     });
     if(sub==='fp'){
-      // Default to Franchise Tiers when clicking Franchise Partners
+      // Default to Screening Questionnaire when clicking Franchise Partners
       showTab('fp');
-      goToFpSub('tiers');
+      goToFpSub('form');
     } else {
       showTab(sub);
       // Ensure income model is calculated so interim revenue shows correct data
@@ -1424,43 +1439,24 @@ const fsSections=[
       {text:"Yes, but less than 3 years",score:2},
       {text:"No, but managed a team or business",score:1},
       {text:"No prior experience",score:0}]},
-    {id:"q7",text:"Comfort with digital tools (WhatsApp Business, CRM, Google Sheets, email)",hint:"List My India operations are cloud-based — digital comfort is essential",type:"radio",options:[
-      {text:"Very comfortable — use daily",score:3},
-      {text:"Comfortable with basics",score:2},
-      {text:"Know a little, still learning",score:1},
-      {text:"Not comfortable at all",score:0}]}
+    {id:"q7",text:"Comfort with digital tools (WhatsApp Business, Google Sheets, email, basic CRM)",hint:"List My India operations are fully cloud-based — onboarding, listing management, referral tracking, and settlements all happen digitally. A minimum level of digital comfort is essential.",type:"radio",options:[
+      {text:"Very comfortable — use digital tools daily",score:3},
+      {text:"Comfortable with basics — WhatsApp, email, spreadsheets",score:2},
+      {text:"Learning — can pick up with some training",score:1},
+      {text:"Not comfortable with digital tools at all",score:0,warn:true,flag:"Low digital comfort — may need additional onboarding support"}]}
   ]},
   {label:"Financial readiness",questions:[
-    {id:"q8",text:"Which franchise plan are you interested in?",hint:"All 6 plans are compared on the same market in the Income Potential calculator. Select a plan, then use the sliders to model your specific pincode population and market capture. The figures below are indicative at default assumptions.",type:"radio",tableHtml:`
-<div class="plan-compare-note">📊 Plan comparison — indicative figures based on plan-specific default assumptions</div>
-<div style="overflow-x:auto;margin-bottom:10px">
-<table class="plan-compare-table">
-<thead><tr>
-  <th>Plan</th><th>Rev %</th><th>Upfront ~ (excl. GST)</th><th>Running /mo (excl. GST)</th><th>Breakeven</th><th>3-yr income ~</th><th>Assumptions</th>
-</tr></thead>
-<tbody>
-<tr class="pc-ent"><td><strong>Quick Start</strong></td><td>30%</td><td>₹80K <span style="font-size:9px;color:#888">(~₹93K incl. GST)</span></td><td>₹6K + GST</td><td>M4</td><td>₹2.3L</td><td rowspan="3" class="pc-ent-note">Default: Pop 1L · 10% capture · 50/30/20 mix — adjustable in calculator</td></tr>
-<tr class="pc-ent"><td><strong>Ultra Light</strong></td><td>35%</td><td>₹1L <span style="font-size:9px;color:#888">(~₹1.23L incl. GST)</span></td><td>₹9K + GST</td><td>M4</td><td>₹2.6L</td></tr>
-<tr class="pc-ent pc-pop"><td><strong>Light ⭐</strong></td><td>40%</td><td>₹1.6L <span style="font-size:9px;color:#888">(~₹1.88L incl. GST)</span></td><td>₹12K + GST</td><td>M5</td><td>₹2.9L</td></tr>
-<tr class="pc-biz"><td><strong>Bronze</strong></td><td>55%</td><td>₹5.76L <span style="font-size:9px;color:#888">(~₹6.79L incl. GST)</span></td><td>₹55K + GST</td><td>M4</td><td>₹16.4L</td><td rowspan="3" class="pc-biz-note">Default: Pop 2L · 20% capture · 40/35/25 mix — adjustable in calculator</td></tr>
-</tbody></table></div>
-<p class="plan-disclaimer">⚠️ Indicative estimates only. Entrepreneur plan: pop 1,00,000 · 10% capture · plan mix 50/30/20 · solo home-based operation. Enterprise plan: pop 2,00,000 · 20% capture with active sales team · plan mix 40/35/25 · office with 1 marketing staff. Maintenance is a fixed monthly platform fee; for first 12 months, ₹10 is credited per new free verified registration. Marketing &amp; advertising and conveyance are self-spend by FP (paid locally, proof required). Variable costs (rent, electricity/water/pantry, staff salary) are adjustable in the Income Potential calculator. Annual subscription (Superfone + Truecaller + Email ID): ₹12,000. Referral Amazon voucher (5%): lifetime, paid to the first referring stakeholder only — strictly one per business, no exceptions. Growth: 7.5%→3% per month, tapering. Churn: 2.5%→1.5%. All figures exclude GST.</p>
-`,options:[
-      {text:"Bronze · 55% share",score:2,tier:"Bronze"},
-      {text:"Light · 40% share",score:2,tier:"Light"},
-      {text:"Ultra Light · 35% share",score:1,tier:"Ultra Light"},
-      {text:"Quick Start · 30% share",score:1,tier:"Quick Start"}]},
-    {id:"q9",text:"Investment capital available immediately",hint:"Self-funded or arranged — covers franchise fee + first-year subscription + setup fees. Add 18% GST on all fees.",type:"radio",options:[
-      {text:"₹5.76 lakh and above, excl. GST (~₹6.8L incl. GST) — Enterprise plan ready",score:3},
-      {text:"₹1.60 lakh – ₹5.76 lakh, excl. GST (~₹1.9L–₹6.8L incl. GST) — Light tier or above",score:2},
-      {text:"₹80,000 – ₹1.60 lakh, excl. GST (~₹93K–₹1.9L incl. GST) — Quick Start or Ultra Light",score:1},
-      {text:"Below ₹50,000 (excl. GST)",score:0,reject:true,flag:"Insufficient capital — minimum is ₹50,000 + 18% GST = ₹59,000 (Quick Start offer rate)"}]},
+    {id:"q9",text:"Investment capital available immediately",hint:"Covers franchise fee + annual subscription (₹12K) + QR Code Printer (₹30K) + setup fees. Add 18% GST on all amounts.",type:"radio",options:[
+      {text:"₹6 lakh and above — Bronze (Enterprise) ready",score:3},
+      {text:"₹2 lakh – ₹6 lakh — Light tier or above",score:2},
+      {text:"₹1 lakh – ₹2 lakh — Quick Start or Ultra Light",score:1},
+      {text:"Below ₹1 lakh",score:0,reject:true,flag:"Insufficient capital — minimum total to start is approx. ₹1 lakh (Quick Start: ₹50K fee + ₹12K subscription + ₹30K QR printer + GST)"}]},
     {id:"q10",text:"Source of investment funds",hint:"",type:"radio",options:[
       {text:"Own savings / liquid funds ready now",score:3},
       {text:"Family support confirmed",score:2},
       {text:"Loan / credit expected within 30 days",score:1},
       {text:"Not yet arranged",score:0}]},
-    {id:"q11",text:"Office or working space availability",hint:"Enterprise tier (Bronze) require a dedicated commercial office — minimum 200 sq.ft, ~₹30,000/mo rent + ₹2L one-time interiors. Entrepreneur tiers can operate from home.",type:"radio",options:[
+    {id:"q11",text:"Office or working space availability",hint:"Bronze (Enterprise tier) requires a dedicated commercial office — minimum 200 sq.ft, approx. ₹20,000–₹30,000/mo rent + ₹2L one-time interiors. Entrepreneur tiers (Quick Start, Ultra Light, Light) can operate from home.",type:"radio",options:[
       {text:"Yes, dedicated commercial space (200+ sq.ft)",score:3},
       {text:"Yes, shared or home office space available",score:2},
       {text:"No office yet — but can arrange within 30 days (Enterprise tier)",score:1},
@@ -1491,7 +1487,7 @@ const fsSections=[
       {text:"Yes, but keeping a side income initially",score:2},
       {text:"Part-time now, full-time once established",score:1},
       {text:"Strictly part-time / supplementary income",score:0}]},
-    {id:"q17",text:"Financial runway — months you can sustain without significant income from this franchise",hint:"Based on our income model: Entrepreneur tiers typically break even within 2–3 months; Enterprise tiers within 7 months. Budget your runway accordingly.",type:"radio",options:[
+    {id:"q17",text:"Financial runway — months you can sustain without significant income from this franchise",hint:"Updated model (QR ₹30K + subscription ₹12K): Entrepreneur tiers (Quick Start/Ultra Light) break even around Month 4; Light tier around Month 5; Bronze (Enterprise) around Month 5–6. First 12 months: ₹10 credited per new free verified registration reduces maintenance payable.",type:"radio",options:[
       {text:"6 months or more",score:3},
       {text:"3–6 months",score:2},
       {text:"1–3 months (tight but manageable for Entrepreneur tiers)",score:1},
@@ -1505,7 +1501,12 @@ const fsSections=[
       {text:"Long-term business ownership and wealth creation",score:3},
       {text:"Supplemental income with low investment (Entrepreneur tier)",score:2},
       {text:"Recommended by someone — genuinely exploring",score:1},
-      {text:"Just looking for any franchise opportunity",score:0}]}
+      {text:"Just looking for any franchise opportunity",score:0}]},
+    {id:"q20",text:"Referral income awareness — Amazon voucher programme",hint:"5% Amazon voucher is paid to the first stakeholder (GP, SGP, or FP) who refers a paid business listing using their referral code. Strictly one stakeholder per business — no exceptions, no splitting. This is a lifetime benefit.",type:"radio",options:[
+      {text:"Yes, fully understood — will actively use my referral code for every paid listing",score:3,flag:"Referral programme understood — active usage expected"},
+      {text:"Understood — will use it when I can",score:2},
+      {text:"Not fully clear — need more information",score:1},
+      {text:"Not aware of this",score:0}]}
   ]}
 ];
 
@@ -1520,12 +1521,24 @@ function renderFranchiseForm(){
   const ansCount=Object.keys(fsAnswers).length;
   const pct=Math.round((ansCount/allQ)*100);
 
-  fsSections.forEach(sec=>{
-    html+=`<div class="sec-lbl">${sec.label}</div>`;
+  const secMeta = [
+    {icon:'👤', bg:'bg-purple', label:'Personal Background'},
+    {icon:'💼', bg:'bg-blue',   label:'Business Experience'},
+    {icon:'💰', bg:'bg-amber',  label:'Financial Readiness'},
+    {icon:'📍', bg:'bg-green',  label:'Market & Local Presence'},
+    {icon:'🎯', bg:'bg-rose',   label:'Commitment & Mindset'},
+  ];
+  let qNum = 0;
+  fsSections.forEach((sec, si)=>{
+    const meta = secMeta[si] || {icon:'📋', bg:'bg-blue', label:sec.label};
+    const answeredInSec = sec.questions.filter(q=>fsAnswers[q.id]!==undefined).length;
+    html+=`<div class="sec-group ${meta.bg}">`;
+    html+=`<div class="sec-lbl"><span class="sec-icon">${meta.icon}</span><span class="sec-title">${meta.label}</span><span class="sec-counter">${answeredInSec}/${sec.questions.length} answered</span></div>`;
     sec.questions.forEach(q=>{
+      qNum++;
       const has=fsAnswers[q.id]!==undefined;
-      html+=`<div class="q-block ${has?'answered':''}" id="block-${q.id}">`;
-      html+=`<div class="q-lbl">${q.text}<span class="req">*</span></div>`;
+      html+=`<div class="q-block ${has?'answered':''}" id="block-${q.id}" style="background:white">`;
+      html+=`<div class="q-lbl"><span class="q-num">${qNum}</span>${q.text}<span class="req">*</span></div>`;
       if(q.hint)html+=`<div class="q-hint">${q.hint}</div>`;
       if(q.tableHtml)html+=q.tableHtml;
       if(q.type==='radio'){
@@ -1540,6 +1553,7 @@ function renderFranchiseForm(){
       }
       html+='</div>';
     });
+    html+='</div>'; // close sec-group
   });
 
   const allAns=ansCount>=allQ;
@@ -1565,7 +1579,7 @@ function fsEvaluate(){
   let hardReject=false,warnFlags=[],greenFlags=[];
   let chosenTier='';
   const cats={Background:{s:0,m:0},Experience:{s:0,m:0},Financial:{s:0,m:0},'Market fit':{s:0,m:0},Commitment:{s:0,m:0}};
-  const catMap=['Background','Background','Background','Experience','Experience','Experience','Financial','Financial','Financial','Financial','Market fit','Market fit','Market fit','Market fit','Commitment','Commitment','Commitment','Commitment'];
+  const catMap=['Background','Background','Background','Experience','Experience','Experience','Financial','Financial','Financial','Market fit','Market fit','Market fit','Market fit','Commitment','Commitment','Commitment','Commitment','Commitment'];
   let qi=0;
 
   fsSections.forEach(sec=>{
@@ -1822,19 +1836,19 @@ const franchiseTierData = [
   {key:'quickstart', cls:'te1', plan:'entrepreneur', rank:'Tier 1', name:'Quick Start', sub:'Lightest entry point', bestFor:'first-time, solo starters',
    mrp:100000, fee:50000, youngFee:25000, share:0.30, sub_:12000, setup:0, office:0, runningCost:6000,
    breakup:[['Franchise fee (offer rate)',50000],['Annual subscription — Superfone + Truecaller + Email ID',12000],['QR Code Printer',30000]],
-   monthlyExpense:[['Maintenance — platform support (fixed)',1000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Conveyance (self-spend by FP, proof required)',0],['Marketing & advertising (self-spend by FP, proof required)',5000]]},
+   monthlyExpense:[['Maintenance — platform support (fixed)',1000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Conveyance (self-spend by FP)',0],['Marketing & advertising (self-spend by FP, proof required)',5000]]},
   {key:'ultralight', cls:'te2', plan:'entrepreneur', rank:'Tier 2', name:'Ultra Light', sub:'Slightly larger reach', bestFor:'side-hustlers testing the model',
    mrp:150000, fee:75000, youngFee:35000, share:0.35, sub_:12000, setup:0, office:0, runningCost:9000,
    breakup:[['Franchise fee (offer rate)',75000],['Annual subscription — Superfone + Truecaller + Email ID',12000],['QR Code Printer',30000]],
-   monthlyExpense:[['Maintenance — platform support (fixed)',2000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Conveyance (self-spend by FP, proof required)',0],['Marketing & advertising (self-spend by FP, proof required)',7000]]},
+   monthlyExpense:[['Maintenance — platform support (fixed)',2000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Conveyance (self-spend by FP)',0],['Marketing & advertising (self-spend by FP, proof required)',7000]]},
   {key:'light', cls:'te3', plan:'entrepreneur', rank:'Tier 3', name:'Light', sub:'Most popular entry tier', bestFor:'serious full-time operators', recommended:true,
    mrp:200000, fee:100000, youngFee:50000, share:0.40, sub_:12000, setup:30000, office:0, runningCost:12000,
-   breakup:[['Franchise fee (offer rate)',100000],['Annual subscription — Superfone + Truecaller + Email ID',12000],['Setup fee (incl. billboard/digital ad)',30000],['QR Code Printer',30000]],
-   monthlyExpense:[['Maintenance — platform support (fixed)',3000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Conveyance (self-spend by FP, proof required)',0],['Marketing & advertising (self-spend by FP, proof required)',9000]]},
+   breakup:[['Franchise fee (offer rate)',100000],['Annual subscription — Superfone + Truecaller + Email ID',12000],['Setup fee — billboard/digital ad 🪧',30000,'highlight'],['QR Code Printer',30000]],
+   monthlyExpense:[['Maintenance — platform support (fixed)',3000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Conveyance (self-spend by FP)',0],['Marketing & advertising (self-spend by FP, proof required)',9000]]},
   {key:'bronze', cls:'tb1', plan:'enterprise', rank:'Tier 4', name:'Bronze', sub:'Office-based: Entry Enterprise', bestFor:'building a small team-led office',
    mrp:600000, fee:300000, youngFee:200000, share:0.55, sub_:12000, setup:46500, office:200000, runningCost:55000,
    breakup:[['Franchise fee (offer rate)',300000],['Annual subscription — Superfone + Truecaller + Email ID',12000],['Setup fee (dashboards + billboard)',46500],['Office interiors (min. 200 sq.ft)',200000],['QR Code Printer',30000]],
-   monthlyExpense:[['Maintenance — platform support (fixed)',5000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Marketing & advertising (self-spend by FP, proof required)',10000],['Office rent',20000],['Conveyance (self-spend by FP, proof required)',2000],['Electricity, water & pantry',3000],['1 Marketing Executive',15000]]},
+   monthlyExpense:[['Maintenance — platform support (fixed)',5000],['Credit — ₹10 per new free verified registration, deducted from maintenance (first 12 months only)','variable'],['Marketing & advertising',10000,'selfspend'],['Office rent',20000],['Conveyance',2000],['Electricity, water & pantry',3000],['1 Marketing Executive (salary)',15000]],selfspendNote:true},
   ];
 
 function renderFranchiseTierCards(){
@@ -1853,8 +1867,8 @@ function renderFranchiseTierCards(){
       : 'Franchise fee (limited period offer)';
 
     // Rebuild breakup with effective fee
-    const breakupWithDiscount = t.breakup.map(([label, val]) =>
-      label === 'Franchise fee (offer rate)' ? [discountLabel, effectiveFee] : [label, val]
+    const breakupWithDiscount = t.breakup.map(([label, val, flag]) =>
+      label === 'Franchise fee (offer rate)' ? [discountLabel, effectiveFee, flag] : [label, val, flag]
     );
     const total = breakupWithDiscount.reduce((a,b)=>a+b[1],0);
     const totalGst = Math.round(total * 0.18);
@@ -1893,9 +1907,17 @@ function renderFranchiseTierCards(){
     }
 
     // Other one-time items
-    breakupWithDiscount.forEach(([label,val])=>{
+    breakupWithDiscount.forEach(([label,val,flag])=>{
       if(label.includes('Entrepreneur') || label.includes('offer') || label.includes('rate')) return;
-      breakupHtml += `<tr><td>${label}</td><td>${fmtCurrency(val)}</td></tr>`;
+      const isHighlight = flag==='highlight';
+      if(isHighlight){
+        breakupHtml += `<tr style="background:#FFF8E1">
+          <td style="color:#92400E;font-weight:600">${label} <span style="font-size:9px;background:#FEF3C7;color:#92400E;padding:1px 5px;border-radius:3px;font-weight:700">Additional</span></td>
+          <td style="color:#92400E;font-weight:700">${fmtCurrency(val)}</td>
+        </tr>`;
+      } else {
+        breakupHtml += `<tr><td>${label}</td><td>${fmtCurrency(val)}</td></tr>`;
+      }
     });
 
     breakupHtml += `
@@ -1908,18 +1930,32 @@ function renderFranchiseTierCards(){
     const runningGst = Math.round(t.runningCost * 0.18);
     breakupHtml += `<table class="bd-table" style="margin-top:4px">
       <tr class="bd-section-row"><td colspan="2">Monthly running cost</td></tr>`;
-    t.monthlyExpense.forEach(([label,val])=>{
+    t.monthlyExpense.forEach(([label,val,flag])=>{
       if(val==='variable'){
-        breakupHtml += `<tr class="bd-fixed-row" style="color:var(--green-dark)"><td>${label.replace(' (fixed)','').replace(' — ₹10/new free registration (variable)','')}<br><span style="font-size:10px;color:var(--green-dark);font-style:italic">💚 ₹10 credit per new free verified registration — deducted from maintenance payable (applicable for first 12 months only)</span></td><td style="font-size:11px;color:var(--green-dark);font-weight:600">− ₹10/registration</td></tr>`;
+        breakupHtml += `<tr class="bd-fixed-row" style="color:var(--green-dark)"><td style="color:var(--green-dark)">Credit — ₹10/free verified registration<br><span style="font-size:9px;font-style:italic">💚 Deducted from maintenance · First 12 months only</span></td><td style="font-size:11px;color:var(--green-dark);font-weight:600;white-space:nowrap">−₹10/reg</td></tr>`;
+      } else if(flag==='selfspend'){
+        // Bronze: clean label with a dagger reference to footer note
+        const cleanLabel = label.replace(' — platform support','');
+        breakupHtml += `<tr><td>${cleanLabel} <span style="font-size:9.5px;color:var(--text-tertiary)">†</span></td><td>${fmtCurrency(val)}/mo</td></tr>`;
       } else if(label.includes('self-spend')){
-        const cleanLabel = label.replace(' (fixed)','').replace(' (self-spend by FP, proof required)','');
-        breakupHtml += `<tr><td>${cleanLabel} <span style="font-size:10px;background:#E8F4FD;color:#0066AA;padding:1px 5px;border-radius:3px;font-weight:600">Self-spend · Proof reqd.</span></td><td>${fmtCurrency(val)}/mo</td></tr>`;
+        // Entrepreneur tiers: marketing is self-spend with proof, conveyance is just self-spend
+        const needsProof = label.includes('proof required');
+        const cleanLabel = label.replace(' (self-spend by FP, proof required)','').replace(' (self-spend by FP)','').replace(' (fixed)','');
+        if(needsProof){
+          breakupHtml += `<tr><td>${cleanLabel} <span style="font-size:9px;background:#E8F4FD;color:#0066AA;padding:1px 5px;border-radius:3px;font-weight:600">Self-spend · Proof reqd.</span></td><td>${fmtCurrency(val)}/mo</td></tr>`;
+        } else {
+          breakupHtml += `<tr><td>${cleanLabel} <span style="font-size:9px;color:var(--text-tertiary)">(self-spend)</span></td><td>${fmtCurrency(val)?fmtCurrency(val)+'/mo':'—'}</td></tr>`;
+        }
       } else {
         const isFixed = label.includes('(fixed)');
         const cleanLabel = label.replace(' (fixed)','').replace(' — platform support','');
-        breakupHtml += `<tr class="${isFixed?'bd-fixed-row':''}"><td>${cleanLabel}</td><td>${fmtCurrency(val)}/mo</td></tr>`;
+        breakupHtml += `<tr class="${isFixed?'bd-fixed-row':''}"><td>${cleanLabel}</td><td>${val>0?fmtCurrency(val)+'/mo':'—'}</td></tr>`;
       }
     });
+    // Bronze: show single self-spend footer note
+    if(t.selfspendNote){
+      breakupHtml += `<tr><td colspan="2" style="font-size:9.5px;color:var(--text-tertiary);padding:5px 8px;border-top:1px dashed var(--border-secondary);line-height:1.5">† Borne directly by the Franchise Partner from their own funds. Marketing & advertising requires proof of spend to be submitted to LMI.</td></tr>`;
+    }
     breakupHtml += `
       <tr class="bd-subtotal-row"><td>Subtotal (excl. GST)</td><td>${fmtCurrency(t.runningCost)}/mo</td></tr>
       <tr class="bd-gst-row"><td>+ 18% GST</td><td>+ ${fmtCurrency(runningGst)}/mo</td></tr>
