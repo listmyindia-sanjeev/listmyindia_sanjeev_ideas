@@ -3,121 +3,271 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <title>List My India™ · Partner Hub</title>
 <style>
+/* ─── tokens ─────────────────────────────────────────────── */
 :root{
-  --lmi-blue:#0046BF;--lmi-dark-blue:#05132D;--lmi-yellow:#FEEF22;
-  --lmi-soft-blue:#EEF3FF;--amber-light:#FFF8E1;--amber-dark:#92400E;
-  --green-dark:#166534;--bg-primary:#F8F9FC;--bg-secondary:#F1F4FA;
-  --text-primary:#1A1A2E;--text-secondary:#4A5568;--text-tertiary:#94A3B8;
-  --border-primary:#E2E8F0;--border-secondary:#CBD5E1;
-  --radius-sm:6px;--radius-md:8px;--radius-lg:12px;
-  --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+  --blue:#0046BF;--navy:#05132D;--yellow:#FEEF22;
+  --soft-blue:#EEF3FF;--green:#166534;--amber:#92400E;
+  --bg:#F4F6FB;--surface:#FFFFFF;--border:#E2E8F0;
+  --t1:#1A1A2E;--t2:#4A5568;--t3:#94A3B8;
+  --r:12px;--sh:0 2px 8px rgba(0,0,0,.08);
+  --tab-h:60px;--hdr-h:52px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary);font-size:13px;line-height:1.5}
-.topbar{background:var(--lmi-dark-blue);padding:0 20px;height:40px;display:flex;align-items:center;position:sticky;top:0;z-index:100;gap:8px}
-.topbar-brand{color:var(--lmi-yellow);font-weight:700;font-size:14px}
-.topbar-divider{color:rgba(255,255,255,.3)}
-.topbar-title{color:rgba(255,255,255,.7);font-size:11.5px}
-.main-nav,.sub-nav{background:white;border-bottom:1px solid var(--border-primary);display:flex;justify-content:center}
-.sub-nav{background:#F8F9FC}
-.nav-btn,.sub-btn{padding:10px 24px;font-size:12.5px;font-weight:500;color:var(--text-secondary);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
-.sub-btn{padding:7px 18px;font-size:11.5px}
-.nav-btn.active,.sub-btn.active{color:var(--lmi-blue);border-bottom-color:var(--lmi-blue);font-weight:600}
-.panel{display:none;padding:16px 20px;max-width:1100px;margin:0 auto}
-.panel.active{display:block}
-.card{background:white;border:1px solid var(--border-primary);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
-.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-tertiary);margin-bottom:10px}
-.tiers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
-.tier-card{border:2px solid var(--border-primary);border-radius:var(--radius-lg);overflow:hidden;position:relative}
-.tier-card.popular{border-color:var(--lmi-blue)}
-.tier-hd{padding:12px 14px;color:white}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--t1);font-size:14px;line-height:1.5;
+  display:flex;flex-direction:column;
+}
+
+/* ─── app shell ──────────────────────────────────────────── */
+#app-header{
+  flex-shrink:0;height:var(--hdr-h);
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;z-index:100;
+  position:sticky;top:0;
+}
+#app-header .brand{color:var(--yellow);font-weight:700;font-size:15px;letter-spacing:-.2px}
+#app-header .sub{color:rgba(255,255,255,.5);font-size:10.5px}
+#app-header .hdr-back{
+  display:none;align-items:center;gap:4px;
+  color:var(--yellow);font-size:12px;font-weight:600;
+  cursor:pointer;padding:6px 10px 6px 0;
+}
+#app-header .hdr-back.visible{display:flex}
+
+/* scroll container */
+#scroll-body{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* bottom tab bar */
+#tab-bar{
+  flex-shrink:0;height:var(--tab-h);
+  background:var(--surface);border-top:1px solid var(--border);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  position:sticky;bottom:0;z-index:100;
+}
+.tab-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;cursor:pointer;border:none;background:none;
+  padding:4px 2px;color:var(--t3);font-size:9.5px;font-weight:500;
+  transition:color .15s;
+}
+.tab-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab-btn.active{color:var(--blue)}
+.tab-btn.active svg{stroke:var(--blue)}
+
+/* ─── screens ────────────────────────────────────────────── */
+.screen{display:none;padding:0}
+.screen.active{display:block}
+
+/* inner scroll for content screens */
+.screen-inner{padding:16px 14px 20px}
+
+/* ─── home screen ────────────────────────────────────────── */
+#screen-home .hero{
+  background:linear-gradient(160deg,var(--navy) 0%,#0a2060 100%);
+  padding:28px 20px 24px;text-align:center;
+}
+#screen-home .hero-flag{font-size:32px;margin-bottom:8px}
+#screen-home .hero-brand{color:var(--yellow);font-size:22px;font-weight:700;letter-spacing:-.3px}
+#screen-home .hero-tagline{color:rgba(255,255,255,.65);font-size:11.5px;margin-top:4px}
+#screen-home .stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  padding:16px 14px;
+}
+.stat-chip{
+  background:var(--surface);border-radius:10px;padding:12px 8px;
+  text-align:center;box-shadow:var(--sh);
+}
+.stat-chip .num{font-size:18px;font-weight:700}
+.stat-chip .lbl{font-size:9.5px;color:var(--t3);margin-top:2px}
+.stat-blue .num{color:var(--blue)}
+.stat-green .num{color:#16A34A}
+.stat-amber .num{color:var(--amber)}
+
+.home-section-hd{
+  font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--t3);margin:4px 14px 10px;
+}
+
+/* nav tiles */
+.nav-tiles{display:flex;flex-direction:column;gap:10px;padding:0 14px 8px}
+.nav-tile{
+  display:flex;align-items:center;gap:14px;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:14px 14px;cursor:pointer;
+  transition:border-color .15s,background .15s;
+  -webkit-user-select:none;user-select:none;
+}
+.nav-tile:active{background:var(--soft-blue);border-color:var(--blue)}
+.tile-icon{
+  width:42px;height:42px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.tile-text{flex:1;text-align:left}
+.tile-title{font-size:13.5px;font-weight:700;color:var(--navy)}
+.tile-desc{font-size:11px;color:var(--t2);margin-top:1px}
+.tile-chevron{font-size:20px;color:var(--blue);flex-shrink:0}
+.nav-tile.primary-tile{
+  background:var(--blue);border-color:var(--blue);
+}
+.nav-tile.primary-tile .tile-title{color:#fff}
+.nav-tile.primary-tile .tile-desc{color:rgba(255,255,255,.75)}
+.nav-tile.primary-tile .tile-chevron{color:var(--yellow)}
+
+/* ─── section header bar (inside each section screen) ───── */
+.section-hdr{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:0;
+}
+.section-hdr-inner{
+  display:flex;align-items:center;gap:0;
+  overflow-x:auto;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.section-hdr-inner::-webkit-scrollbar{display:none}
+.shdr-btn{
+  flex-shrink:0;padding:13px 16px;font-size:12px;font-weight:500;
+  color:var(--t2);border:none;background:none;
+  border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap;
+}
+.shdr-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+
+/* ─── cards & content ────────────────────────────────────── */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;margin-bottom:12px;
+  box-shadow:var(--sh);
+}
+.card-title{font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--t3);margin-bottom:10px}
+
+/* franchise tier cards */
+.tiers-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:14px}
+.tier-card{border:2px solid var(--border);border-radius:var(--r);overflow:hidden}
+.tier-card.popular{border-color:var(--blue)}
+.tier-hd{padding:14px 16px;color:white}
 .tier-hd.bronze{background:linear-gradient(135deg,#CD7F32,#8B4513)}
 .tier-hd.silver{background:linear-gradient(135deg,#708090,#4A5568)}
 .tier-hd.gold{background:linear-gradient(135deg,#B8860B,#8B6914)}
-.tier-body{padding:12px 14px}
-.tier-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #F1F4FA;font-size:11.5px}
+.tier-body{padding:14px 16px}
+.tier-row{display:flex;justify-content:space-between;align-items:center;
+  padding:6px 0;border-bottom:1px solid #F1F4FA;font-size:12px}
 .tier-row:last-child{border-bottom:none}
-.t-label{color:var(--text-secondary)}
-.t-val{font-weight:600;color:var(--lmi-dark-blue)}
-.badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:9.5px;font-weight:700}
-.badge-opt{background:#F0FDF4;color:#166534}.badge-req{background:#FEF2F2;color:#991B1B}.badge-na{background:#F1F5F9;color:#64748B}
+.t-label{color:var(--t2)}.t-val{font-weight:600;color:var(--navy)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.badge-opt{background:#F0FDF4;color:#166534}
+.badge-req{background:#FEF2F2;color:#991B1B}
+.badge-na{background:#F1F5F9;color:#64748B}
 .kit-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;margin:6px 0}
-.kit-list li{font-size:10.5px;color:var(--text-secondary)}
-.kit-list li::before{content:"✓ ";color:var(--green-dark);font-weight:700}
-.total-invest{background:var(--lmi-soft-blue);border-radius:8px;padding:10px;margin-top:8px;text-align:center}
-.total-invest .amount{font-size:18px;font-weight:700;color:var(--lmi-dark-blue)}
-.waiver-card{border:2px solid #FCA5A5;background:#FFF5F5;border-radius:var(--radius-lg);padding:14px;margin-top:8px}
-.pac-section{background:white;border:1px solid var(--border-primary);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px}
+.kit-list li{font-size:11px;color:var(--t2)}
+.kit-list li::before{content:"✓ ";color:var(--green);font-weight:700}
+.total-invest{background:var(--soft-blue);border-radius:8px;padding:12px;margin-top:8px;text-align:center}
+.total-invest .amount{font-size:20px;font-weight:700;color:var(--navy)}
+.waiver-card{border:2px solid #FCA5A5;background:#FFF5F5;border-radius:var(--r);padding:14px;margin-top:8px}
+
+/* PAC checker */
+.pac-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
 .pac-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
-.pac-select{flex:1;min-width:110px;padding:7px 9px;border:1px solid var(--border-secondary);border-radius:var(--radius-sm);font-size:12px;background:white;font-family:inherit}
-.pac-check-btn{padding:8px 16px;background:var(--lmi-dark-blue);color:white;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
-.pac-add-btn{width:26px;height:26px;border-radius:50%;background:var(--lmi-blue);color:white;border:none;cursor:pointer;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.pac-remove-btn{width:22px;height:22px;border-radius:50%;background:#FEE2E2;color:#991B1B;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.pac-result-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;background:var(--bg-secondary);border-radius:var(--radius-sm);margin-top:6px;font-size:12px}
-.pac-status-badge{padding:2px 10px;border-radius:10px;font-size:10.5px;font-weight:700;white-space:nowrap}
-.badge-avail{background:#D1FAE5;color:#065F46}.badge-gp{background:#DBEAFE;color:#1E40AF}.badge-sgp{background:#EDE9FE;color:#5B21B6}.badge-fp{background:#FEF3C7;color:#92400E}
-.pac-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center;padding:1rem}
+.pac-select{flex:1;min-width:110px;padding:9px 10px;border:1px solid #CBD5E1;border-radius:8px;font-size:13px;background:white;font-family:inherit}
+.pac-check-btn{padding:9px 16px;background:var(--navy);color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.pac-add-btn{width:28px;height:28px;border-radius:50%;background:var(--blue);color:white;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pac-remove-btn{width:24px;height:24px;border-radius:50%;background:#FEE2E2;color:#991B1B;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pac-result-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 12px;background:var(--bg);border-radius:8px;margin-top:6px;font-size:12px}
+.pac-status-badge{padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge-avail{background:#D1FAE5;color:#065F46}
+.badge-gp{background:#DBEAFE;color:#1E40AF}
+.badge-sgp{background:#EDE9FE;color:#5B21B6}
+.badge-fp{background:#FEF3C7;color:var(--amber)}
+
+/* modal — bottom sheet on mobile */
+.pac-modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);
+  z-index:200;align-items:flex-end;justify-content:center;
+}
 .pac-modal-overlay.open{display:flex}
-.pac-modal{background:white;border-radius:var(--radius-lg);padding:16px 20px;width:480px;max-width:min(480px,90vw);max-height:88vh;overflow-y:auto;overflow-x:hidden;box-shadow:0 8px 30px rgba(0,0,0,.2);box-sizing:border-box}
-.seq-section{border:1px solid var(--border-secondary);border-radius:8px;margin-bottom:6px;overflow:hidden}
+.pac-modal{
+  background:white;border-radius:20px 20px 0 0;
+  padding:20px 18px 32px;width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;overflow-x:hidden;
+  box-shadow:0 -4px 30px rgba(0,0,0,.2);box-sizing:border-box;
+}
+.pac-modal::before{
+  content:'';display:block;width:36px;height:4px;
+  background:#CBD5E1;border-radius:2px;margin:0 auto 16px;
+}
+.seq-section{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
 .seq-section.locked{opacity:.45;pointer-events:none}
 .seq-section.done{border-color:#86EFAC;background:#F0FDF4}
 .seq-section.active .seq-body{display:block}
-.seq-header{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg-secondary)}
-.seq-num{width:20px;height:20px;border-radius:50%;background:var(--lmi-dark-blue);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.seq-header{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg)}
+.seq-num{width:22px;height:22px;border-radius:50%;background:var(--navy);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .seq-section.done .seq-num{background:#16A34A}
-.seq-title{font-size:11.5px;font-weight:600;flex:1}
+.seq-title{font-size:12px;font-weight:600;flex:1}
 .seq-done-badge{color:#16A34A;font-weight:700}
-.seq-body{display:none;padding:10px}
-.seq-next-btn{margin-top:8px;padding:7px 16px;background:var(--lmi-dark-blue);color:white;border:none;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.seq-body{display:none;padding:12px}
+.seq-next-btn{margin-top:8px;padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
 .seq-next-btn:disabled{opacity:.4;cursor:not-allowed}
-.pac-form-field{width:100%;padding:6px 8px;border:1px solid var(--border-secondary);border-radius:6px;font-size:12px;font-family:inherit;margin-bottom:6px}
-.pac-submit-btn{padding:9px 20px;background:var(--lmi-dark-blue);color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
-.pac-cancel-btn{padding:9px 16px;background:var(--bg-secondary);color:var(--text-secondary);border:1px solid var(--border-secondary);border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
-.income-pin-selector{background:white;border:1px solid var(--border-primary);border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:12px;position:sticky;top:40px;z-index:50;box-shadow:var(--shadow-sm)}
-.slider-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.slider-item{padding:8px 10px;background:white;border:1px solid var(--border-primary);border-radius:var(--radius-md)}
-.slider-label{font-size:10.5px;color:var(--text-secondary);margin-bottom:2px;display:flex;justify-content:space-between}
-.slider-val{font-weight:700;color:var(--lmi-dark-blue)}
-.slider-item input[type=range]{width:100%;margin-top:3px;accent-color:var(--lmi-blue)}
-.year-tabs{display:flex;gap:4px;margin-bottom:10px}
-.year-tab{padding:5px 14px;font-size:11px;font-weight:600;background:var(--bg-secondary);border:1px solid var(--border-primary);border-radius:20px;cursor:pointer;color:var(--text-secondary)}
-.year-tab.active{background:var(--lmi-dark-blue);color:white;border-color:var(--lmi-dark-blue)}
-.summary-table{width:100%;border-collapse:collapse;font-size:11.5px}
-.summary-table th{background:var(--lmi-dark-blue);color:white;padding:7px 10px;text-align:left;font-size:11px}
-.summary-table td{padding:6px 10px;border-bottom:1px solid var(--border-primary)}
+.pac-form-field{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:8px}
+.pac-submit-btn{padding:10px 22px;background:var(--navy);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.pac-cancel-btn{padding:10px 18px;background:var(--bg);color:var(--t2);border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+
+/* income */
+.income-pin-selector{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:12px;box-shadow:var(--sh)}
+.slider-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.slider-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.slider-item{padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+.slider-label{font-size:10.5px;color:var(--t2);margin-bottom:2px;display:flex;justify-content:space-between}
+.slider-val{font-weight:700;color:var(--navy)}
+.slider-item input[type=range]{width:100%;margin-top:4px;accent-color:var(--blue)}
+.year-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.year-tab{padding:6px 16px;font-size:11.5px;font-weight:600;background:var(--bg);border:1px solid var(--border);border-radius:20px;cursor:pointer;color:var(--t2)}
+.year-tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+.summary-table{width:100%;border-collapse:collapse;font-size:12px}
+.summary-table th{background:var(--navy);color:white;padding:8px 10px;text-align:left;font-size:11px}
+.summary-table td{padding:7px 10px;border-bottom:1px solid var(--border)}
 .summary-table tr:nth-child(even) td{background:#F8F9FC}
-.tier-income-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-.tier-income-card{border-radius:var(--radius-md);padding:12px;cursor:pointer;border:2px solid transparent;transition:all .15s}
-.tier-income-card.selected{border-color:var(--lmi-blue);box-shadow:0 0 0 3px rgba(0,70,191,.12)}
+.tier-income-cards{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+.tier-income-card{border-radius:10px;padding:14px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.tier-income-card.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,70,191,.12)}
 .bronze-card{background:linear-gradient(135deg,#FDF4E7,#FBE8C8)}
 .silver-card{background:linear-gradient(135deg,#F0F4F8,#E2E8F0)}
 .gold-card{background:linear-gradient(135deg,#FFFBEB,#FEF3C7)}
 .gp-income-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.gp-income-card{background:var(--lmi-soft-blue);border:1px solid #C7D7F5;border-radius:var(--radius-md);padding:12px}
-.income-banner{background:var(--lmi-dark-blue);color:white;border-radius:var(--radius-md);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px}
+.gp-income-card{background:var(--soft-blue);border:1px solid #C7D7F5;border-radius:10px;padding:14px}
+.income-banner{background:var(--navy);color:white;border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px}
 .income-banner .yr{font-size:11px;opacity:.7}
-.income-banner .amt{font-size:15px;font-weight:700}
-.slab-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}
-.slab-table th{background:var(--lmi-dark-blue);color:white;padding:5px 8px;text-align:center;font-size:10.5px}
-.slab-table td{padding:5px 8px;border-bottom:1px solid var(--border-primary);text-align:center}
+.income-banner .amt{font-size:16px;font-weight:700}
+
+/* slabs */
+.slab-table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px}
+.slab-table th{background:var(--navy);color:white;padding:6px 8px;text-align:center;font-size:11px}
+.slab-table td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:center}
 .slab-current td{background:#DBEAFE;font-weight:600}
 .slab-tag{display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:700;margin-left:4px}
 .slab-tag-current{background:#2563EB;color:white}.slab-tag-next{background:#16A34A;color:white}
-.gp-interim-box{background:var(--amber-light);border:1px solid #F5D100;border-radius:6px;padding:8px 10px;margin-top:8px;font-size:10.5px;color:var(--amber-dark)}
+.gp-interim-box{background:#FFF8E1;border:1px solid #F5D100;border-radius:6px;padding:10px 12px;margin-top:8px;font-size:11px;color:var(--amber)}
+
+/* questionnaire */
 .sec-group{border-radius:10px;padding:10px 10px 4px;margin-bottom:12px}
 .sec-group.bg-purple{background:#F3F0FF;border:1px solid #D9D3FF}
 .sec-group.bg-blue{background:#EFF6FF;border:1px solid #BFDBFE}
 .sec-group.bg-amber{background:#FFFBEB;border:1px solid #FDE68A}
 .sec-group.bg-green{background:#F0FDF4;border:1px solid #BBF7D0}
 .sec-group.bg-rose{background:#FFF1F2;border:1px solid #FECDD3}
-.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:6px}
+.sec-lbl{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:6px}
 .sec-group.bg-purple .sec-lbl{color:#5B21B6;background:#EDE9FE}
 .sec-group.bg-blue .sec-lbl{color:#1D4ED8;background:#DBEAFE}
-.sec-group.bg-amber .sec-lbl{color:#92400E;background:#FEF3C7}
-.sec-group.bg-green .sec-lbl{color:#166534;background:#DCFCE7}
+.sec-group.bg-amber .sec-lbl{color:var(--amber);background:#FEF3C7}
+.sec-group.bg-green .sec-lbl{color:var(--green);background:#DCFCE7}
 .sec-group.bg-rose .sec-lbl{color:#9F1239;background:#FFE4E6}
 .sec-counter{font-size:9px;background:rgba(0,0,0,.08);padding:2px 7px;border-radius:10px;font-weight:600;letter-spacing:0;text-transform:none;margin-left:auto}
 .q-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;margin-right:6px;flex-shrink:0}
@@ -126,98 +276,311 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg-primary);co
 .sec-group.bg-amber .q-num{background:#D97706;color:white}
 .sec-group.bg-green .q-num{background:#16A34A;color:white}
 .sec-group.bg-rose .q-num{background:#E11D48;color:white}
-.q-block{background:white;border:1px solid var(--border-primary);border-radius:8px;padding:10px;margin-bottom:6px}
+.q-block{background:white;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
 .q-block.answered{border-color:#86EFAC}
-.q-lbl{font-size:12px;font-weight:600;margin-bottom:6px;display:flex;align-items:flex-start}
-.q-hint{font-size:10.5px;color:var(--text-tertiary);margin-bottom:6px;padding:4px 8px;background:var(--bg-secondary);border-radius:4px}
-.q-opts{display:flex;flex-direction:column;gap:4px}
-.q-opt{display:flex;align-items:flex-start;gap:6px;padding:5px 8px;border:1px solid var(--border-secondary);border-radius:6px;cursor:pointer;font-size:11.5px;transition:all .1s}
-.q-opt:hover{background:var(--lmi-soft-blue)}
-.q-opt.selected{background:var(--lmi-soft-blue);border-color:var(--lmi-blue);font-weight:600}
+.q-lbl{font-size:13px;font-weight:600;margin-bottom:6px;display:flex;align-items:flex-start}
+.q-hint{font-size:11px;color:var(--t3);margin-bottom:8px;padding:6px 10px;background:var(--bg);border-radius:6px}
+.q-opts{display:flex;flex-direction:column;gap:6px}
+.q-opt{display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:12.5px;transition:all .1s;-webkit-user-select:none;user-select:none}
+.q-opt:active{background:var(--soft-blue)}
+.q-opt.selected{background:var(--soft-blue);border-color:var(--blue);font-weight:600}
 .req{color:#E11D48;margin-left:2px}
-.fs-score-bar{height:8px;background:var(--border-primary);border-radius:4px;overflow:hidden;margin:6px 0}
-.fs-score-fill{height:100%;border-radius:4px;background:var(--lmi-blue);transition:width .3s}
-.fs-result{padding:12px;border-radius:8px;margin-top:8px;font-size:12px;line-height:1.6}
-.fs-result.pass{background:#F0FDF4;border:1px solid #86EFAC;color:#166534}
-.fs-result.warn{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
+.fs-score-bar{height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin:8px 0}
+.fs-score-fill{height:100%;border-radius:5px;background:var(--blue);transition:width .4s}
+.fs-result{padding:14px;border-radius:10px;margin-top:10px;font-size:13px;line-height:1.7}
+.fs-result.pass{background:#F0FDF4;border:1px solid #86EFAC;color:var(--green)}
+.fs-result.warn{background:#FFFBEB;border:1px solid #FDE68A;color:var(--amber)}
 .fs-result.fail{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
-.fs-flag{padding:3px 8px;border-radius:4px;margin-bottom:3px;display:block}
-.fs-flag.warn{background:#FEF3C7;color:#92400E}.fs-flag.reject{background:#FEE2E2;color:#991B1B;font-weight:600}.fs-flag.ok{background:#D1FAE5;color:#065F46}
-.plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.plan-card{border:1px solid var(--border-primary);border-radius:var(--radius-lg);overflow:hidden}
-.plan-hd{padding:10px 14px;background:var(--lmi-dark-blue);color:white;font-size:12px;font-weight:700}
-.plan-row{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;border-bottom:1px solid var(--border-primary);font-size:11.5px}
+.fs-flag{padding:4px 10px;border-radius:5px;margin-bottom:4px;display:block;font-size:12px}
+.fs-flag.warn{background:#FEF3C7;color:var(--amber)}
+.fs-flag.reject{background:#FEE2E2;color:#991B1B;font-weight:600}
+.fs-flag.ok{background:#D1FAE5;color:#065F46}
+
+/* business plans */
+.plans-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+.plan-card{border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.plan-hd{padding:12px 16px;background:var(--navy);color:white;font-size:13px;font-weight:700}
+.plan-row{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;border-bottom:1px solid var(--border);font-size:12px}
 .plan-row:last-child{border-bottom:none}
-.step-badge{background:#FEF3C7;color:#92400E;padding:2px 7px;border-radius:6px;font-size:9.5px;font-weight:600}
-.submit-btn{padding:9px 20px;background:var(--lmi-blue);color:white;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:6px}
-.info-note{font-size:10.5px;color:var(--text-tertiary);background:var(--bg-secondary);padding:6px 10px;border-radius:6px;margin-top:6px;line-height:1.5}
-.highlight-box{background:#FFF8E1;border:1px solid #F5D100;border-radius:6px;padding:7px 10px;font-size:10.5px;color:#92400E;margin:8px 0}
-.interim-policy{background:var(--amber-light);border-left:3px solid #F59E0B;padding:8px 12px;border-radius:0 6px 6px 0;font-size:10.5px;color:var(--amber-dark);margin-top:8px}
-@media(max-width:650px){
-  .tiers-grid,.tier-income-cards,.gp-income-cards,.plans-grid,.slider-grid{grid-template-columns:1fr}
-  .pac-modal{width:96%;max-width:none;padding:12px}
-  .panel{padding:10px 12px}
+.step-badge{background:#FEF3C7;color:var(--amber);padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600}
+
+/* misc */
+.submit-btn{padding:11px 22px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;width:100%}
+.info-note{font-size:11px;color:var(--t3);background:var(--bg);padding:8px 12px;border-radius:8px;margin-top:8px;line-height:1.6}
+.highlight-box{background:#FFF8E1;border:1px solid #F5D100;border-radius:8px;padding:8px 12px;font-size:11px;color:var(--amber);margin:8px 0}
+.highlight{background:#FFF8E1;border:1px solid #F5D100;border-radius:8px;padding:8px 12px;font-size:11px;color:var(--amber);margin:8px 0}
+.interim-policy{background:#FFF8E1;border-left:3px solid #F59E0B;padding:10px 14px;border-radius:0 8px 8px 0;font-size:11px;color:var(--amber);margin-top:10px}
+
+/* footer */
+.app-footer{text-align:center;padding:20px 16px;font-size:10px;color:var(--t3);border-top:1px solid var(--border);margin-top:8px}
+
+/* ─── desktop override ───────────────────────────────────── */
+@media(min-width:600px){
+  html,body{overflow:auto;height:auto}
+  #scroll-body{overflow:visible;flex:none}
+  #tab-bar{display:none}
+  #app-header .hdr-back{display:none!important}
+  body{display:block}
+  #app-header{position:sticky}
+
+  /* desktop top nav */
+  #desktop-nav{
+    display:flex;background:var(--surface);
+    border-bottom:1px solid var(--border);
+    justify-content:center;gap:0;
+    position:sticky;top:var(--hdr-h);z-index:90;
+  }
+  .dnav-btn{
+    padding:12px 22px;font-size:13px;font-weight:500;
+    color:var(--t2);border:none;background:none;
+    border-bottom:2.5px solid transparent;cursor:pointer;
+  }
+  .dnav-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+
+  .screen{display:none}
+  .screen.active{display:block}
+  .screen-inner{padding:20px;max-width:900px;margin:0 auto}
+
+  /* section-hdr: non-sticky */
+
+  /* restore multi-col on desktop */
+  .tiers-grid,.tier-income-cards{grid-template-columns:repeat(3,1fr)}
+  .plans-grid,.gp-income-cards{grid-template-columns:1fr 1fr}
+  .slider-grid{grid-template-columns:1fr 1fr}
+  .submit-btn{width:auto}
+
+  /* modal — centered on desktop */
+  .pac-modal-overlay{align-items:center}
+  .pac-modal{border-radius:var(--r);padding:24px;max-width:480px;max-height:85vh}
+  .pac-modal::before{display:none}
+}
+@media(min-width:900px){
+  .tiers-grid,.tier-income-cards{grid-template-columns:repeat(3,1fr)}
 }
 </style>
 </head>
 <body>
-<div class="topbar">
-  <span class="topbar-brand">List My India™</span>
-  <span class="topbar-divider">·</span>
-  <span class="topbar-title">Project Hub — Internal Prototypes</span>
-</div>
-<div class="main-nav">
-  <button class="nav-btn active" onclick="showPanel('home')">Home</button>
-  <button class="nav-btn" onclick="showPanel('partners')">Partners</button>
-</div>
-<div class="sub-nav" id="sub-nav-partners" style="display:none">
-  <button class="sub-btn active" onclick="showSub('franchise')">Franchise</button>
-  <button class="sub-btn" onclick="showSub('growth')">Growth</button>
-  <button class="sub-btn" onclick="showSub('supergrowth')">Super Growth</button>
-  <button class="sub-btn" onclick="showSub('income')">Income</button>
-</div>
-<div class="sub-nav" id="sub-nav-fp" style="display:none">
-  <button class="sub-btn active" onclick="showFpTab('questionnaire')">Screening Questionnaire</button>
-  <button class="sub-btn" onclick="showFpTab('tiers')">Franchise Tiers</button>
-  <button class="sub-btn" onclick="showFpTab('plans')">Business Plans</button>
+
+<!-- ═══ APP HEADER ═══════════════════════════════════════════════════════ -->
+<div id="app-header">
+  <div style="display:flex;flex-direction:column">
+    <span class="brand">List My India™</span>
+    <span class="sub">Partner Hub</span>
+  </div>
+  <div class="hdr-back" id="hdr-back" onclick="navHome()">
+    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Home
+  </div>
 </div>
 
-<!-- HOME -->
-<div class="panel active" id="panel-home">
-  <div class="card" style="text-align:center;padding:32px">
-    <div style="font-size:28px;margin-bottom:8px">🇮🇳</div>
-    <div style="font-size:20px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:4px">List My India™</div>
-    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px">India's hyperlocal PIN-code based business discovery platform · <strong>Vocal for Local</strong></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:480px;margin:0 auto">
-      <div style="background:var(--lmi-soft-blue);border-radius:8px;padding:12px"><div style="font-size:18px;font-weight:700;color:var(--lmi-blue)">73+</div><div style="font-size:10px;color:var(--text-secondary)">Pins Booked</div></div>
-      <div style="background:#F0FDF4;border-radius:8px;padding:12px"><div style="font-size:18px;font-weight:700;color:#166534">36</div><div style="font-size:10px;color:var(--text-secondary)">States/UTs</div></div>
-      <div style="background:#FFFBEB;border-radius:8px;padding:12px"><div style="font-size:18px;font-weight:700;color:#92400E">19,300</div><div style="font-size:10px;color:var(--text-secondary)">Pin Codes</div></div>
+<!-- ═══ DESKTOP NAV ═══════════════════════════════════════════════════════ -->
+<div id="desktop-nav">
+  <button class="dnav-btn active" onclick="navScreen('home')">Home</button>
+  <button class="dnav-btn" onclick="navScreen('growth')">Growth Partner</button>
+  <button class="dnav-btn" onclick="navScreen('sgp')">Super Growth</button>
+  <button class="dnav-btn" onclick="navScreen('franchise')">Franchise</button>
+  <button class="dnav-btn" onclick="navScreen('income')">Income</button>
+</div>
+
+<!-- ═══ SCROLL BODY ═══════════════════════════════════════════════════════ -->
+<div id="scroll-body">
+
+  <!-- ─── HOME SCREEN ───────────────────────────────────────────────────── -->
+  <div class="screen active" id="screen-home">
+    <div class="hero">
+      <div class="hero-flag">🇮🇳</div>
+      <div class="hero-brand">List My India™</div>
+      <div class="hero-tagline">India's hyperlocal PIN-code business directory · <strong style="color:rgba(255,255,255,.9)">Vocal for Local</strong></div>
     </div>
-    <div style="margin-top:16px"><button class="submit-btn" onclick="showPanel('partners')">Explore Partner Opportunities →</button></div>
+    <div class="stats-row">
+      <div class="stat-chip stat-blue"><div class="num">73+</div><div class="lbl">Pins Booked</div></div>
+      <div class="stat-chip stat-green"><div class="num">36</div><div class="lbl">States / UTs</div></div>
+      <div class="stat-chip stat-amber"><div class="num">19,300</div><div class="lbl">Pin Codes</div></div>
+    </div>
+    <div class="home-section-hd">Partner Programmes</div>
+    <div class="nav-tiles">
+      <div class="nav-tile" onclick="navScreen('growth')">
+        <div class="tile-icon" style="background:#EEF3FF">🤝</div>
+        <div class="tile-text">
+          <div class="tile-title">Growth Partner</div>
+          <div class="tile-desc">Own 1–20 pincodes · Earn subscription revenue</div>
+        </div>
+        <div class="tile-chevron">›</div>
+      </div>
+      <div class="nav-tile" onclick="navScreen('sgp')">
+        <div class="tile-icon" style="background:#EDE9FE">⚡</div>
+        <div class="tile-text">
+          <div class="tile-title">Super Growth Partner</div>
+          <div class="tile-desc">District-level reach · Higher revenue share</div>
+        </div>
+        <div class="tile-chevron">›</div>
+      </div>
+
+      <div class="nav-tile" onclick="navScreen('income')">
+        <div class="tile-icon" style="background:#FFFBEB">📊</div>
+        <div class="tile-text">
+          <div class="tile-title">Income Potential</div>
+          <div class="tile-desc">3-year projections · Customise your assumptions</div>
+        </div>
+        <div class="tile-chevron">›</div>
+      </div>
+    </div>
+    <!-- Franchise section -->
+    <div class="home-section-hd" style="margin:18px 0 10px">Franchise</div>
+    <div class="nav-tiles" style="padding:0 14px 0">
+      <div class="nav-tile" onclick="navScreen('franchise');setTimeout(()=>showFpTab('tiers'),80)">
+        <div class="tile-icon" style="background:#ECFDF5">🏪</div>
+        <div class="tile-text">
+          <div class="tile-title">Franchise Tiers</div>
+          <div class="tile-desc">Bronze · Silver · Gold · Kit ₹65,000 bundled</div>
+        </div>
+        <div class="tile-chevron">›</div>
+      </div>
+      <div class="nav-tile primary-tile" onclick="navScreen('franchise');setTimeout(()=>showFpTab('q'),80)">
+        <div class="tile-icon" style="background:rgba(255,255,255,.18)">✅</div>
+        <div class="tile-text">
+          <div class="tile-title">Check Franchise Eligibility</div>
+          <div class="tile-desc">18-question screening · Instant eligibility score</div>
+        </div>
+        <div class="tile-chevron">›</div>
+      </div>
+    </div>
+    <!-- Info Links -->
+    <div style="padding:0 14px">
+      <div class="home-section-hd" style="margin:18px 0 10px">Listing & Revenue</div>
+      <div class="nav-tiles" style="padding:0">
+        <div class="nav-tile" onclick="navScreen('franchise');setTimeout(()=>showFpTab('plans'),80)">
+          <div class="tile-icon" style="background:#F0FDF4">💼</div>
+          <div class="tile-text">
+            <div class="tile-title">Business Listing Plans</div>
+            <div class="tile-desc">LMI Free · LMI Star from ₹99/mo · Price ladder</div>
+          </div>
+          <div class="tile-chevron">›</div>
+        </div>
+        <div class="nav-tile" onclick="navScreen('franchise');setTimeout(()=>showFpTab('plans'),80)">
+          <div class="tile-icon" style="background:#FFF8E1">🎯</div>
+          <div class="tile-text">
+            <div class="tile-title">Sponsorship Plans</div>
+            <div class="tile-desc">Homepage · Search · Category Featured · from ₹1,499/mo</div>
+          </div>
+          <div class="tile-chevron">›</div>
+        </div>
+      </div>
+    </div>
+
+        <div class="app-footer">ListMyIndia Growthworks Pvt Ltd · CIN U63119UP2025PTC234761 · Internal use only</div>
   </div>
+
+  <!-- ─── FRANCHISE SCREEN ──────────────────────────────────────────────── -->
+  <div class="screen" id="screen-franchise">
+    <div class="screen-inner">
+      <div id="fp-panel">
+        <div id="fp-questionnaire"></div>
+        <div id="fp-tiers" style="display:none"></div>
+        <div id="fp-plans" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── GROWTH PARTNER SCREEN ─────────────────────────────────────────── -->
+  <div class="screen" id="screen-growth">
+    <div class="screen-inner">
+      <div id="growth-panel"><div id="gp-card-container"></div></div>
+    </div>
+  </div>
+
+  <!-- ─── SUPER GROWTH PARTNER SCREEN ──────────────────────────────────── -->
+  <div class="screen" id="screen-sgp">
+    <div class="screen-inner">
+      <div id="sgp-panel"><div id="sgp-card-container"></div></div>
+    </div>
+  </div>
+
+  <!-- ─── INCOME SCREEN ─────────────────────────────────────────────────── -->
+  <div class="screen" id="screen-income">
+    <div class="screen-inner">
+      <div id="income-panel"><div id="income-content"></div></div>
+    </div>
+  </div>
+
+</div><!-- /scroll-body -->
+
+<!-- ═══ BOTTOM TAB BAR (mobile) ══════════════════════════════════════════ -->
+<div id="tab-bar">
+  <button class="tab-btn active" id="tab-home" onclick="navScreen('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </button>
+  <button class="tab-btn" id="tab-growth" onclick="navScreen('growth')">
+    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Growth
+  </button>
+  <button class="tab-btn" id="tab-sgp" onclick="navScreen('sgp')">
+    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    Super GP
+  </button>
+  <button class="tab-btn" id="tab-franchise" onclick="navScreen('franchise')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7"/><rect x="2" y="9" width="20" height="13" rx="2"/><path d="M9 22V12h6v10"/></svg>
+    Franchise
+  </button>
+  <button class="tab-btn" id="tab-income" onclick="navScreen('income')">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    Income
+  </button>
 </div>
 
-<!-- PARTNERS -->
-<div class="panel" id="panel-partners">
-  <div id="fp-panel">
-    <div id="fp-questionnaire"></div>
-    <div id="fp-tiers" style="display:none"></div>
-    <div id="fp-plans" style="display:none"></div>
-  </div>
-  <div id="growth-panel" style="display:none"><div id="gp-card-container"></div></div>
-  <div id="sgp-panel"    style="display:none"><div id="sgp-card-container"></div></div>
-  <div id="income-panel" style="display:none"><div id="income-content"></div></div>
-</div>
-
+<!-- ═══ PAC BOOKING MODAL ════════════════════════════════════════════════ -->
 <div class="pac-modal-overlay" id="pac-modal">
   <div class="pac-modal"><div id="pac-modal-body" style="width:100%;overflow:hidden;box-sizing:border-box"></div></div>
 </div>
 
-<footer style="text-align:center;padding:16px;font-size:10px;color:var(--text-tertiary);border-top:1px solid var(--border-primary);margin-top:20px">
-  ListMyIndia Growthworks Private Limited · CIN: U63119UP2025PTC234761 · Internal use only
-</footer>
-
 <script>
+// ═══ LMI CONFIG — fill in your credentials ═══════════════════════════
+const LMI_RZP_KEY   = 'rzp_live_XXXXXXXXXXXXXXXX'; // Razorpay Live Key ID
+const LMI_GAS_URL   = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'; // Apps Script URL
+// ═════════════════════════════════════════════════════════════════════
+
+
+
+// ═══ MOBILE-FIRST NAVIGATION ════════════════════════════════════════════
+const SCREENS = ['home','growth','sgp','franchise','income'];
+let currentScreen = 'home';
+
+function navScreen(name){
+  currentScreen = name;
+  SCREENS.forEach(s=>{
+    const el = document.getElementById('screen-'+s);
+    if(el) el.classList.toggle('active', s===name);
+  });
+  SCREENS.forEach(s=>{
+    const btn = document.getElementById('tab-'+s);
+    if(btn) btn.classList.toggle('active', s===name);
+  });
+  document.querySelectorAll('.dnav-btn').forEach((b,i)=>{
+    b.classList.toggle('active', SCREENS[i]===name);
+  });
+  const back = document.getElementById('hdr-back');
+  if(back) back.classList.toggle('visible', name!=='home');
+  const sb = document.getElementById('scroll-body');
+  if(sb) sb.scrollTop=0; else window.scrollTo(0,0);
+  // trigger renders
+  if(name==='franchise') showFpTab('tiers');
+  if(name==='growth') renderGpCard('gp');
+  if(name==='sgp') renderGpCard('sgp');
+  if(name==='income'){ buildIncomePanel(); }
+}
+function navHome(){ navScreen('home'); }
+
+// goTo — compatibility wrapper used by existing JS
+function goTo(dest){
+  const map = {growth:'growth',gp:'growth',sgp:'sgp',franchise:'franchise',income:'income'};
+  navScreen(map[dest] || dest);
+}
+// showPanel — legacy compatibility (maps old 2-panel system → screens)
+/* replaced by navScreen */
+/* replaced by navScreen */
+
+
 // ────────────────────────────────────────────────────
 // DATA
 // ────────────────────────────────────────────────────
@@ -266,30 +629,22 @@ let _subs=[],_gross=[],_spArr=[];
 // ────────────────────────────────────────────────────
 // NAV
 // ────────────────────────────────────────────────────
-function showPanel(p){
-  document.getElementById('panel-home').style.display=p==='home'?'block':'none';
-  document.getElementById('panel-partners').style.display=p==='partners'?'block':'none';
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().trim()===p));
-  document.getElementById('sub-nav-partners').style.display=p==='partners'?'flex':'none';
-  if(p==='partners') showSub('franchise');
-}
-function showSub(sub){
-  ['franchise','growth','supergrowth','income'].forEach((s,i)=>
-    document.querySelectorAll('#sub-nav-partners .sub-btn')[i]?.classList.toggle('active',s===sub));
-  document.getElementById('fp-panel').style.display=sub==='franchise'?'block':'none';
-  document.getElementById('growth-panel').style.display=sub==='growth'?'block':'none';
-  document.getElementById('sgp-panel').style.display=sub==='supergrowth'?'block':'none';
-  document.getElementById('income-panel').style.display=sub==='income'?'block':'none';
-  document.getElementById('sub-nav-fp').style.display=sub==='franchise'?'flex':'none';
-  if(sub==='franchise') showFpTab('questionnaire');
-  if(sub==='growth') renderGpCard('gp');
-  if(sub==='supergrowth') renderGpCard('sgp');
-  if(sub==='income'){ buildIncomePanel(); calculateIncome(); }
-}
+/* showPanel replaced */
+
+
+/* showSub replaced */
 function showFpTab(tab){
-  ['questionnaire','tiers','plans'].forEach((t,i)=>{
-    document.getElementById('fp-'+t).style.display=t===tab?'block':'none';
-    document.querySelectorAll('#sub-nav-fp .sub-btn')[i]?.classList.toggle('active',t===tab);
+  // alias 'q' -> 'questionnaire'
+  if(tab==='q') tab='questionnaire';
+  if(!tab) tab='tiers';
+  // fp-sub-nav now has: [tiers, plans] (questionnaire removed — accessed via home)
+  const subTabs=['tiers'];
+  ['questionnaire','tiers','plans'].forEach((t)=>{
+    const el=document.getElementById('fp-'+t);
+    if(el) el.style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('#fp-sub-nav .shdr-btn').forEach((btn,i)=>{
+    btn.classList.toggle('active', subTabs[i]===tab);
   });
   if(tab==='tiers') renderTierCards();
   if(tab==='questionnaire') renderQuestionnaire();
@@ -345,7 +700,7 @@ function renderTierCards(){
           ${t.youngOk?`<div style="font-size:9.5px;color:#166534;margin-top:3px">Young/Women: ${fc(t.totalStartYoung||0)} (discounted)</div>`:''}
           ${t.waiver?`<div style="font-size:9.5px;color:#991B1B;margin-top:2px">Special Needs Waiver: ₹76,700 (fee waived)</div>`:''}
         </div>
-        <div class="highlight-box" style="margin:8px 0;font-size:10px">🎁 <strong>Lifetime 5% Amazon voucher</strong> on every referred paid listing — first stakeholder only, no splitting.</div>
+        <div class="highlight-box" style="margin:8px 0;font-size:10px">🎁 <strong>Referral bonus:</strong> Earn 1 month's plan value for every business you personally refer — paid on first subscription.</div>
         <button class="submit-btn" style="width:100%;font-size:11.5px" onclick="openBookingModal('${t.key}')">Apply for ${t.name} →</button>
       </div>
     </div>`).join('')}
@@ -365,22 +720,7 @@ function renderTierCards(){
     <div style="margin-top:8px;font-size:14px;font-weight:700;color:#991B1B">Total: ₹76,700 <span style="font-size:10px;font-weight:400">(Kit ₹65,000 + GST ₹11,700)</span></div>
     <div style="font-size:10px;color:#7F1D1D;margin-top:4px">Covers: Autism, Down syndrome, Dyslexia, Cerebral Palsy, Muscular Dystrophy, visual/hearing impairment, ADHD, anxiety. Valid medical documentation required.</div>
   </div>
-  <div class="pac-section" style="margin-top:12px">
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--lmi-dark-blue);margin-bottom:12px">📍 Check Franchise Partner Availability</div>
-    <div id="pac-fp-rows">
-      <div class="pac-row" data-row="0">
-        <select class="pac-select pac-state" onchange="pacStateChange(this,'fp',0)"><option value="">State / UT</option></select>
-        <select class="pac-select pac-district" disabled onchange="pacDistChange(this,'fp',0)"><option value="">District</option></select>
-        <select class="pac-select pac-pin" disabled><option value="">Pin code</option></select>
-        <span style="width:22px;flex-shrink:0"></span>
-      </div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;margin-top:4px">
-      <button class="pac-add-btn" onclick="pacAddRow('fp')">+</button>
-    </div>
-    <div style="margin-top:6px"><button class="pac-check-btn" onclick="pacCheck('fp')">Check Availability</button></div>
-    <div id="pac-fp-results"></div>
-  </div>`;
+`;
 }
 
 // ────────────────────────────────────────────────────
@@ -449,32 +789,55 @@ function renderGpCard(type){
   <div class="card">
     <div class="card-title">${type==='gp'?'🌱 Growth Partner':'⭐ Super Growth Partner'} Programme</div>
 
-    <div class="pac-section" style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:10px">📍 Check Availability</div>
-      <div id="pac-${type}-rows">
-        <div class="pac-row" data-row="0">
-          <select class="pac-select pac-state" onchange="pacStateChange(this,'${type}',0)"><option value="">State / UT</option></select>
-          <select class="pac-select pac-district" disabled onchange="pacDistChange(this,'${type}',0)"><option value="">District</option></select>
-          <select class="pac-select pac-pin" disabled><option value="">Pin code</option></select>
-          <span style="width:22px;flex-shrink:0"></span>
+    <!-- Pin selector & basket -->
+    <div style="background:var(--bg);border-radius:12px;padding:14px;margin-bottom:14px">
+
+      <!-- State / District row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <select class="pac-select pac-state" onchange="gpMsState(this,'${type}')" style="padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:white">
+          <option value="">State / UT</option>
+        </select>
+        <select id="gp-ms-dist-${type}" onchange="gpMsDist(this,'${type}')" disabled style="padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:white;color:var(--t3)">
+          <option value="">District</option>
+        </select>
+      </div>
+
+      <!-- Token summary (auto-updates from basket) -->
+      <div style="background:white;border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+        <div>
+          <div style="font-size:10px;color:var(--t3);margin-bottom:2px">Selected pins</div>
+          <div id="gp-ms-count-${type}" style="font-size:13px;font-weight:700;color:var(--navy)">0 pins selected</div>
+          <div style="font-size:10px;color:var(--blue);margin-top:2px">
+            Current slab: <strong>${current.label}</strong> · Rate locks at booking
+            ${next?`· <span style="color:#16A34A">Next slab at ${next.min} pins</span>`:''}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:var(--t3)">Token investment (incl. GST)</div>
+          <div id="gp-total-${type}" style="font-size:20px;font-weight:700;color:var(--navy)">${fc(rateGst*qty)}</div>
+          <div id="gp-rate-hint-${type}" style="font-size:10px;color:var(--t3)">${type==='gp'?(qty>=5?`₹${Math.round(current.gpRate5*1.18).toLocaleString('en-IN')}/pin (bulk)`:`₹${Math.round(current.gpRate1*1.18).toLocaleString('en-IN')}/pin`):`₹${Math.round(current.sgpRate*1.18).toLocaleString('en-IN')}/pin`}</div>
         </div>
       </div>
-      <div style="display:flex;justify-content:flex-end;margin-top:4px"><button class="pac-add-btn" onclick="pacAddRow('${type}')">+</button></div>
-      <div style="margin-top:6px"><button class="pac-check-btn" onclick="pacCheck('${type}')">Check Availability</button></div>
-      <div id="pac-${type}-results"></div>
-    </div>
 
-    <div style="font-size:12px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:6px">💳 Token Investment</div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-      <label style="font-size:11.5px">No. of pin codes:</label>
-      <select id="gp-qty-${type}" onchange="updateGpTotal('${type}')" style="padding:4px 8px;border:1px solid var(--border-secondary);border-radius:4px;font-size:12px">
-        ${Array.from({length:20},(_,i)=>i+1).map(n=>`<option value="${n}" ${n===qty?'selected':''}>​${n} pin${n>1?'s':''}</option>`).join('')}
-      </select>
-      ${type==='gp'?`<span style="font-size:10px;color:var(--text-tertiary)">1-4 pins: ₹${Math.round(current.gpRate1*1.18).toLocaleString('en-IN')}/pin · 5+ pins: ₹${Math.round(current.gpRate5*1.18).toLocaleString('en-IN')}/pin (+GST)</span>`:`<span style="font-size:10px;color:var(--text-tertiary)">₹${Math.round(current.sgpRate*1.18).toLocaleString('en-IN')}/pin (+GST)</span>`}
-    </div>
-    <div style="background:var(--lmi-soft-blue);border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between;margin-bottom:10px">
-      <span>Total token investment</span>
-      <strong id="gp-total-${type}" style="font-size:15px;color:var(--lmi-dark-blue)">${fc(rateGst*qty)}</strong>
+      <!-- Basket chips -->
+      <div id="gp-ms-basket-${type}" style="border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px"></div>
+
+      <!-- Checkbox pin list (per district) -->
+      <div id="gp-ms-pins-${type}" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:11px;font-weight:600;color:var(--navy)" id="gp-ms-dist-label-${type}"></span>
+          <div style="display:flex;gap:6px">
+            <button onclick="gpMsAll('${type}',true)" style="font-size:10px;padding:3px 10px;border:1px solid var(--blue);border-radius:5px;background:var(--soft-blue);color:var(--blue);cursor:pointer">All</button>
+            <button onclick="gpMsAll('${type}',false)" style="font-size:10px;padding:3px 10px;border:1px solid var(--border);border-radius:5px;background:white;color:var(--t2);cursor:pointer">None</button>
+          </div>
+        </div>
+        <div id="gp-ms-list-${type}" style="max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:white"></div>
+        <div style="margin-top:8px;text-align:right">
+          <button onclick="gpMsCheck('${type}')" style="padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Check Availability →</button>
+        </div>
+      </div>
+
+      <div id="gp-ms-results-${type}"></div>
     </div>
 
     <div style="font-size:12px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:6px">📊 Current Slab & Commission</div>
@@ -506,19 +869,39 @@ function renderGpCard(type){
     </div>
 
     <div class="highlight-box" style="margin-top:8px">
-      🎁 <strong>Lifetime 5% Amazon voucher</strong> — paid to first referring stakeholder only. Strictly one per business, no exceptions, no splitting.
-    </div>
+      🎁 <strong>Referral bonus:</strong> Earn 1 month's plan value for every business you personally refer — paid once on first subscription.
+  </div>
   </div>`;
 
-  setTimeout(()=>pacInitStateDropdowns(type), 50);
+  setTimeout(()=>{
+    pacInitStateDropdowns(type);
+    // populate the new multi-select state dropdown
+    const msSel = container.querySelector('.pac-state');
+    if(msSel && msSel.options.length <= 1){
+      msSel.innerHTML = '<option value="">State / UT</option>' + pacStateOpts();
+      msSel.onchange = function(){ gpMsState(this, type); };
+    }
+  }, 50);
 }
 
 function updateGpTotal(type){
-  const qty=parseInt(document.getElementById('gp-qty-'+type)?.value||1);
+  const qty=parseInt((document.getElementById('gp-qty-'+type)||{}).value||1);
   gpPinCount[type]=qty;
-  const {rate}=gpRate(type,qty);
+  const {rate,slab}=gpRate(type,qty);
+  const rateGst=Math.round(rate*1.18);
+  // update token amount
   const el=document.getElementById('gp-total-'+type);
-  if(el) el.textContent=fc(Math.round(rate*1.18)*qty);
+  if(el) el.textContent=fc(rateGst*qty);
+  // update rate hint below dropdown
+  const hint=document.getElementById('gp-rate-hint-'+type);
+  if(hint){
+    if(type==='gp') hint.textContent=qty>=5?`₹${Math.round(slab.gpRate5*1.18).toLocaleString('en-IN')}/pin (bulk rate)`:`₹${Math.round(slab.gpRate1*1.18).toLocaleString('en-IN')}/pin · 5+ pins for bulk rate`;
+    else hint.textContent=`₹${Math.round(slab.sgpRate*1.18).toLocaleString('en-IN')}/pin`;
+  }
+  // sync income tab dropdown
+  const incSel=document.getElementById('inc-'+type+'-qty');
+  if(incSel) incSel.value=qty;
+  calculateIncome();
 }
 
 // ────────────────────────────────────────────────────
@@ -538,89 +921,136 @@ function buildIncomePanel(){
   const fc2=(v)=>'₹'+parseInt(v).toLocaleString('en-IN');
 
   el.innerHTML=`
-  <!-- Pin selector -->
-  <div class="income-pin-selector">
-    <div style="font-size:11px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:6px">📍 Select Pin Code (auto-fills population)</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <select id="inc-state" onchange="incStateChange()" style="flex:1;min-width:110px;padding:6px;border:1px solid var(--border-secondary);border-radius:6px;font-size:12px"><option value="">State / UT</option></select>
-      <select id="inc-dist"  onchange="incDistChange()"  disabled style="flex:1;min-width:110px;padding:6px;border:1px solid var(--border-secondary);border-radius:6px;font-size:12px"><option value="">District</option></select>
-      <select id="inc-pin"   onchange="incPinChange()"   disabled style="flex:1;min-width:110px;padding:6px;border:1px solid var(--border-secondary);border-radius:6px;font-size:12px"><option value="">Pin code</option></select>
+  <!-- ═══ STEP 1: PIN SELECTOR — always visible ══════════════════ -->
+  <div id="inc-pin-selector" style="background:var(--navy);border-radius:14px;padding:20px;margin-bottom:4px">
+    <div style="color:var(--yellow);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Step 1</div>
+    <div style="color:white;font-size:17px;font-weight:700;margin-bottom:4px">Select your Pin Code</div>
+    <div style="color:rgba(255,255,255,.6);font-size:11px;margin-bottom:14px">Population auto-fills · All projections update instantly</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+      <select id="inc-state" onchange="incStateChange()" style="min-width:0;width:100%;padding:9px 6px;border:none;border-radius:8px;font-size:12px;font-weight:500;background:rgba(255,255,255,.12);color:white;-webkit-appearance:none;appearance:none;overflow:hidden;text-overflow:ellipsis">
+        <option value="" style="background:#05132D">State / UT</option>
+      </select>
+      <select id="inc-dist" onchange="incDistChange()" disabled style="min-width:0;width:100%;padding:9px 6px;border:none;border-radius:8px;font-size:12px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);-webkit-appearance:none;appearance:none;overflow:hidden;text-overflow:ellipsis">
+        <option value="">District</option>
+      </select>
+      <select id="inc-pin" onchange="incPinChange()" disabled style="min-width:0;width:100%;padding:9px 6px;border:none;border-radius:8px;font-size:12px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);-webkit-appearance:none;appearance:none;overflow:hidden;text-overflow:ellipsis">
+        <option value="">Pin Code</option>
+      </select>
+    </div>
+    <!-- populated pin summary -->
+    <div id="inc-pin-summary" style="display:none;margin-top:12px;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 14px">
+      <div style="color:rgba(255,255,255,.6);font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Selected</div>
+      <div id="inc-pin-label" style="color:white;font-weight:700;font-size:15px"></div>
+      <div id="inc-pop-label" style="color:var(--yellow);font-size:12px;margin-top:2px"></div>
     </div>
   </div>
 
-  <!-- GP/SGP income -->
-  <div style="font-size:13px;font-weight:700;color:var(--lmi-dark-blue);margin:10px 0 6px">🌱 GP / SGP Referral Income</div>
-  <div class="gp-income-cards">
-    <div class="gp-income-card" id="gp-inc-gp"></div>
-    <div class="gp-income-card" id="gp-inc-sgp"></div>
-  </div>
+  <!-- ═══ STEP 2+: Everything hidden until pin selected ═══════════ -->
+  <div id="inc-body" style="display:none">
 
-  <!-- Tier income -->
-  <div style="font-size:13px;font-weight:700;color:var(--lmi-dark-blue);margin:10px 0 6px">📊 Select Franchise Tier</div>
-  <div class="tier-income-cards" id="tier-inc-cards"></div>
-  <div class="income-banner" id="inc-banner"><div class="yr">Select a tier above</div></div>
+    <!-- GP/SGP income -->
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 8px">🌱 GP / SGP Referral Income</div>
+    <div class="gp-income-cards">
+      <div class="gp-income-card" id="gp-inc-gp">
+        <div style="font-size:10.5px;font-weight:700;color:var(--navy);margin-bottom:6px">🌱 Growth Partner</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:11px;color:var(--t2)">Pin codes:</span>
+          <select id="inc-gp-qty" onchange="incUpdateGpQty('gp')" style="flex:1;padding:5px 8px;border:1.5px solid var(--blue);border-radius:6px;font-size:12px;font-weight:600">
+            ${Array.from({length:20},(_,i)=>i+1).map(n=>`<option value="${n}" ${n===gpPinCount.gp?'selected':''}>${n} pin${n>1?'s':''}</option>`).join('')}
+          </select>
+        </div>
+        <div id="gp-inc-gp-detail"></div>
+      </div>
+      <div class="gp-income-card" id="gp-inc-sgp">
+        <div style="font-size:10.5px;font-weight:700;color:var(--navy);margin-bottom:6px">⭐ Super Growth Partner</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-size:11px;color:var(--t2)">Pin codes:</span>
+          <select id="inc-sgp-qty" onchange="incUpdateGpQty('sgp')" style="flex:1;padding:5px 8px;border:1.5px solid #7C3AED;border-radius:6px;font-size:12px;font-weight:600">
+            ${Array.from({length:100},(_,i)=>i+1).map(n=>`<option value="${n}" ${n===gpPinCount.sgp?'selected':''}>${n} pin${n>1?'s':''}</option>`).join('')}
+          </select>
+        </div>
+        <div id="gp-inc-sgp-detail"></div>
+      </div>
+    </div>
 
-  <!-- Summary table -->
-  <div class="card" style="margin-top:10px">
-    <div class="year-tabs">
-      <button class="year-tab active" onclick="setYear(1)">Year 1</button>
-      <button class="year-tab" onclick="setYear(2)">Year 2</button>
-      <button class="year-tab" onclick="setYear(3)">Year 3</button>
-    </div>
-    <table class="summary-table"><thead><tr><th>Particulars</th><th style="text-align:right">Amount</th></tr></thead><tbody id="summary-tbody"></tbody></table>
-    <div class="highlight-box" style="margin-top:8px;font-size:10px">🎁 <strong>Lifetime 5% Amazon voucher (not in figures above):</strong> For every personally referred paid listing — first stakeholder only.</div>
-    <div class="interim-policy" style="margin-top:6px">⏳ <strong>GP/SGP interim:</strong> GP 25% / SGP 12.5% of pin code gross revenue/mo while no FP appointed (max 6 months) — paid monthly from company share.</div>
-  </div>
+    <!-- Franchise tier -->
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin:14px 0 8px">📊 Select Franchise Tier</div>
+    <div class="tier-income-cards" id="tier-inc-cards"></div>
+    <div class="income-banner" id="inc-banner"><div class="yr">Select a tier above</div></div>
 
-  <!-- Market sliders -->
-  <div class="card" style="margin-top:10px">
-    <div class="card-title">⚙️ Your Market</div>
-    <div class="slider-grid">
-      ${mkSlider('pop','Population',10000,500000,5000,100000,v=>parseInt(v).toLocaleString('en-IN'))}
-      ${mkSlider('retailPct','Retail store %',0.5,3,0.25,1.25,v=>v+'%')}
-      ${mkSlider('homeBase','Home-based × retail',1,10,0.5,5,v=>v+'×')}
-      ${mkSlider('capture','Market capture %',1,50,1,10,v=>v+'%')}
+    <!-- Summary table -->
+    <div class="card" style="margin-top:10px">
+      <div class="year-tabs">
+        <button class="year-tab active" onclick="setYear(1)">Year 1</button>
+        <button class="year-tab" onclick="setYear(2)">Year 2</button>
+        <button class="year-tab" onclick="setYear(3)">Year 3</button>
+      </div>
+      <table class="summary-table"><thead><tr><th>Particulars</th><th style="text-align:right">Amount</th></tr></thead><tbody id="summary-tbody"></tbody></table>
+      <div class="highlight-box" style="margin-top:8px;font-size:10px">🎁 <strong>Referral bonus (not in figures above):</strong> Earn 1 month's plan value for every business personally referred — paid on first subscription.</div>
+      <div class="interim-policy" style="margin-top:6px">⏳ <strong>GP/SGP interim:</strong> GP 25% / SGP 12.5% of pin code gross revenue/mo while no FP appointed (max 6 months).</div>
     </div>
-  </div>
 
-  <!-- Pricing sliders (3 years) -->
-  <div class="card">
-    <div class="card-title">💰 Avg LMI Star Listing Price — by Year</div>
-    <div class="info-note" style="margin-bottom:8px">Default reflects stepped cohort-locked pricing (Assumption 2 from projections). Adjust freely.</div>
-    <div class="slider-grid">
-      ${mkSlider('avgPriceY1','Year 1 avg price/mo',99,699,50,99,fc2)}
-      ${mkSlider('avgPriceY2','Year 2 avg price/mo',99,699,50,149,fc2)}
-      ${mkSlider('avgPriceY3','Year 3 avg price/mo',99,699,50,199,fc2)}
+    <!-- Adjust assumptions header -->
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0 8px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap">Adjust Assumptions</div>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
     </div>
-  </div>
 
-  <!-- Sponsorship sliders -->
-  <div class="card">
-    <div class="card-title">🎯 Sponsorship Revenue — by Year (monthly avg)</div>
-    <div class="info-note" style="margin-bottom:8px">Default: 1 Homepage (₹9,999) + 1 Search/Category (₹7,499) + 5 Category Featured (₹2,499 each) = ₹29,993/mo. Adjust per local expectation.</div>
-    <div class="slider-grid">
-      ${mkSlider('sponsorY1','Year 1 sponsorship/mo',0,200000,1000,29993,fc2)}
-      ${mkSlider('sponsorY2','Year 2 sponsorship/mo',0,200000,1000,36000,fc2)}
-      ${mkSlider('sponsorY3','Year 3 sponsorship/mo',0,200000,1000,45000,fc2)}
+    <!-- Market sliders -->
+    <div class="card">
+      <div class="card-title">⚙️ Your Market</div>
+      <div class="slider-grid">
+        ${mkSlider('pop','Population',10000,500000,5000,100000,v=>parseInt(v).toLocaleString('en-IN'))}
+        ${mkSlider('retailPct','Retail store %',0.5,3,0.25,1.25,v=>v+'%')}
+        ${mkSlider('homeBase','Home-based × retail',1,10,0.5,5,v=>v+'×')}
+        ${mkSlider('capture','Market capture %',1,50,1,10,v=>v+'%')}
+      </div>
     </div>
-  </div>
 
-  <!-- Growth & churn -->
-  <div class="card">
-    <div class="card-title">📈 Growth & Churn — by Year</div>
-    <div class="slider-grid">
-      ${mkSlider('growthY1','Y1 growth/mo',0,20,0.5,7.5,v=>v+'%')}
-      ${mkSlider('growthY2','Y2 growth/mo',0,20,0.5,4,v=>v+'%')}
-      ${mkSlider('growthY3','Y3 growth/mo',0,20,0.5,3,v=>v+'%')}
-      ${mkSlider('churnY1','Y1 churn/mo',0,10,0.5,2.5,v=>v+'%')}
-      ${mkSlider('churnY2','Y2 churn/mo',0,10,0.5,2,v=>v+'%')}
-      ${mkSlider('churnY3','Y3 churn/mo',0,10,0.5,1.5,v=>v+'%')}
+    <!-- Pricing sliders -->
+    <div class="card">
+      <div class="card-title">💰 Avg LMI Star Price — by Year</div>
+      <div class="info-note" style="margin-bottom:8px">Step-locked cohort pricing. Adjust freely.</div>
+      <div class="slider-grid-3">
+        ${mkSlider('avgPriceY1','Year 1',99,699,50,99,fc2)}
+        ${mkSlider('avgPriceY2','Year 2',99,699,50,149,fc2)}
+        ${mkSlider('avgPriceY3','Year 3',99,699,50,199,fc2)}
+      </div>
     </div>
-    <div style="margin-top:8px;padding:7px 10px;background:#FEF3C7;border-radius:6px;font-size:10.5px;color:#92400E">
-      ⚙️ <strong>Hemadri CTO share: 25% of invoice value</strong> — deducted from company gross before computing FP / GP / SGP shares.
+
+    <!-- Sponsorship sliders -->
+    <div class="card">
+      <div class="card-title">🎯 Sponsorship Revenue — by Year</div>
+      <div class="info-note" style="margin-bottom:8px">Default: ₹9,999 + ₹7,499 + 5×₹2,499 = ₹29,993/mo</div>
+      <div class="slider-grid-3">
+        ${mkSlider('sponsorY1','Year 1',0,200000,1000,29993,fc2)}
+        ${mkSlider('sponsorY2','Year 2',0,200000,1000,36000,fc2)}
+        ${mkSlider('sponsorY3','Year 3',0,200000,1000,45000,fc2)}
+      </div>
     </div>
-  </div>`;
+
+    <!-- Growth & churn -->
+    <div class="card">
+      <div class="card-title">📈 Growth & Churn — by Year</div>
+      <div style="font-size:10.5px;color:var(--t3);font-weight:600;margin-bottom:4px">Growth / month</div>
+      <div class="slider-grid-3" style="margin-bottom:10px">
+        ${mkSlider('growthY1','Year 1',0,20,0.5,7.5,v=>v+'%')}
+        ${mkSlider('growthY2','Year 2',0,20,0.5,4,v=>v+'%')}
+        ${mkSlider('growthY3','Year 3',0,20,0.5,3,v=>v+'%')}
+      </div>
+      <div style="font-size:10.5px;color:var(--t3);font-weight:600;margin-bottom:4px">Churn / month</div>
+      <div class="slider-grid-3">
+        ${mkSlider('churnY1','Year 1',0,10,0.5,2.5,v=>v+'%')}
+        ${mkSlider('churnY2','Year 2',0,10,0.5,2,v=>v+'%')}
+        ${mkSlider('churnY3','Year 3',0,10,0.5,1.5,v=>v+'%')}
+      </div>
+    </div>
+
+  </div><!-- /inc-body -->
+  `;
 }
+
 
 function updSlider(key,val){
   _inc[key]=parseFloat(val);
@@ -642,7 +1072,225 @@ function setYear(y){
   renderSummaryTable();
 }
 
+
+
+// ─── GP/SGP multi-select pin checker ────────────────────────────────────
+// Persistent basket: {gp: Set of pin strings, sgp: Set of pin strings}
+const gpMsBasket = { gp: new Set(), sgp: new Set() };
+
+function gpMsState(sel, type){
+  const state = sel.value;
+  const distEl = document.getElementById('gp-ms-dist-'+type);
+  const listWrap = document.getElementById('gp-ms-pins-'+type);
+  distEl.innerHTML = '<option value="">District</option>';
+  distEl.disabled = true;
+  if(listWrap) listWrap.style.display = 'none';
+  if(!state || !PINCODE_DATA[state]) return;
+  Object.keys(PINCODE_DATA[state]).sort().forEach(d =>
+    distEl.innerHTML += `<option value="${d}">${d}</option>`
+  );
+  distEl.disabled = false;
+}
+
+function gpMsDist(sel, type){
+  const containerId = type==='gp' ? 'gp-card-container' : 'sgp-card-container';
+  const container = document.getElementById(containerId);
+  const stateSel = container ? container.querySelector('.pac-state') : null;
+  const state = stateSel ? stateSel.value : '';
+  const dist = sel.value;
+  const pinsEl   = document.getElementById('gp-ms-pins-'+type);
+  const listEl   = document.getElementById('gp-ms-list-'+type);
+  const labelEl  = document.getElementById('gp-ms-dist-label-'+type);
+  if(!state || !dist || !PINCODE_DATA[state] || !PINCODE_DATA[state][dist]){
+    if(pinsEl) pinsEl.style.display = 'none'; return;
+  }
+  const [,,pins] = PINCODE_DATA[state][dist];
+  pins.sort((a,b) => a[0]-b[0]);
+  if(labelEl) labelEl.textContent = dist + ', ' + state;
+  listEl.innerHTML = pins.map(([p, pop]) => {
+    const d = PAC_DB[p] || {};
+    const hasFP  = d.fp  && d.fp !='null';
+    const hasGP  = d.gp  && d.gp !='null';
+    const hasSGP = d.sgp && d.sgp!='null';
+    const unavail = hasFP || (type==='gp' && hasGP) || (type==='sgp' && hasSGP);
+    const icon = hasFP ? '🔶' : hasGP ? '🟡' : hasSGP ? '🔵' : '✅';
+    const statusText = hasFP ? 'FP booked' : hasGP ? 'GP booked' : hasSGP ? 'SGP booked' : 'Available';
+    const inBasket = gpMsBasket[type].has(String(p));
+    return `<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--border);cursor:${unavail?'not-allowed':'pointer'};background:${inBasket?'#EEF3FF':'white'}">
+      <input type="checkbox" value="${p}" ${unavail?'disabled':''} ${inBasket?'checked':''} onchange="gpMsCbChange(this,'${type}')" style="width:16px;height:16px;accent-color:var(--blue);flex-shrink:0">
+      <span style="font-size:12px;flex:1;${unavail?'opacity:.5':''}">${icon} <strong>${p}</strong></span>
+      <span style="font-size:10px;color:var(--t3)">pop ${pop.toLocaleString('en-IN')}</span>
+      <span style="font-size:10px;font-weight:600;color:${unavail?'#94A3B8':'#16A34A'}">${statusText}</span>
+    </label>`;
+  }).join('');
+  pinsEl.style.display = 'block';
+  gpMsRenderBasket(type);
+}
+
+function gpMsCbChange(cb, type){
+  const pin = String(cb.value);
+  if(cb.checked) gpMsBasket[type].add(pin);
+  else gpMsBasket[type].delete(pin);
+  // highlight row
+  cb.closest('label').style.background = cb.checked ? '#EEF3FF' : 'white';
+  gpMsRenderBasket(type);
+}
+
+function gpMsAll(type, selectAll){
+  const listEl = document.getElementById('gp-ms-list-'+type);
+  listEl.querySelectorAll('input[type=checkbox]:not(:disabled)').forEach(cb => {
+    cb.checked = selectAll;
+    const pin = String(cb.value);
+    if(selectAll) gpMsBasket[type].add(pin);
+    else gpMsBasket[type].delete(pin);
+    cb.closest('label').style.background = selectAll ? '#EEF3FF' : 'white';
+  });
+  gpMsRenderBasket(type);
+}
+
+function gpMsRenderBasket(type){
+  const basket = gpMsBasket[type];
+  const countEl   = document.getElementById('gp-ms-count-'+type);
+  const basketEl  = document.getElementById('gp-ms-basket-'+type);
+  const n = basket.size;
+  if(countEl) countEl.textContent = n + ' pin' + (n!==1?'s':'') + ' selected across all districts';
+
+  // update token total from basket size
+  if(true){
+    const {rate,slab} = gpRate(type, n||1);
+    const rGst = Math.round(rate*1.18);
+    const totalEl = document.getElementById('gp-total-'+type);
+    const hintEl  = document.getElementById('gp-rate-hint-'+type);
+    if(totalEl) totalEl.textContent = '₹'+(rGst*(n||1)).toLocaleString('en-IN');
+    if(hintEl){
+      if(type==='gp') hintEl.textContent = n>=5
+        ? '₹'+Math.round(slab.gpRate5*1.18).toLocaleString('en-IN')+'/pin (bulk)'
+        : '₹'+Math.round(slab.gpRate1*1.18).toLocaleString('en-IN')+'/pin · 5+ for bulk';
+      else hintEl.textContent = '₹'+Math.round(slab.sgpRate*1.18).toLocaleString('en-IN')+'/pin';
+    }
+    // sync income tab qty
+    const incSel = document.getElementById('inc-'+type+'-qty');
+    if(incSel && n>0) { incSel.value = Math.min(n, parseInt(incSel.options[incSel.options.length-1].value)); calculateIncome(); }
+  }
+
+  if(!basketEl) return;
+  if(n === 0){ basketEl.innerHTML=''; return; }
+
+  // group by state+district for display
+  const grouped = {};
+  basket.forEach(pin => {
+    const d = PAC_DB[pin] || {};
+    const key = [d.state||'?', d.district||'?'].join(' › ');
+    if(!grouped[key]) grouped[key] = [];
+    grouped[key].push(pin);
+  });
+
+  basketEl.innerHTML = Object.keys(grouped).sort().map(key =>
+    `<div style="margin-bottom:4px">
+      <div style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;padding:4px 10px;background:var(--bg)">${key}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;padding:6px 10px">
+        ${grouped[key].sort().map(p =>
+          `<span style="background:var(--soft-blue);color:var(--blue);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px">
+            ${p}
+            <span onclick="gpMsRemove('${type}','${p}')" style="cursor:pointer;color:var(--blue);font-size:13px;line-height:1">×</span>
+          </span>`
+        ).join('')}
+      </div>
+    </div>`
+  ).join('');
+}
+
+function gpMsRemove(type, pin){
+  gpMsBasket[type].delete(String(pin));
+  // uncheck in current list if visible
+  const listEl = document.getElementById('gp-ms-list-'+type);
+  if(listEl){
+    const cb = listEl.querySelector('input[value="'+pin+'"]');
+    if(cb){ cb.checked=false; cb.closest('label').style.background='white'; }
+  }
+  gpMsRenderBasket(type);
+}
+
+function gpMsClearBasket(type){
+  gpMsBasket[type].clear();
+  const listEl = document.getElementById('gp-ms-list-'+type);
+  if(listEl) listEl.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked=false; cb.closest('label').style.background='white'; });
+  gpMsRenderBasket(type);
+  const resultsEl = document.getElementById('gp-ms-results-'+type);
+  if(resultsEl) resultsEl.innerHTML='';
+}
+
+function gpMsCheck(type){
+  const basket = gpMsBasket[type];
+  const resultsEl = document.getElementById('gp-ms-results-'+type);
+  if(!basket.size){ resultsEl.innerHTML='<div class="info-note" style="margin-top:8px">Select at least one pin code first.</div>'; return; }
+  const pins = [...basket].sort();
+  let avail = [], booked = [];
+  pins.forEach(pin => {
+    const d = PAC_DB[pin]||{};
+    const isFP   = d.fp  && d.fp !='null';
+    const isGP   = d.gp  && d.gp !='null';
+    const isSGP  = d.sgp && d.sgp!='null';
+    const taken  = isFP || (type==='gp'&&isGP) || (type==='sgp'&&isSGP);
+    const pop = pacGetPinPop(pin)||0;
+    const loc = [d.district,d.state].filter(Boolean).join(', ');
+    const icon = isFP?'🔶':isGP?'🟡':isSGP?'🔵':'✅';
+    const statusText = isFP?'FP Booked':isGP?'GP Booked':isSGP?'SGP Booked':'Available';
+    const statusColor = taken?'#94A3B8':'#166534';
+    const row = `<div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:12px">
+      <div><strong>${pin}</strong>${loc?` <span style="color:var(--t3);font-size:10px">${loc}</span>`:''}${pop?` <span style="color:var(--t3);font-size:10px">· pop ${pop.toLocaleString('en-IN')}</span>`:''}
+      </div>
+      <span style="font-size:11px;font-weight:600;color:${statusColor}">${icon} ${statusText}</span>
+    </div>`;
+    taken ? booked.push(row) : avail.push(row);
+  });
+  const availPins = pins.filter(pin=>{
+    const d=PAC_DB[pin]||{};
+    return (!d.fp||d.fp==='null')&&(type==='gp'?(!d.gp||d.gp==='null'):(!d.sgp||d.sgp==='null'));
+  });
+  let html = `<div style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">
+    <div style="background:var(--navy);color:white;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;font-weight:700">Availability: ${pins.length} pin${pins.length>1?'s':''} checked</span>
+      <span style="font-size:11px;opacity:.7">${avail.length} available · ${booked.length} taken</span>
+    </div>`;
+  if(avail.length) html += `<div style="background:#F0FDF4;padding:4px 12px;font-size:10px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:.4px">✅ Available</div>${avail.join('')}`;
+  if(booked.length) html += `<div style="background:#FEF2F2;padding:4px 12px;font-size:10px;font-weight:700;color:#991B1B;text-transform:uppercase;letter-spacing:.4px">Already Booked</div>${booked.join('')}`;
+  html += `<div style="padding:10px 14px;background:var(--soft-blue);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <span style="font-size:12px;font-weight:700;color:var(--navy)">${availPins.length} pin${availPins.length!==1?'s':''} can be booked</span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="gpMsClearBasket('${type}')" style="padding:6px 14px;background:white;color:var(--t2);border:1px solid var(--border);border-radius:7px;font-size:11px;cursor:pointer">Clear All</button>
+      ${availPins.length ? `<button onclick="pacOpenGpBook('${type}','${availPins[0]}')" style="padding:6px 14px;background:var(--navy);color:white;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer">Book Now →</button>` : ''}
+    </div>
+  </div></div>`;
+  // Add individual book buttons per available pin
+  if(availPins.length > 1){
+    html += `<div style="margin-top:8px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <div style="background:var(--bg);padding:6px 12px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.4px">Book Individual Pins</div>
+      ${availPins.map(p => {
+        const d2=PAC_DB[p]||{};
+        const loc2=[d2.district,d2.state].filter(Boolean).join(', ');
+        return `<div style="padding:8px 12px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px">
+          <span><strong>${p}</strong>${loc2?` <span style="color:var(--t3);font-size:10px">${loc2}</span>`:''}</span>
+          <button onclick="pacOpenGpBook('${type}','${p}')" style="padding:5px 12px;background:var(--blue);color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">Book</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+  resultsEl.innerHTML = html;
+}
+// ─────────────────────────────────────────────────────────────────────────
+function incUpdateGpQty(type){
+  const sel=document.getElementById('inc-'+type+'-qty');
+  if(sel){ gpPinCount[type]=parseInt(sel.value)||1; }
+  // also sync GP/SGP tab dropdown if rendered
+  const tabSel=document.getElementById('gp-qty-'+type);
+  if(tabSel) tabSel.value=gpPinCount[type];
+  calculateIncome();
+}
 function calculateIncome(){
+  // Don't calculate if pin not yet selected (inc-body hidden)
+  const body=document.getElementById('inc-body');
+  if(body && body.style.display==='none') return;
   const s=_inc;
   const retail=Math.round(s.pop*s.retailPct/100);
   const total=Math.round(retail*(1+s.homeBase));
@@ -698,24 +1346,35 @@ function calculateIncome(){
     </div>`;
   }).join('');
 
-  // GP/SGP income cards
+  // GP/SGP income cards — 3-year view like franchise tier cards
   ['gp','sgp'].forEach(type=>{
-    const el=document.getElementById('gp-inc-'+type);
+    const el=document.getElementById('gp-inc-'+type+'-detail');
     if(!el) return;
     const {op,mp}=gpRate(type,gpPinCount[type]);
-    const yr=ym[_inc.selectedYear-1];
-    const onetime=Math.round(yr.net*op/100);
-    const monthly=Math.round(yr.net*mp/100/12);
+    const pins=gpPinCount[type];
+    const {rate}=gpRate(type,pins);
+    const token=Math.round(rate*1.18)*pins;
+    // compute 3-year income
+    const yrs=ym.map(m=>{
+      const onetime=Math.round(m.net*op/100);
+      const monthly=Math.round(m.net*mp/100/12);
+      return {onetime,monthly};
+    });
+    const tot3=yrs.reduce((a,b)=>a+b.onetime+b.monthly*12,0);
     el.innerHTML=`
-      <div style="font-size:10.5px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:6px">${type==='gp'?'🌱 Growth Partner':'⭐ Super Growth Partner'}</div>
-      <div style="font-size:9.5px;color:var(--text-secondary);margin-bottom:6px">Year ${_inc.selectedYear} · Current slab · ${op}% one-time / ${mp}% monthly</div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:11px">
-        <span>One-time on FP franchise fee</span><strong>${fc(onetime)}</strong>
+      <div style="font-size:9.5px;color:var(--t2);margin-bottom:8px">${op}% one-time · ${mp}% monthly · Token: ${fc(token)}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;text-align:center;margin-bottom:8px">
+        ${yrs.map((y,i)=>`<div style="background:rgba(0,0,0,.04);border-radius:6px;padding:6px 4px">
+          <div style="font-size:9px;color:var(--t3);margin-bottom:2px">Year ${i+1}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--navy)">${fc(y.onetime+y.monthly*12)}</div>
+          <div style="font-size:9px;color:var(--t3)">${fc(y.onetime)} + ${y.monthly>0?fc(y.monthly)+'/mo':'—'}</div>
+        </div>`).join('')}
       </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px">
-        <span>Monthly on FP gross commission</span><strong>${monthly>0?fc(monthly)+'/mo':'—'}</strong>
+      <div style="text-align:center;background:var(--navy);border-radius:6px;padding:6px;margin-bottom:6px">
+        <div style="font-size:9px;color:rgba(255,255,255,.6)">3-Year Total</div>
+        <div style="font-size:15px;font-weight:700;color:var(--yellow)">${fc(tot3)}</div>
       </div>
-      <div style="background:var(--amber-light);border-radius:5px;padding:6px 8px;font-size:10px;color:var(--amber-dark)">
+      <div style="background:#FFF8E1;border-radius:5px;padding:6px 8px;font-size:10px;color:var(--amber)">
         ⏳ Interim: ${type==='gp'?'25%':'12.5%'} of pin gross/mo while no FP · max 6 months
       </div>`;
   });
@@ -750,20 +1409,20 @@ function renderSummaryTable(ymParam){
   const net=totalGross-hem;
   const t=TIERS.find(t=>t.key===_inc.selectedTier)||TIERS[1];
   const fpShare=Math.round(net*t.share);
+  // Franchise share of listing & sponsorship (proportional to FP revenue share)
+  const fpListShare=Math.round(totalList*t.share*(1-_inc.hemadriPct/100));
+  const fpSpShare=Math.round(totalSp*t.share*(1-_inc.hemadriPct/100));
   const mktg=t.marketing*12;
   const netFp=fpShare-mktg;
   const avgSubs=Math.round(_subs.slice(yi*12,y*12).reduce((a,b)=>a+b,0)/12);
 
   tbody.innerHTML=[
-    ['Avg paid listings/mo',avgSubs.toLocaleString('en-IN')+' listings',false,''],
-    ['Listing revenue (LMI Star × avg price)',fc(totalList),false,''],
-    ['Sponsorship revenue',fc(totalSp),false,''],
-    ['Total company gross revenue',fc(totalGross),true,''],
-    ['Less: Hemadri CTO share (25% of invoice)','− '+fc(hem),false,'#991B1B'],
-    ['Net available for partner shares',fc(net),true,'#166534'],
-    ['FP gross share ('+Math.round(t.share*100)+'% — '+t.name+')',fc(fpShare),false,'var(--lmi-blue)'],
-    ['Less: Min. marketing ('+fc(t.marketing)+'/mo × 12)','− '+fc(mktg),false,'#92400E'],
-    ['FP net income — Year '+y,fc(netFp),true,netFp>=0?'#166534':'#991B1B'],
+    ['Avg paid listings/mo', avgSubs.toLocaleString('en-IN')+' listings', false, ''],
+    ['Listing revenue — your share ('+Math.round(t.share*100)+'%)', fc(fpListShare), false, ''],
+    ['Sponsorship revenue — your share ('+Math.round(t.share*100)+'%)', fc(fpSpShare), false, ''],
+    ['FP gross share ('+Math.round(t.share*100)+'% · '+t.name+')', fc(fpShare), true, 'var(--lmi-blue)'],
+    ['Less: Min. marketing ('+fc(t.marketing)+'/mo × 12)', '− '+fc(mktg), false, '#92400E'],
+    ['FP net income — Year '+y, fc(netFp), true, netFp>=0?'#166534':'#991B1B'],
   ].map(function(r){var l=r[0],v=r[1],bold=r[2],color=r[3];var bs=bold?'font-weight:700':'';var cs=color?'color:'+color:'';return '<tr><td style="'+bs+'">'+l+'</td><td style="text-align:right;'+bs+';'+cs+'">'+v+'</td></tr>';}).join('');
 }
 
@@ -800,7 +1459,7 @@ function pacDistChange(sel,type,idx){
   const row=sel.closest('.pac-row'), st=row.querySelector('.pac-state').value, dist=sel.value;
   const pinSel=row.querySelector('.pac-pin');
   pinSel.innerHTML='<option value="">Pin code</option>'; pinSel.disabled=true;
-  if(!st||!dist||!PINCODE_DATA[st]?.[dist]) return;
+  if(!st||!dist||!PINCODE_DATA[st] && PINCODE_DATA[st][dist]) return;
   const [,,pins]=PINCODE_DATA[st][dist];
   pins.sort((a,b)=>a[0]-b[0]).forEach(([p,pop])=>{
     const d=PAC_DB[p]||{};
@@ -863,7 +1522,7 @@ function pacCheck(type){
       status=`<span class="pac-status-badge badge-avail">✅ Available</span>`;
       if(type==='fp'){
         const sugTier=pop>200000?'gold':pop>80000?'silver':'bronze';
-        const tn=TIERS.find(t=>t.key===sugTier)?.name||'';
+        const tn=(TIERS.find(t=>t.key===sugTier)||{name:''}).name||'';
         action=`<button class="pac-check-btn" style="padding:4px 10px;font-size:11px" onclick="pacOpenBook('${pin}','${sugTier}')">Book Now → ${tn}</button>`;
       } else {
         action=`<button class="pac-check-btn" style="padding:4px 10px;font-size:11px;background:var(--lmi-blue)" onclick="pacOpenGpBook('${type}','${pin}')">Book as ${type.toUpperCase()}</button>`;
@@ -908,8 +1567,20 @@ function pacCloseModal(){ document.getElementById('pac-modal').classList.remove(
 function buildSeqModal(){
   const f=_pacFlow;
   const loc=[f.d.district,f.d.state].filter(Boolean).join(', ');
-  let sn=0, sHtml='';
+  const isGP = f.type==='gp' || f.type==='sgp';
 
+  // Compute amount to pay
+  function getAmount(){
+    if(isGP){
+      const {rate}=gpRate(f.type,gpPinCount[f.type]||1);
+      return Math.round(rate*1.18); // per pin, one pin at a time
+    }
+    const t=f.tierObj; if(!t) return 0;
+    const fee=f.hasDisc?f.discFee:t.fee;
+    return Math.round(fee*0.05*1.18);
+  }
+
+  let sHtml='', sn=0;
   function sec(title,body,active=false){
     sn++;
     return `<div class="seq-section ${active?'active':'locked'}" id="seq-${sn}">
@@ -918,81 +1589,168 @@ function buildSeqModal(){
     </div>`;
   }
 
-  // Section order depends on flow
   if(f.referral){
     sHtml+=sec('Verify referral code',`
       <div style="background:#EFF6FF;border-radius:6px;padding:6px 10px;margin-bottom:8px;font-size:11px">
         ${f.partnerType==='SGP'?'🔵':'🟡'} <strong>${f.partnerType}:</strong> ${f.partnerName}<br>
-        <span style="font-size:9.5px;color:var(--text-secondary)">You will be referred by this ${f.partnerType} once verified.</span>
+        <span style="font-size:9.5px;color:var(--t2)">You will be referred by this ${f.partnerType} once verified.</span>
       </div>
       <div style="display:flex;gap:6px;max-width:300px;margin-bottom:6px">
         <input type="text" id="ref-code" class="pac-form-field" placeholder="Referral code" style="flex:1;margin:0">
-        <button onclick="verifyRef()" style="padding:5px 12px;background:var(--lmi-dark-blue);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer">Verify →</button>
+        <button onclick="verifyRef()" style="padding:5px 12px;background:var(--navy);color:white;border:none;border-radius:6px;font-size:11px;cursor:pointer">Verify →</button>
       </div>
-      <div id="ref-status" style="font-size:10.5px;color:var(--text-tertiary);margin-bottom:6px">Enter code and click Verify</div>
+      <div id="ref-status" style="font-size:10.5px;color:var(--t3);margin-bottom:6px">Enter code and click Verify</div>
       <button class="seq-next-btn" id="ref-btn" disabled onclick="nextStep(1)">Continue →</button>`,true);
   }
 
-  sHtml+=sec('Select franchise plan',`
-    ${!f.waitlist?`<select id="seq-plan" class="pac-form-field" onchange="updateSeqFee()">
-      ${TIERS.map(t=>`<option value="${t.key}">${t.name} — ${Math.round(t.share*100)}% · ${fc(t.fee)}</option>`).join('')}
-    </select>
-    <div id="seq-fee" style="padding:7px;background:var(--lmi-soft-blue);border-radius:6px;font-size:11px;margin-bottom:8px"></div>`
-    :'<div class="info-note">Joining waitlist — no payment required now.</div>'}
-    <button class="seq-next-btn" onclick="nextStep(${sn})">Select Plan →</button>`,!f.referral);
+  if(!isGP){
+    sHtml+=sec('Select franchise plan',`
+      ${!f.waitlist?`<select id="seq-plan" class="pac-form-field" onchange="updateSeqFee()">
+        ${TIERS.map(t=>`<option value="${t.key}">${t.name} — ${Math.round(t.share*100)}% · ${fc(t.fee)}</option>`).join('')}
+      </select>
+      <div id="seq-fee" style="padding:7px;background:var(--soft-blue);border-radius:6px;font-size:11px;margin-bottom:8px"></div>`
+      :'<div class="info-note">Joining waitlist — no payment required now.</div>'}
+      <button class="seq-next-btn" onclick="nextStep(${sn})">Select Plan →</button>`,!f.referral);
 
-  sHtml+=sec('Age & gender — discount eligibility',`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-      <div><label style="font-size:10px;color:var(--text-tertiary);display:block;margin-bottom:3px">Age Group</label>
-        <select id="seq-age" class="pac-form-field" style="margin:0" onchange="updateDiscount()">
-          <option value="under30">Under 30 years</option>
-          <option value="30to49">30–49 years</option>
-          <option value="50plus" selected>50+ years</option>
-        </select>
+    sHtml+=sec('Age & gender — discount eligibility',`
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div><label style="font-size:10px;color:var(--t3);display:block;margin-bottom:3px">Age Group</label>
+          <select id="seq-age" class="pac-form-field" style="margin:0" onchange="updateDiscount()">
+            <option value="under30">Under 30 years</option>
+            <option value="30to49">30–49 years</option>
+            <option value="50plus" selected>50+ years</option>
+          </select>
+        </div>
+        <div><label style="font-size:10px;color:var(--t3);display:block;margin-bottom:3px">Gender</label>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <label><input type="radio" name="seq-gen" value="male" checked onchange="updateDiscount()"> Male</label>
+            <label><input type="radio" name="seq-gen" value="female" onchange="updateDiscount()"> Female</label>
+          </div>
+        </div>
       </div>
-      <div><label style="font-size:10px;color:var(--text-tertiary);display:block;margin-bottom:3px">Gender</label>
-        <div style="display:flex;gap:10px;margin-top:8px">
-          <label><input type="radio" name="seq-gen" value="male" checked onchange="updateDiscount()"> Male</label>
-          <label><input type="radio" name="seq-gen" value="female" onchange="updateDiscount()"> Female</label>
+      <div id="seq-discount" style="font-size:11px;padding:6px 8px;background:#F0FDF4;border-radius:5px;margin-bottom:8px;color:#166534">ℹ️ Select age & gender above</div>
+      <button class="seq-next-btn" onclick="nextStep(${sn})">Confirm & Continue →</button>`);
+  }
+
+  // Partner type label for GP/SGP
+  const partnerLabel = f.type==='gp'?'Growth Partner':f.type==='sgp'?'Super Growth Partner':'Franchise Partner';
+
+  sHtml+=sec('Your details',`
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <input type="text" id="seq-name"  class="pac-form-field" placeholder="Full name *" style="margin:0">
+        <input type="text" id="seq-phone" class="pac-form-field" placeholder="Mobile number *" style="margin:0">
+      </div>
+      <input type="email" id="seq-email" class="pac-form-field" placeholder="Email address *" style="margin:0">
+      <input type="text"  id="seq-addr"  class="pac-form-field" placeholder="Full address *" style="margin:0">
+      <!-- GST details — optional, shown on toggle -->
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;padding:8px;background:var(--bg);border-radius:8px">
+        <input type="checkbox" id="seq-gst-toggle" onchange="toggleGstFields()" style="width:16px;height:16px;accent-color:var(--blue)">
+        <span>I want to provide GST details (optional)</span>
+      </label>
+      <div id="seq-gst-fields" style="display:none;border:1px solid var(--border);border-radius:8px;padding:10px;background:white">
+        <div style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:8px">GST Details (optional)</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input type="text" id="seq-firm"  class="pac-form-field" placeholder="Firm / Business name" style="margin:0">
+          <input type="text" id="seq-gstin" class="pac-form-field" placeholder="GSTIN (15 characters)" maxlength="15" style="margin:0;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
         </div>
       </div>
     </div>
-    <div id="seq-discount" style="font-size:11px;padding:6px 8px;background:#F0FDF4;border-radius:5px;margin-bottom:8px;color:#166534">ℹ️ Select age & gender above</div>
-    <button class="seq-next-btn" onclick="nextStep(${sn})">Confirm & Continue →</button>`);
-
-  sHtml+=sec('Your details',`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-      <input type="text" id="seq-name" class="pac-form-field" placeholder="Full name (as per Aadhaar)">
-      <input type="text" id="seq-phone" class="pac-form-field" placeholder="+91 XXXXX XXXXX">
-      <input type="email" id="seq-email" class="pac-form-field" placeholder="Email address" style="grid-column:span 2">
-      <input type="text" id="seq-city" class="pac-form-field" placeholder="City / Area">
-      <input type="text" id="seq-yrs" class="pac-form-field" placeholder="Years in this pin code">
-      <input type="text" id="seq-aadhaar" class="pac-form-field" placeholder="12-digit Aadhaar" maxlength="12">
-      <button onclick="sendOtp()" style="padding:6px 10px;background:var(--lmi-dark-blue);color:white;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit">Send OTP (Digio)</button>
-    </div>
-    <div id="seq-otp-area" style="margin-top:6px"></div>
-    <button class="seq-next-btn" id="seq-det-btn" disabled onclick="nextStep(${sn})">Review & ${f.waitlist?'Submit':'Pay'} →</button>`);
+    <button class="seq-next-btn" id="seq-det-btn" style="margin-top:10px" onclick="validateDetails(${sn})">Review & Pay →</button>
+  `,!f.referral&&isGP);
 
   const paySn=sn+1;
   sHtml+=sec(f.waitlist?'Waitlist summary':'Payment summary',`
     <div id="seq-pay-body"></div>
-    <div style="display:flex;gap:8px;margin-top:10px">
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
       <button class="pac-cancel-btn" onclick="pacCloseModal()">Cancel</button>
-      <button class="pac-submit-btn" onclick="finalSubmit()">${f.waitlist?'📋 Join Waitlist':'💳 Pay & Reserve Pin Code'}</button>
+      <button class="pac-submit-btn" id="seq-pay-btn" onclick="initiatePayment()">${f.waitlist?'📋 Join Waitlist':'💳 Pay & Reserve →'}</button>
     </div>`);
 
   _pacFlow._paySn=paySn;
 
   document.getElementById('pac-modal-body').innerHTML=`
-    <div class="pac-modal-title">${f.waitlist?'📋 Join Waitlist':'Book as Franchise Partner'}</div>
-    <div style="background:var(--bg-secondary);border-radius:6px;padding:6px 10px;margin-bottom:10px;font-size:11.5px">
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px">
+      ${f.waitlist?'📋 Join Waitlist':isGP?'Book as '+partnerLabel:'Book as Franchise Partner'}
+    </div>
+    <div style="background:var(--soft-blue);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px">
       📍 <strong>${f.pin}</strong>${loc?' — '+loc:''}${f.pop?' · Pop: '+f.pop.toLocaleString('en-IN'):''}
     </div>
     ${sHtml}
-    <div style="text-align:right;margin-top:6px"><button class="pac-cancel-btn" onclick="pacCloseModal()">Cancel</button></div>`;
+    <div style="text-align:right;margin-top:8px"><button class="pac-cancel-btn" onclick="pacCloseModal()">✕ Close</button></div>`;
   document.getElementById('pac-modal').classList.add('open');
-  setTimeout(()=>{ updateSeqFee(); updateDiscount(); },50);
+  setTimeout(()=>{ if(!isGP){updateSeqFee();updateDiscount();} },50);
 }
+
+function toggleGstFields(){
+  const cb=document.getElementById('seq-gst-toggle');
+  const fields=document.getElementById('seq-gst-fields');
+  if(fields) fields.style.display=cb&&cb.checked?'block':'none';
+}
+
+function validateDetails(sn){
+  const name=(document.getElementById('seq-name')||{value:''}).value.trim();
+  const phone=(document.getElementById('seq-phone')||{value:''}).value.trim();
+  const email=(document.getElementById('seq-email')||{value:''}).value.trim();
+  const addr=(document.getElementById('seq-addr')||{value:''}).value.trim();
+  if(!name||!phone||!email||!addr){
+    alert('Please fill in Name, Mobile, Email, and Address.');return;
+  }
+  if(!/^[0-9]{10}$/.test(phone.replace(/[\s+]/g,'').slice(-10))){
+    alert('Enter a valid 10-digit mobile number.');return;
+  }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+    alert('Enter a valid email address.');return;
+  }
+  _pacFlow.name=name; _pacFlow.phone=phone; _pacFlow.email=email; _pacFlow.addr=addr;
+  _pacFlow.firm=(document.getElementById('seq-firm')||{value:''}).value.trim();
+  _pacFlow.gstin=(document.getElementById('seq-gstin')||{value:''}).value.trim();
+  nextStep(sn);
+}
+
+function initiatePayment(){
+  const f=_pacFlow;
+  if(f.waitlist){ finalSubmit(); return; }
+  // Compute amount in paise
+  let amountPaise=0;
+  if(f.type==='gp'||f.type==='sgp'){
+    const {rate}=gpRate(f.type,1); // single pin token
+    amountPaise=Math.round(rate*1.18)*100;
+  } else {
+    const t=f.tierObj; if(!t){alert('Select a plan first.');return;}
+    const fee=f.hasDisc?f.discFee:t.fee;
+    amountPaise=Math.round(fee*0.05*1.18)*100;
+  }
+  const options={
+    key: LMI_RZP_KEY,
+    amount: amountPaise,
+    currency: 'INR',
+    name: 'List My India™',
+    description: 'Token — Pin Code ' + f.pin,
+    image: 'https://listmyindia.com/favicon.ico',
+    prefill: { name:f.name, email:f.email, contact:f.phone },
+    notes: {
+      pin_code: f.pin,
+      partner_type: f.type,
+      district: f.d.district||'',
+      state: f.d.state||'',
+      firm: f.firm||'',
+      gstin: f.gstin||'',
+      address: f.addr||''
+    },
+    theme: { color: '#0046BF' },
+    handler: function(response){
+      f.rzpPaymentId = response.razorpay_payment_id;
+      f.rzpOrderId   = response.razorpay_order_id||'';
+      finalSubmit();
+    },
+    modal: { ondismiss: function(){ document.getElementById('seq-pay-btn').disabled=false; } }
+  };
+  document.getElementById('seq-pay-btn').disabled=true;
+  const rzp=new Razorpay(options);
+  rzp.open();
+}
+
 
 function nextStep(sn){
   const cur=document.getElementById('seq-'+sn);
@@ -1003,7 +1761,7 @@ function nextStep(sn){
     if(nxt.id==='seq-'+_pacFlow._paySn) buildPaySummary();}
 }
 function verifyRef(){
-  const code=document.getElementById('ref-code')?.value?.trim();
+  const code=(document.getElementById('ref-code')||{value:''}).value.trim();
   const st=document.getElementById('ref-status'), btn=document.getElementById('ref-btn');
   if(PAC_VALID.includes(code)){
     if(st) st.innerHTML='<span style="color:#166534;font-weight:700">✅ Verified!</span>';
@@ -1014,7 +1772,7 @@ function verifyRef(){
   }
 }
 function updateSeqFee(){
-  const k=document.getElementById('seq-plan')?.value; if(!k||_pacFlow?.waitlist) return;
+  const k=(document.getElementById('seq-plan')||{}).value; if(!k||(_pacFlow&&_pacFlow.waitlist)) return;
   const t=TIERS.find(t=>t.key===k); if(!t) return;
   _pacFlow.tierKey=k; _pacFlow.tierObj=t;
   const booking=Math.round(t.fee*0.05*1.18);
@@ -1025,9 +1783,9 @@ function updateSeqFee(){
   _pacFlow.booking=booking;
 }
 function updateDiscount(){
-  const age=document.getElementById('seq-age')?.value||'50plus';
-  const gender=document.querySelector('input[name="seq-gen"]:checked')?.value||'male';
-  const t=_pacFlow?.tierObj||TIERS[0];
+  const age=(document.getElementById('seq-age')||{value:'50plus'}).value||'50plus';
+  const gender=(document.querySelector('input[name="seq-gen"]:checked')||{value:'male'}).value||'male';
+  const t=(_pacFlow&&_pacFlow.tierObj)||TIERS[0];
   const disc=(age==='under30'&&t.youngOk)||(gender==='female'&&age!=='50plus'&&t.womenOk);
   const el=document.getElementById('seq-discount');
   if(el){
@@ -1039,11 +1797,11 @@ function updateDiscount(){
   }
 }
 function sendOtp(){
-  const a=document.getElementById('seq-aadhaar')?.value;
+  const a=(document.getElementById('seq-aadhaar')||{}).value;
   if(!a||a.length!==12){alert('Enter valid 12-digit Aadhaar');return;}
-  _pacFlow.aadhaar=a; _pacFlow.name=document.getElementById('seq-name')?.value||'';
-  _pacFlow.phone=document.getElementById('seq-phone')?.value||'';
-  _pacFlow.email=document.getElementById('seq-email')?.value||'';
+  _pacFlow.aadhaar=a; _pacFlow.name=(document.getElementById('seq-name')||{value:''}).value||'';
+  _pacFlow.phone=(document.getElementById('seq-phone')||{value:''}).value||'';
+  _pacFlow.email=(document.getElementById('seq-email')||{value:''}).value||'';
   const area=document.getElementById('seq-otp-area');
   if(area) area.innerHTML=`<div style="display:flex;gap:6px;align-items:center;margin-top:4px">
     <input type="text" id="seq-otp" placeholder="OTP (demo: any code)" maxlength="12" style="padding:4px 8px;border:1px solid var(--border-secondary);border-radius:4px;width:160px;font-size:11px">
@@ -1052,7 +1810,7 @@ function sendOtp(){
   </div>`;
 }
 function verifyOtp(){
-  const otp=document.getElementById('seq-otp')?.value;
+  const otp=(document.getElementById('seq-otp')||{}).value;
   if(!otp){alert('Enter OTP');return;}
   document.getElementById('seq-otp-area').innerHTML+='<div style="color:#166534;font-size:10.5px;font-weight:700;margin-top:4px">✅ Aadhaar verified (demo)</div>';
   _pacFlow.aadhaarOk=true;
@@ -1061,7 +1819,7 @@ function verifyOtp(){
 }
 function buildPaySummary(){
   const f=_pacFlow; const t=f.tierObj;
-  const fee=f.hasDisc?f.discFee:(t?.fee||0);
+  const fee=f.hasDisc?f.discFee:((t&&t.fee)||0);
   const booking=Math.round(fee*0.05*1.18);
   const el=document.getElementById('seq-pay-body');
   if(!el) return;
@@ -1075,24 +1833,129 @@ function buildPaySummary(){
   </div>
   ${f.waitlist?'<div class="info-note">No payment now. Team will contact you when a slot opens.</div>':''}`;
 }
+
+// ═══ LIVE PIN STATUS ═════════════════════════════════════════════════════
+// Instantly update PAC_DB in memory after a booking (no page reload needed)
+function liveUpdatePacDb(pin, type, name){
+  if(!PAC_DB[pin]) PAC_DB[pin]={fp:null,gp:null,sgp:null};
+  if(type==='fp')       PAC_DB[pin].fp  = name||'Reserved';
+  else if(type==='gp')  PAC_DB[pin].gp  = name||'Reserved';
+  else if(type==='sgp') PAC_DB[pin].sgp = name||'Reserved';
+
+  // Re-render any visible checkbox list that contains this pin
+  ['gp','sgp'].forEach(t=>{
+    const listEl = document.getElementById('gp-ms-list-'+t);
+    if(!listEl) return;
+    const lbl = listEl.querySelector('input[value="'+pin+'"]');
+    if(!lbl) return;
+    const row  = lbl.closest('label');
+    if(!row) return;
+    // Mark as taken
+    lbl.checked = false; lbl.disabled = true;
+    gpMsBasket[t].delete(String(pin));
+    row.style.opacity = '0.5'; row.style.cursor = 'not-allowed';
+    const statusSpan = row.querySelectorAll('span');
+    if(statusSpan.length) statusSpan[statusSpan.length-1].textContent = type==='fp'?'FP Booked':type==='gp'?'GP Booked':'SGP Booked';
+  });
+
+  // Update home stats — Pins Booked counter
+  const booked = Object.values(PAC_DB).filter(d=>d.fp&&d.fp!='null').length;
+  document.querySelectorAll('.stat-chip .num').forEach((el,i)=>{
+    if(i===0) el.textContent = booked + '+'; // Pins Booked is first stat chip
+  });
+}
+
+// Fetch live bookings from Google Apps Script on page load
+function loadLiveBookings(){
+  if(!LMI_GAS_URL || LMI_GAS_URL.includes('YOUR_SCRIPT_ID')) return;
+  fetch(LMI_GAS_URL + '?action=list')
+    .then(r=>r.json())
+    .then(data=>{
+      if(!data||!data.bookings) return;
+      data.bookings.forEach(b=>{
+        const pin = String(b.pin||'');
+        if(!pin) return;
+        if(!PAC_DB[pin]) PAC_DB[pin]={fp:null,gp:null,sgp:null,district:b.district||'',state:b.state||''};
+        const t = (b.partner_type||'fp').toLowerCase();
+        if(t==='fp')       PAC_DB[pin].fp  = b.name||'Reserved';
+        else if(t==='gp')  PAC_DB[pin].gp  = b.name||'Reserved';
+        else if(t==='sgp') PAC_DB[pin].sgp = b.name||'Reserved';
+      });
+      // Update home stats
+      const booked = Object.values(PAC_DB).filter(d=>d.fp&&d.fp!='null').length;
+      document.querySelectorAll('.stat-chip .num').forEach((el,i)=>{
+        if(i===0) el.textContent = booked + '+';
+      });
+      console.log('[LMI] Live bookings loaded:', data.bookings.length, 'records');
+    })
+    .catch(()=>{}); // silently fail if offline
+}
+// ═════════════════════════════════════════════════════════════════════════
 function finalSubmit(){
   const f=_pacFlow, t=f.tierObj;
+
+  // --- POST to Google Apps Script (Sheets + Email) ---
+  const payload={
+    pin: f.pin,
+    district: f.d.district||'',
+    state: f.d.state||'',
+    population: f.pop||'',
+    partner_type: f.type||'fp',
+    plan: t?t.name:'',
+    plan_share: t?Math.round(t.share*100)+'%':'',
+    name: f.name||'',
+    phone: f.phone||'',
+    email: f.email||'',
+    address: f.addr||'',
+    firm: f.firm||'',
+    gstin: f.gstin||'',
+    rzp_payment_id: f.rzpPaymentId||'',
+    rzp_order_id: f.rzpOrderId||'',
+    amount_paid: f.rzpPaymentId?(()=>{
+      if(f.type==='gp'||f.type==='sgp'){const {rate}=gpRate(f.type,1);return Math.round(rate*1.18);}
+      const fee=f.hasDisc?f.discFee:(t?t.fee:0);return Math.round(fee*0.05*1.18);
+    })():0,
+    referred_by: f.refVerified?(f.partnerName+' ('+f.refCode+')') : '',
+    waitlist: f.waitlist?'Yes':'No',
+    timestamp: new Date().toISOString()
+  };
+
+  if(LMI_GAS_URL){
+    fetch(LMI_GAS_URL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    }).catch(()=>{});
+  }
+  // Instantly update in-memory status so page reflects booking without reload
+  if(!f.waitlist){
+    liveUpdatePacDb(f.pin, f.type, f.name||'Reserved');
+  }
+
+  // Show confirmation UI
   document.getElementById('pac-modal-body').innerHTML=`
-    <div style="text-align:center;padding:20px">
-      <div style="font-size:28px;margin-bottom:8px">${f.waitlist?'📋':'✅'}</div>
-      <div style="font-size:15px;font-weight:700;color:${f.waitlist?'var(--lmi-dark-blue)':'#166534'};margin-bottom:6px">
-        ${f.waitlist?'Waitlist request submitted!':'Booking confirmed!'}
+    <div style="text-align:center;padding:24px 16px">
+      <div style="font-size:40px;margin-bottom:8px">${f.waitlist?'📋':'🎉'}</div>
+      <div style="font-size:16px;font-weight:700;color:${f.waitlist?'var(--navy)':'#166534'};margin-bottom:6px">
+        ${f.waitlist?'Waitlist request submitted!':'Payment successful — Pin reserved!'}
       </div>
-      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:14px">
-        ${f.waitlist?'Our team will contact you when a slot opens for pin '+f.pin+'.':'Our team will contact you within 24 hours to complete documentation and payment.'}
+      <div style="font-size:12px;color:var(--t2);margin-bottom:16px;line-height:1.6">
+        ${f.waitlist
+          ?'Our team will contact you when a slot opens for pin '+f.pin+'.'
+          :'Confirmation sent to <strong>'+f.email+'</strong>. Our team will reach out within 24 hours.'}
       </div>
-      <div style="background:var(--lmi-soft-blue);border-radius:8px;padding:10px;text-align:left;font-size:11.5px;margin-bottom:14px">
-        <div><strong>Pin:</strong> ${f.pin}${[f.d.district,f.d.state].filter(Boolean).length?' · '+[f.d.district,f.d.state].filter(Boolean).join(', '):''}</div>
-        ${t?`<div><strong>Plan:</strong> ${t.name} · ${Math.round(t.share*100)}% revenue share</div>`:''}
-        ${f.name?`<div><strong>Applicant:</strong> ${f.name}</div>`:''}
-        ${f.refVerified?`<div><strong>Referred by:</strong> ${f.partnerName} (${f.partnerType})</div>`:''}
+      <div style="background:var(--soft-blue);border-radius:10px;padding:12px 14px;text-align:left;font-size:12px;margin-bottom:16px;line-height:1.9">
+        <div><strong>📍 Pin:</strong> ${f.pin}${[f.d.district,f.d.state].filter(Boolean).join(', ')?(' · '+[f.d.district,f.d.state].filter(Boolean).join(', ')):''}</div>
+        ${t?'<div><strong>📦 Plan:</strong> '+t.name+' · '+Math.round(t.share*100)+'% revenue share</div>':''}
+        ${f.name?'<div><strong>👤 Applicant:</strong> '+f.name+'</div>':''}
+        ${f.rzpPaymentId?'<div><strong>💳 Payment ID:</strong> '+f.rzpPaymentId+'</div>':''}
+        ${f.refVerified?'<div><strong>🤝 Referred by:</strong> '+f.partnerName+' ('+f.partnerType+')</div>':''}
       </div>
-      <button class="pac-submit-btn" onclick="pacCloseModal()">Close</button>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:14px">
+        A copy of this confirmation has been emailed to ${f.email} and our team.
+      </div>
+      <button class="pac-submit-btn" onclick="pacCloseModal()" style="width:100%">Close</button>
     </div>`;
 }
 
@@ -1102,28 +1965,65 @@ function finalSubmit(){
 function incStateChange(){
   const st=document.getElementById('inc-state').value;
   const dist=document.getElementById('inc-dist'), pin=document.getElementById('inc-pin');
-  dist.innerHTML='<option value="">District</option>'; pin.innerHTML='<option value="">Pin code</option>';
+  dist.innerHTML='<option value="">District</option>'; pin.innerHTML='<option value="">Pin Code</option>';
   dist.disabled=true; pin.disabled=true;
+  dist.style.background='rgba(255,255,255,.08)'; dist.style.color='rgba(255,255,255,.5)';
+  pin.style.background='rgba(255,255,255,.08)'; pin.style.color='rgba(255,255,255,.5)';
   if(!st||!PINCODE_DATA[st]) return;
-  Object.keys(PINCODE_DATA[st]).sort().forEach(d=>dist.innerHTML+=`<option value="${d}">${d}</option>`);
+  Object.keys(PINCODE_DATA[st]).sort().forEach(d=>dist.innerHTML+=`<option value="${d}" style="background:#05132D">${d}</option>`);
   dist.disabled=false;
+  dist.style.background='rgba(255,255,255,.15)'; dist.style.color='white';
+  // hide body if pin re-chosen from scratch
+  const body=document.getElementById('inc-body'); if(body) body.style.display='none';
+  const sum=document.getElementById('inc-pin-summary'); if(sum) sum.style.display='none';
 }
 function incDistChange(){
   const st=document.getElementById('inc-state').value, dist=document.getElementById('inc-dist').value;
   const pin=document.getElementById('inc-pin');
-  pin.innerHTML='<option value="">Pin code</option>'; pin.disabled=true;
-  if(!st||!dist||!PINCODE_DATA[st]?.[dist]) return;
+  pin.innerHTML='<option value="">Pin Code</option>'; pin.disabled=true;
+  pin.style.background='rgba(255,255,255,.08)'; pin.style.color='rgba(255,255,255,.5)';
+  if(!st||!dist||!PINCODE_DATA[st] && PINCODE_DATA[st][dist]) return;
   const [,,pins]=PINCODE_DATA[st][dist];
-  pins.sort((a,b)=>a[0]-b[0]).forEach(([p,pop])=>pin.innerHTML+=`<option value="${p}">${p} (pop: ${pop.toLocaleString('en-IN')})</option>`);
+  pins.sort((a,b)=>a[0]-b[0]).forEach(([p,pop])=>pin.innerHTML+=`<option value="${p}" style="background:#05132D">${p} — pop ${pop.toLocaleString('en-IN')}</option>`);
   pin.disabled=false;
+  pin.style.background='rgba(255,255,255,.15)'; pin.style.color='white';
 }
 function incPinChange(){
-  const pin=document.getElementById('inc-pin').value; if(!pin) return;
+  const pinSel=document.getElementById('inc-pin');
+  const pin=(pinSel&&pinSel.value); if(!pin) return;
   const pop=pacGetPinPop(pin);
-  if(pop){ _inc.pop=pop;
-    const sl=document.querySelector('input[oninput*="pop"]'); if(sl) sl.value=pop;
-    const lbl=document.getElementById('sv-pop'); if(lbl) lbl.textContent=pop.toLocaleString('en-IN');
-    calculateIncome(); }
+  if(!pop) return;
+
+  // Reset population to this pin's actual value; keep all other sliders as-is
+  _inc.pop=pop;
+  // update population slider by finding it via its oninput attribute safely
+  document.querySelectorAll('input[type=range]').forEach(sl=>{
+    if((sl.getAttribute('oninput')||'').includes("'pop'")) sl.value=pop;
+  });
+  const popLbl=document.getElementById('sv-pop');
+  if(popLbl) popLbl.textContent=pop.toLocaleString('en-IN');
+
+  // Show pin summary chip
+  const summary=document.getElementById('inc-pin-summary');
+  const pinLabel=document.getElementById('inc-pin-label');
+  const popLabel=document.getElementById('inc-pop-label');
+  if(summary){ summary.style.display='block'; }
+  if(pinLabel){ pinLabel.textContent=pin+' · '+
+    ((document.getElementById('inc-dist')||{value:''}).value||'')+', '+
+    ((document.getElementById('inc-state')||{value:''}).value||''); }
+  if(popLabel){ popLabel.textContent='Population: '+pop.toLocaleString('en-IN'); }
+
+  // Style dropdowns as active
+  ['inc-state','inc-dist','inc-pin'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.style.background='rgba(255,255,255,.18)'; el.style.color='white'; }
+  });
+
+  // Reveal income body
+  const body=document.getElementById('inc-body');
+  if(body){ body.style.display='block'; }
+
+  calculateIncome();
 }
 
 // ────────────────────────────────────────────────────
@@ -1161,7 +2061,7 @@ const FS=[
     {id:'q15',text:'Financial runway (months you can sustain without income)',hint:'Bronze breakeven ~Month 4–5 · Silver ~Month 5 · Gold ~Month 6',type:'radio',options:[{t:'12+ months',s:3},{t:'6–12 months',s:2},{t:'3–6 months',s:1},{t:'Under 3 months',s:0,warn:true,flag:'Short runway — discuss realistic breakeven before committing'}]},
     {id:'q16',text:'Comfort with door-to-door / cold approach sales',type:'radio',options:[{t:'Very comfortable — extensive experience',s:3},{t:'Comfortable',s:2},{t:'Somewhat uncomfortable',s:1},{t:'Not comfortable',s:0,warn:true,flag:'Cold sales discomfort — core FP activity'}]},
     {id:'q17',text:'Primary motivation for joining List My India™',type:'radio',options:[{t:'Long-term business ownership & wealth creation',s:3},{t:'Supplemental income with low investment',s:2},{t:'Recommended by someone — genuinely exploring',s:1},{t:'Looking for any franchise opportunity',s:0}]},
-    {id:'q18',text:'Referral & 5% Amazon voucher programme awareness',hint:'5% Amazon voucher paid to first referring stakeholder only — strictly one per business, no exceptions',type:'radio',options:[{t:'Yes — will actively use referral code for every paid listing',s:3,flag:'Referral programme: active usage expected ✅'},{t:'Understood — will use when possible',s:2},{t:'Not fully clear — need more info',s:1},{t:'Not aware of this',s:0}]},
+    {id:'q18',text:'Referral programme awareness',hint:'Earn 1 month plan value for every business you personally refer — paid once on their first subscription',type:'radio',options:[{t:'Yes — will actively use my referral code',s:3,flag:'Referral programme: active usage expected ✅'},{t:'Understood — will use when possible',s:2},{t:'Not fully clear — need more info',s:1},{t:'Not aware of this',s:0}]},
   ]},
 ];
 
@@ -1207,7 +2107,7 @@ function renderQuestionnaire(){
 function fsSel(qid,oi){
   fsAns[qid]=oi;
   document.querySelectorAll(`[id^="qb-"]`);
-  document.getElementById('qb-'+qid)?.classList.add('answered');
+  { const _qb=document.getElementById('qb-'+qid); if(_qb) _qb.classList.add('answered'); };
   document.querySelectorAll(`label[onclick*="fsSel('${qid}'"]`).forEach((l,i)=>l.classList.toggle('selected',i===oi));
   // Update section counter
   FS.forEach((sec,si)=>{
@@ -1224,7 +2124,7 @@ function fsSel(qid,oi){
   const prog=document.getElementById('fs-prog'); if(prog) prog.textContent=`${done} / ${allQ.length} answered`;
   const btn=document.getElementById('fs-btn'); if(btn) btn.disabled=done<allQ.length;
 }
-function fsText(qid,val){ fsAns[qid]=val; document.getElementById('qb-'+qid)?.classList.toggle('answered',!!val); }
+function fsText(qid,val){ fsAns[qid]=val; { const _qb2=document.getElementById('qb-'+qid); if(_qb2) _qb2.classList.toggle('answered',!!val); }; }
 
 function fsSubmit(){
   let total=0, maxS=0; const flags=[], rejects=[];
@@ -1253,18 +2153,26 @@ function fsSubmit(){
 // INIT
 // ────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
+  // Pre-render all sections so they're ready when user navigates
+  setTimeout(()=>{
+    renderQuestionnaire();
+    renderGpCard('gp');
+    renderGpCard('sgp');
+    buildIncomePanel();
+    loadLiveBookings(); // fetch live booking status from GAS
+  }, 60);
   setTimeout(()=>{
     document.querySelectorAll('.pac-select.pac-state').forEach((sel,i)=>{
       if(sel.options.length<=1){
         sel.innerHTML='<option value="">State / UT</option>'+pacStateOpts();
-        const type=sel.closest('[id*="pac-"]')?.id?.split('-')[1]||'fp';
+        const type=(sel.closest('[id*="pac-"]')||{id:''}).id.split('-')[1]||'fp';
         sel.onchange=()=>pacStateChange(sel,type,i);
       }
     });
     // Init income state dropdown
     const incSt=document.getElementById('inc-state');
     if(incSt&&incSt.options.length<=1){
-      incSt.innerHTML='<option value="">State / UT</option>'+pacStateOpts();
+      incSt.innerHTML='<option value="" style="background:#05132D">State / UT</option>'+pacStateOpts();
       incSt.onchange=incStateChange;
     }
     const incDist=document.getElementById('inc-dist');
