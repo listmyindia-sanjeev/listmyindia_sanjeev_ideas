@@ -243,6 +243,13 @@ body{
 .gold-card{background:linear-gradient(135deg,#FFFBEB,#FEF3C7)}
 .gp-income-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .gp-income-card{background:var(--soft-blue);border:1px solid #C7D7F5;border-radius:10px;padding:14px}
+.pill-tabs{display:flex;gap:8px;margin-bottom:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+.pill-tab{flex:1;min-width:0;padding:9px 6px;font-size:11.5px;font-weight:700;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;transition:all .15s}
+.pill-tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+.pill-tab.active.bronze-active{background:#B8722E;border-color:#B8722E}
+.pill-tab.active.silver-active{background:#64748B;border-color:#64748B}
+.pill-tab.active.gold-active{background:#B7860B;border-color:#B7860B}
+.single-detail-card{border-radius:12px;padding:16px;width:100%;box-sizing:border-box;margin-bottom:12px}
 .income-banner{background:var(--navy);color:white;border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px}
 .income-banner .yr{font-size:11px;opacity:.7}
 .income-banner .amt{font-size:16px;font-weight:700}
@@ -620,7 +627,7 @@ let _inc = {
   pop:100000,retailPct:1.25,homeBase:5,capture:50,
   startPrice:99,stepAmount:50,stepFreq:4,
   sponsorHomepage:9999,sponsorSearchCat:7499,sponsorCatFeatured:12495,sponsorGrowthPct:10,
-  hemadriPct:25,selectedTier:'silver',selectedYear:1,
+  hemadriPct:25,selectedTier:'silver',selectedYear:1,selectedGpType:'gp',
 };
 let _subs=[],_gross=[],_spArr=[];
 
@@ -949,32 +956,13 @@ function buildIncomePanel(){
 
     <!-- GP/SGP income -->
     <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 8px">🌱 GP / SGP Referral Income</div>
-    <div class="gp-income-cards">
-      <div class="gp-income-card" id="gp-inc-gp">
-        <div style="font-size:10.5px;font-weight:700;color:var(--navy);margin-bottom:6px">🌱 Growth Partner</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-          <span style="font-size:11px;color:var(--t2)">Pin codes:</span>
-          <select id="inc-gp-qty" onchange="incUpdateGpQty('gp')" style="flex:1;padding:5px 8px;border:1.5px solid var(--blue);border-radius:6px;font-size:12px;font-weight:600">
-            ${Array.from({length:20},(_,i)=>i+1).map(n=>`<option value="${n}" ${n===gpPinCount.gp?'selected':''}>${n} pin${n>1?'s':''}</option>`).join('')}
-          </select>
-        </div>
-        <div id="gp-inc-gp-detail"></div>
-      </div>
-      <div class="gp-income-card" id="gp-inc-sgp">
-        <div style="font-size:10.5px;font-weight:700;color:var(--navy);margin-bottom:6px">⭐ Super Growth Partner</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-          <span style="font-size:11px;color:var(--t2)">Pin codes:</span>
-          <select id="inc-sgp-qty" onchange="incUpdateGpQty('sgp')" style="flex:1;padding:5px 8px;border:1.5px solid #7C3AED;border-radius:6px;font-size:12px;font-weight:600">
-            ${Array.from({length:100},(_,i)=>i+1).map(n=>`<option value="${n}" ${n===gpPinCount.sgp?'selected':''}>${n} pin${n>1?'s':''}</option>`).join('')}
-          </select>
-        </div>
-        <div id="gp-inc-sgp-detail"></div>
-      </div>
-    </div>
+    <div class="pill-tabs" id="gp-type-tabs"></div>
+    <div id="gp-inc-detail"></div>
 
     <!-- Franchise tier -->
     <div style="font-size:13px;font-weight:700;color:var(--navy);margin:14px 0 8px">📊 Select Franchise Tier</div>
-    <div class="tier-income-cards" id="tier-inc-cards"></div>
+    <div class="pill-tabs" id="tier-tabs"></div>
+    <div id="tier-inc-detail"></div>
     <div class="income-banner" id="inc-banner"><div class="yr">Select a tier above</div></div>
 
     <!-- Summary table -->
@@ -1328,57 +1316,74 @@ function calculateIncome(){
     return {totalGross,totalList,totalSp,hem,net,avgSubs};
   });
 
-  // Tier income cards
-  const tc=document.getElementById('tier-inc-cards');
-  if(tc) tc.innerHTML=TIERS.map(t=>{
+  // Tier tabs + single detail card (only the selected tier's full card shows)
+  const tierTabs=document.getElementById('tier-tabs');
+  if(tierTabs) tierTabs.innerHTML=TIERS.map(t=>{
+    const isSel=_inc.selectedTier===t.key;
+    return `<button class="pill-tab${isSel?' active '+t.cls+'-active':''}" onclick="selectTier('${t.key}')">${t.name.replace('LMI ','')} · ${Math.round(t.share*100)}%</button>`;
+  }).join('');
+  const tierDetail=document.getElementById('tier-inc-detail');
+  if(tierDetail){
+    const t=TIERS.find(t=>t.key===_inc.selectedTier)||TIERS[1];
     const yrs=ym.map(m=>Math.round(m.net*t.share));
     const tot=yrs.reduce((a,b)=>a+b,0);
-    const isSel=_inc.selectedTier===t.key;
-    return `<div class="tier-income-card ${t.cls}-card${isSel?' selected':''}" onclick="selectTier('${t.key}')">
-      <div style="font-size:11px;font-weight:700;color:var(--lmi-dark-blue)">${t.name} · ${Math.round(t.share*100)}%</div>
-      <div style="font-size:9.5px;color:var(--text-secondary);margin-bottom:6px">${t.bestFor}</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;text-align:center">
-        ${yrs.map((v,i)=>`<div><div style="font-size:8.5px;color:var(--text-tertiary)">Y${i+1}</div><div style="font-size:11px;font-weight:700">${fc(v)}</div></div>`).join('')}
+    tierDetail.innerHTML=`<div class="single-detail-card ${t.cls}-card">
+      <div style="font-size:12.5px;font-weight:700;color:var(--lmi-dark-blue)">${t.name} · ${Math.round(t.share*100)}% revenue share</div>
+      <div style="font-size:10.5px;color:var(--text-secondary);margin-bottom:10px">${t.bestFor}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center">
+        ${yrs.map((v,i)=>`<div style="background:rgba(0,0,0,.04);border-radius:8px;padding:8px 4px"><div style="font-size:9.5px;color:var(--text-tertiary)">Year ${i+1}</div><div style="font-size:14px;font-weight:700">${fc(v)}</div></div>`).join('')}
       </div>
-      <div style="text-align:center;margin-top:6px;padding-top:5px;border-top:1px solid rgba(0,0,0,.07)">
-        <div style="font-size:8.5px;color:var(--text-tertiary)">3-Year Total</div>
-        <div style="font-size:14px;font-weight:700;color:var(--lmi-blue)">${fc(tot)}</div>
+      <div style="text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid rgba(0,0,0,.08)">
+        <div style="font-size:9.5px;color:var(--text-tertiary)">3-Year Total</div>
+        <div style="font-size:18px;font-weight:700;color:var(--lmi-blue)">${fc(tot)}</div>
       </div>
     </div>`;
-  }).join('');
+  }
 
-  // GP/SGP income cards — 3-year view like franchise tier cards
-  ['gp','sgp'].forEach(type=>{
-    const el=document.getElementById('gp-inc-'+type+'-detail');
-    if(!el) return;
+  // GP/SGP tabs + single detail card (only the selected type's full card shows)
+  const gpTabs=document.getElementById('gp-type-tabs');
+  if(gpTabs) gpTabs.innerHTML=`
+    <button class="pill-tab${_inc.selectedGpType==='gp'?' active':''}" onclick="selectGpType('gp')">🌱 Growth Partner</button>
+    <button class="pill-tab${_inc.selectedGpType==='sgp'?' active':''}" onclick="selectGpType('sgp')">⭐ Super Growth Partner</button>`;
+  const gpDetail=document.getElementById('gp-inc-detail');
+  if(gpDetail){
+    const type=_inc.selectedGpType;
     const {op,mp}=gpRate(type,gpPinCount[type]);
     const pins=gpPinCount[type];
     const {rate}=gpRate(type,pins);
     const token=Math.round(rate*1.18)*pins;
-    // compute 3-year income
     const yrs=ym.map(m=>{
       const onetime=Math.round(m.net*op/100);
       const monthly=Math.round(m.net*mp/100/12);
       return {onetime,monthly};
     });
     const tot3=yrs.reduce((a,b)=>a+b.onetime+b.monthly*12,0);
-    el.innerHTML=`
-      <div style="font-size:9.5px;color:var(--t2);margin-bottom:8px">${op}% one-time · ${mp}% monthly · Token: ${fc(token)}</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;text-align:center;margin-bottom:8px">
-        ${yrs.map((y,i)=>`<div style="background:rgba(0,0,0,.04);border-radius:6px;padding:6px 4px">
-          <div style="font-size:9px;color:var(--t3);margin-bottom:2px">Year ${i+1}</div>
-          <div style="font-size:12px;font-weight:700;color:var(--navy)">${fc(y.onetime+y.monthly*12)}</div>
-          <div style="font-size:9px;color:var(--t3)">${fc(y.onetime)} + ${y.monthly>0?fc(y.monthly)+'/mo':'—'}</div>
+    const accent=type==='gp'?'var(--blue)':'#7C3AED';
+    gpDetail.innerHTML=`<div class="single-detail-card" style="background:var(--soft-blue);border:1px solid #C7D7F5">
+      <div style="font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:8px">${type==='gp'?'🌱 Growth Partner':'⭐ Super Growth Partner'}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+        <span style="font-size:11.5px;color:var(--t2)">Pin codes:</span>
+        <select id="inc-${type}-qty" onchange="incUpdateGpQty('${type}')" style="flex:1;min-width:0;padding:6px 8px;border:1.5px solid ${accent};border-radius:6px;font-size:12.5px;font-weight:600">
+          ${Array.from({length:type==='gp'?20:100},(_,i)=>i+1).map(n=>`<option value="${n}" ${n===gpPinCount[type]?'selected':''}>${n} pin${n>1?'s':''}</option>`).join('')}
+        </select>
+      </div>
+      <div style="font-size:10.5px;color:var(--t2);margin-bottom:8px">${op}% one-time · ${mp}% monthly · Token: ${fc(token)}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;margin-bottom:8px">
+        ${yrs.map((y,i)=>`<div style="background:rgba(0,0,0,.04);border-radius:8px;padding:8px 4px">
+          <div style="font-size:9.5px;color:var(--t3);margin-bottom:2px">Year ${i+1}</div>
+          <div style="font-size:14px;font-weight:700;color:var(--navy)">${fc(y.onetime+y.monthly*12)}</div>
+          <div style="font-size:9.5px;color:var(--t3)">${fc(y.onetime)} + ${y.monthly>0?fc(y.monthly)+'/mo':'—'}</div>
         </div>`).join('')}
       </div>
-      <div style="text-align:center;background:var(--navy);border-radius:6px;padding:6px;margin-bottom:6px">
-        <div style="font-size:9px;color:rgba(255,255,255,.6)">3-Year Total</div>
-        <div style="font-size:15px;font-weight:700;color:var(--yellow)">${fc(tot3)}</div>
+      <div style="text-align:center;background:var(--navy);border-radius:8px;padding:8px;margin-bottom:8px">
+        <div style="font-size:9.5px;color:rgba(255,255,255,.6)">3-Year Total</div>
+        <div style="font-size:18px;font-weight:700;color:var(--yellow)">${fc(tot3)}</div>
       </div>
-      <div style="background:#FFF8E1;border-radius:5px;padding:6px 8px;font-size:10px;color:var(--amber)">
+      <div style="background:#FFF8E1;border-radius:6px;padding:7px 9px;font-size:10.5px;color:var(--amber)">
         ⏳ Interim: ${type==='gp'?'25%':'12.5%'} of pin gross/mo while no FP · max 6 months
-      </div>`;
-  });
+      </div>
+    </div>`;
+  }
 
   // Banner
   const banner=document.getElementById('inc-banner');
@@ -1396,6 +1401,7 @@ function calculateIncome(){
 }
 
 function selectTier(key){ _inc.selectedTier=key; calculateIncome(); }
+function selectGpType(type){ _inc.selectedGpType=type; calculateIncome(); }
 
 function renderSummaryTable(ymParam){
   const tbody=document.getElementById('summary-tbody');
@@ -1751,35 +1757,53 @@ function initiatePayment(){
     const fee=f.hasDisc?f.discFee:t.fee;
     amountPaise=Math.round(fee*0.05*1.18)*100;
   }
-  const options={
-    key: LMI_RZP_KEY,
-    amount: amountPaise,
-    currency: 'INR',
-    name: 'List My India™',
-    description: pins.length>1 ? 'Token — '+pins.length+' Pin Codes ('+pins.join(', ')+')' : 'Token — Pin Code ' + f.pin,
-    image: 'https://listmyindia.com/favicon.ico',
-    prefill: { name:f.name, email:f.email, contact:f.phone },
-    notes: {
-      pin_codes: pins.join(', '),
-      pin_count: pins.length,
-      partner_type: f.type,
-      district: f.d.district||'',
-      state: f.d.state||'',
-      firm: f.firm||'',
-      gstin: f.gstin||'',
-      address: f.addr||''
-    },
-    theme: { color: '#0046BF' },
-    handler: function(response){
-      f.rzpPaymentId = response.razorpay_payment_id;
-      f.rzpOrderId   = response.razorpay_order_id||'';
-      finalSubmit();
-    },
-    modal: { ondismiss: function(){ document.getElementById('seq-pay-btn').disabled=false; } }
-  };
   document.getElementById('seq-pay-btn').disabled=true;
-  const rzp=new Razorpay(options);
-  rzp.open();
+
+  function openCheckout(orderId){
+    const options={
+      key: LMI_RZP_KEY,
+      amount: amountPaise,
+      currency: 'INR',
+      name: 'List My India™',
+      description: pins.length>1 ? 'Token — '+pins.length+' Pin Codes ('+pins.join(', ')+')' : 'Token — Pin Code ' + f.pin,
+      image: 'https://listmyindia.com/favicon.ico',
+      prefill: { name:f.name, email:f.email, contact:f.phone },
+      notes: {
+        pin_codes: pins.join(', '),
+        pin_count: pins.length,
+        partner_type: f.type,
+        district: f.d.district||'',
+        state: f.d.state||'',
+        firm: f.firm||'',
+        gstin: f.gstin||'',
+        address: f.addr||''
+      },
+      theme: { color: '#0046BF' },
+      handler: function(response){
+        f.rzpPaymentId = response.razorpay_payment_id;
+        f.rzpOrderId   = response.razorpay_order_id||orderId||'';
+        f.rzpSignature = response.razorpay_signature||'';
+        finalSubmit();
+      },
+      modal: { ondismiss: function(){ document.getElementById('seq-pay-btn').disabled=false; } }
+    };
+    if(orderId) options.order_id=orderId;
+    const rzp=new Razorpay(options);
+    rzp.open();
+  }
+
+  // Create a real Razorpay Order server-side first (so the payment can be
+  // signature-verified after checkout). Falls back to unverified checkout
+  // if the GAS endpoint isn't reachable yet (e.g. credentials not filled in).
+  if(LMI_GAS_URL && !LMI_GAS_URL.includes('YOUR_SCRIPT_ID')){
+    const receipt='LMI-'+Date.now();
+    fetch(LMI_GAS_URL+'?action=create_order&amount='+amountPaise+'&receipt='+encodeURIComponent(receipt))
+      .then(r=>r.json())
+      .then(res=>{ openCheckout(res&&res.order_id ? res.order_id : ''); })
+      .catch(()=>{ openCheckout(''); });
+  } else {
+    openCheckout('');
+  }
 }
 
 
@@ -1915,13 +1939,29 @@ function liveUpdatePacDb(pin, type, name){
   });
 }
 
-// Fetch live bookings from Google Apps Script on page load
+// Re-render an open GP/SGP checklist against the current district selection
+// (used after a live status refresh) so both newly blocked and newly released
+// pins reflect without the person needing to change the dropdown.
+function gpMsRefreshList(type){
+  const containerId = type==='gp' ? 'gp-card-container' : 'sgp-card-container';
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  const distSel = container.querySelector('.pac-district');
+  if(distSel && distSel.value) gpMsDist(distSel, type);
+}
+
+// Fetch live pin-code status from the Master Directory Google Sheet. This is a
+// full rebuild each time (not additive) — so a pin that Sanjeev manually
+// "released" (cleared the Status cell back to Available) disappears from
+// PAC_DB too, not just newly-booked pins getting added.
 function loadLiveBookings(){
   if(!LMI_GAS_URL || LMI_GAS_URL.includes('YOUR_SCRIPT_ID')) return;
   fetch(LMI_GAS_URL + '?action=list')
     .then(r=>r.json())
     .then(data=>{
       if(!data||!data.bookings) return;
+      // Rebuild from scratch — clears anything no longer reported as booked.
+      Object.keys(PAC_DB).forEach(pin=>{ PAC_DB[pin].fp=null; PAC_DB[pin].gp=null; PAC_DB[pin].sgp=null; });
       data.bookings.forEach(b=>{
         const pin = String(b.pin||'');
         if(!pin) return;
@@ -1936,10 +1976,16 @@ function loadLiveBookings(){
       document.querySelectorAll('.stat-chip .num').forEach((el,i)=>{
         if(i===0) el.textContent = booked + '+';
       });
-      console.log('[LMI] Live bookings loaded:', data.bookings.length, 'records');
+      // Re-render any currently open GP/SGP multi-select checklists so newly
+      // blocked pins grey out AND newly released pins become bookable again.
+      ['gp','sgp'].forEach(t=>gpMsRefreshList(t));
+      console.log('[LMI] Live pin status refreshed:', data.bookings.length, 'blocked entries');
     })
     .catch(()=>{}); // silently fail if offline
 }
+// Poll periodically so manual sheet edits (block or release) show up on an
+// already-open page, not just on next full reload.
+setInterval(loadLiveBookings, 60000);
 // ═════════════════════════════════════════════════════════════════════════
 function finalSubmit(){
   const f=_pacFlow, t=f.tierObj;
@@ -1947,50 +1993,59 @@ function finalSubmit(){
   const isGP=f.type==='gp'||f.type==='sgp';
   const batchId=pins.length>1?('BATCH-'+Date.now()):'';
 
-  // --- POST to Google Apps Script (Sheets + Email) — one row per pin, same applicant ---
-  const perPinAmount=(()=>{
-    if(!f.rzpPaymentId) return 0;
-    if(isGP){ const {rate}=gpRate(f.type,pins.length); return Math.round(rate*1.18); }
+  // Total amount actually charged (one Razorpay payment for the whole batch) —
+  // GAS splits this evenly across pins for the sheet/invoice line items.
+  const totalAmount=(()=>{
+    if(!f.rzpPaymentId&&!f.waitlist) return 0;
+    if(isGP){ const {rate}=gpRate(f.type,pins.length); return Math.round(rate*1.18)*pins.length; }
     const fee=f.hasDisc?f.discFee:(t?t.fee:0); return Math.round(fee*0.05*1.18);
   })();
+
+  // Per-pin district/state/population so GAS can log each row accurately
+  const pinDetails={};
   pins.forEach(pin=>{
     const d=PAC_DB[pin]||{};
-    const payload={
-      pin: pin,
-      batch_id: batchId,
-      pin_count_in_batch: pins.length,
-      district: d.district||'',
-      state: d.state||'',
-      population: pacGetPinPop(pin)||'',
-      partner_type: f.type||'fp',
-      plan: t?t.name:'',
-      plan_share: t?Math.round(t.share*100)+'%':'',
-      name: f.name||'',
-      phone: f.phone||'',
-      email: f.email||'',
-      address: f.addr||'',
-      firm: f.firm||'',
-      gstin: f.gstin||'',
-      rzp_payment_id: f.rzpPaymentId||'',
-      rzp_order_id: f.rzpOrderId||'',
-      amount_paid: perPinAmount,
-      referred_by: f.refVerified?(f.partnerName+' ('+f.refCode+')') : '',
-      waitlist: f.waitlist?'Yes':'No',
-      timestamp: new Date().toISOString()
-    };
-    if(LMI_GAS_URL){
-      fetch(LMI_GAS_URL, {
-        method:'POST',
-        mode:'no-cors',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(payload)
-      }).catch(()=>{});
-    }
-    // Instantly update in-memory status so page reflects booking without reload
-    if(!f.waitlist){
-      liveUpdatePacDb(pin, f.type, f.name||'Reserved');
-    }
+    pinDetails[pin]={ district:d.district||'', state:d.state||'', population:pacGetPinPop(pin)||'' };
   });
+
+  // --- ONE POST to Google Apps Script for the whole batch (Sheets + ONE Zoho
+  // invoice + ONE confirmation/admin email) — not one call per pin. ---
+  const payload={
+    pins: pins,
+    batch_id: batchId,
+    pin: pins[0], // back-compat for any single-pin readers
+    district: pinDetails[pins[0]].district,
+    state: pinDetails[pins[0]].state,
+    pin_details: pinDetails,
+    partner_type: f.type||'fp',
+    plan: t?t.name:'',
+    plan_share: t?Math.round(t.share*100)+'%':'',
+    name: f.name||'',
+    phone: f.phone||'',
+    email: f.email||'',
+    address: f.addr||'',
+    firm: f.firm||'',
+    gstin: f.gstin||'',
+    rzp_payment_id: f.rzpPaymentId||'',
+    rzp_order_id: f.rzpOrderId||'',
+    rzp_signature: f.rzpSignature||'',
+    amount_paid: totalAmount,
+    referred_by: f.refVerified?(f.partnerName+' ('+f.refCode+')') : '',
+    waitlist: f.waitlist?'Yes':'No',
+    timestamp: new Date().toISOString()
+  };
+  if(LMI_GAS_URL && !LMI_GAS_URL.includes('YOUR_SCRIPT_ID')){
+    fetch(LMI_GAS_URL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    }).catch(()=>{});
+  }
+  // Instantly update in-memory status so page reflects booking without reload
+  if(!f.waitlist){
+    pins.forEach(pin=>liveUpdatePacDb(pin, f.type, f.name||'Reserved'));
+  }
 
   // Show confirmation UI
   document.getElementById('pac-modal-body').innerHTML=`
@@ -2208,6 +2263,29 @@ function fsSubmit(){
   </div>`;
 }
 
+// Populate every state <select> currently on the page (FP/GP/SGP pickers +
+// the Income calculator's state dropdown) from the embedded PINCODE_DATA.
+// Safe to call repeatedly — only fills empty ones, so it doesn't disturb a
+// selection someone's already made.
+function pacPopulateStateDropdowns(){
+  document.querySelectorAll('.pac-select.pac-state').forEach((sel,i)=>{
+    if(sel.options.length<=1){
+      sel.innerHTML='<option value="">State / UT</option>'+pacStateOpts();
+      const type=(sel.closest('[id*="pac-"]')||{id:''}).id.split('-')[1]||'fp';
+      sel.onchange=()=>pacStateChange(sel,type,i);
+    }
+  });
+  const incSt=document.getElementById('inc-state');
+  if(incSt&&incSt.options.length<=1){
+    incSt.innerHTML='<option value="" style="background:#05132D">State / UT</option>'+pacStateOpts();
+    incSt.onchange=incStateChange;
+  }
+  const incDist=document.getElementById('inc-dist');
+  if(incDist) incDist.onchange=incDistChange;
+  const incPin=document.getElementById('inc-pin');
+  if(incPin) incPin.onchange=incPinChange;
+}
+
 // ────────────────────────────────────────────────────
 // INIT
 // ────────────────────────────────────────────────────
@@ -2220,25 +2298,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     buildIncomePanel();
     loadLiveBookings(); // fetch live booking status from GAS
   }, 60);
-  setTimeout(()=>{
-    document.querySelectorAll('.pac-select.pac-state').forEach((sel,i)=>{
-      if(sel.options.length<=1){
-        sel.innerHTML='<option value="">State / UT</option>'+pacStateOpts();
-        const type=(sel.closest('[id*="pac-"]')||{id:''}).id.split('-')[1]||'fp';
-        sel.onchange=()=>pacStateChange(sel,type,i);
-      }
-    });
-    // Init income state dropdown
-    const incSt=document.getElementById('inc-state');
-    if(incSt&&incSt.options.length<=1){
-      incSt.innerHTML='<option value="" style="background:#05132D">State / UT</option>'+pacStateOpts();
-      incSt.onchange=incStateChange;
-    }
-    const incDist=document.getElementById('inc-dist');
-    if(incDist) incDist.onchange=incDistChange;
-    const incPin=document.getElementById('inc-pin');
-    if(incPin) incPin.onchange=incPinChange;
-  },300);
+  setTimeout(pacPopulateStateDropdowns, 300);
 });
 </script>
 </body>
