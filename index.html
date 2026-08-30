@@ -617,11 +617,9 @@ let _pacFlow = null;
 let gpPinCount = {gp:1,sgp:50};
 
 let _inc = {
-  pop:100000,retailPct:1.25,homeBase:5,capture:10,
-  avgPriceY1:99,avgPriceY2:149,avgPriceY3:199,
-  sponsorY1:29993,sponsorY2:36000,sponsorY3:45000,
-  growthY1:7.5,growthY2:4,growthY3:3,
-  churnY1:2.5,churnY2:2,churnY3:1.5,
+  pop:100000,retailPct:1.25,homeBase:5,capture:50,
+  startPrice:99,stepAmount:50,stepFreq:4,
+  sponsorHomepage:9999,sponsorSearchCat:7499,sponsorCatFeatured:12495,sponsorGrowthPct:10,
   hemadriPct:25,selectedTier:'silver',selectedYear:1,
 };
 let _subs=[],_gross=[],_spArr=[];
@@ -690,7 +688,7 @@ function renderTierCards(){
         <div class="tier-row"><span class="t-label">Young (&lt;30 yrs)</span><span>${t.youngOk?'<span class="t-val" style="color:#166534">'+fc(t.youngFee)+'</span>':'<span class="badge badge-na">N/A</span>'}</span></div>
         <div class="tier-row"><span class="t-label">Women (&lt;50 yrs)</span><span>${t.womenOk?'<span class="t-val" style="color:#166534">'+fc(t.womenFee)+'</span>':'<span class="badge badge-na">N/A</span>'}</span></div>
         <div class="tier-row"><span class="t-label">Franchise Kit</span><span>₹65,000 <span class="badge badge-opt">Incl.</span></span></div>
-        <div class="tier-row"><span class="t-label">Marketing min./mo</span><span class="t-val">${fc(t.marketing)} <span style="font-size:9px;font-weight:400;color:var(--text-tertiary)">(self-spend)</span></span></div>
+        <div class="tier-row"><span class="t-label">Marketing min./mo</span><span class="t-val">${fc(t.marketing)} <span style="font-size:9px;font-weight:400;color:var(--text-tertiary)">(or 5% of gross, whichever higher)</span></span></div>
         <div class="tier-row"><span class="t-label">Billboard at launch</span><span class="badge ${t.key==='bronze'?'badge-opt':'badge-req'}">${t.key==='bronze'?'Optional':'Mandatory'}</span></div>
         <div class="tier-row"><span class="t-label">Office</span><span style="font-size:10px">${t.key==='gold'?'<span class="badge badge-req">Mandatory ≥200 sq.ft</span>':'<span class="badge badge-opt">Optional</span>'}</span></div>
         <div class="total-invest">
@@ -922,7 +920,13 @@ function buildIncomePanel(){
 
   el.innerHTML=`
   <!-- ═══ STEP 1: PIN SELECTOR — always visible ══════════════════ -->
-  <div id="inc-pin-selector" style="background:var(--navy);border-radius:14px;padding:20px;margin-bottom:4px">
+  <div id="inc-pin-selector" style="background:var(--navy);border-radius:14px;padding:20px;margin-bottom:4px;position:relative">
+    <!-- Pin summary chip — upper right, appears after pin selected -->
+    <div id="inc-pin-summary" style="display:none;position:absolute;top:12px;right:12px;background:rgba(255,255,255,.12);border-radius:8px;padding:5px 11px;text-align:right;max-width:50%">
+      <div style="color:rgba(255,255,255,.5);font-size:9px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:1px">Selected</div>
+      <div id="inc-pin-label" style="color:white;font-weight:700;font-size:12px;line-height:1.3;word-break:break-word"></div>
+      <div id="inc-pop-label" style="color:var(--yellow);font-size:10px;margin-top:1px"></div>
+    </div>
     <div style="color:var(--yellow);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Step 1</div>
     <div style="color:white;font-size:17px;font-weight:700;margin-bottom:4px">Select your Pin Code</div>
     <div style="color:rgba(255,255,255,.6);font-size:11px;margin-bottom:14px">Population auto-fills · All projections update instantly</div>
@@ -937,12 +941,7 @@ function buildIncomePanel(){
         <option value="">Pin Code</option>
       </select>
     </div>
-    <!-- populated pin summary -->
-    <div id="inc-pin-summary" style="display:none;margin-top:12px;background:rgba(255,255,255,.1);border-radius:8px;padding:10px 14px">
-      <div style="color:rgba(255,255,255,.6);font-size:10px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Selected</div>
-      <div id="inc-pin-label" style="color:white;font-weight:700;font-size:15px"></div>
-      <div id="inc-pop-label" style="color:var(--yellow);font-size:12px;margin-top:2px"></div>
-    </div>
+
   </div>
 
   <!-- ═══ STEP 2+: Everything hidden until pin selected ═══════════ -->
@@ -1008,42 +1007,28 @@ function buildIncomePanel(){
       </div>
     </div>
 
-    <!-- Pricing sliders -->
+    <!-- Pricing ladder sliders -->
     <div class="card">
-      <div class="card-title">💰 Avg LMI Star Price — by Year</div>
-      <div class="info-note" style="margin-bottom:8px">Step-locked cohort pricing. Adjust freely.</div>
+      <div class="card-title">💰 Listing Price Ladder — Cohort-Locked</div>
+      <div class="info-note" style="margin-bottom:8px">Each subscriber locks in the price active on their signup month for life — earlier cohorts are never repriced upward. New sign-ups pay the starting price until the first step, then step up every N months.</div>
       <div class="slider-grid-3">
-        ${mkSlider('avgPriceY1','Year 1',99,699,50,99,fc2)}
-        ${mkSlider('avgPriceY2','Year 2',99,699,50,149,fc2)}
-        ${mkSlider('avgPriceY3','Year 3',99,699,50,199,fc2)}
+        ${mkSlider('startPrice','Start Price',49,699,10,99,fc2)}
+        ${mkSlider('stepAmount','Step Amount',0,200,10,50,fc2)}
+        ${mkSlider('stepFreq','Step Every (mo)',1,12,1,4,v=>v+' mo')}
       </div>
     </div>
 
-    <!-- Sponsorship sliders -->
+    <!-- Sponsorship sliders — broken out by product -->
     <div class="card">
-      <div class="card-title">🎯 Sponsorship Revenue — by Year</div>
-      <div class="info-note" style="margin-bottom:8px">Default: ₹9,999 + ₹7,499 + 5×₹2,499 = ₹29,993/mo</div>
+      <div class="card-title">🎯 Sponsorship Revenue — Compounding</div>
+      <div class="info-note" style="margin-bottom:8px">Default combined: ₹9,999 + ₹7,499 + ₹12,495 (5 slots × ₹2,499) = ₹29,993/mo for Months 1–3, then the total compounds every quarter thereafter (company-wide, not cohort-locked).</div>
       <div class="slider-grid-3">
-        ${mkSlider('sponsorY1','Year 1',0,200000,1000,29993,fc2)}
-        ${mkSlider('sponsorY2','Year 2',0,200000,1000,36000,fc2)}
-        ${mkSlider('sponsorY3','Year 3',0,200000,1000,45000,fc2)}
+        ${mkSlider('sponsorHomepage','Homepage Banner',0,99999,500,9999,fc2)}
+        ${mkSlider('sponsorSearchCat','Search & Category Banner',0,74999,500,7499,fc2)}
+        ${mkSlider('sponsorCatFeatured','Category Featured (slots)',0,99999,500,12495,fc2)}
       </div>
-    </div>
-
-    <!-- Growth & churn -->
-    <div class="card">
-      <div class="card-title">📈 Growth & Churn — by Year</div>
-      <div style="font-size:10.5px;color:var(--t3);font-weight:600;margin-bottom:4px">Growth / month</div>
-      <div class="slider-grid-3" style="margin-bottom:10px">
-        ${mkSlider('growthY1','Year 1',0,20,0.5,7.5,v=>v+'%')}
-        ${mkSlider('growthY2','Year 2',0,20,0.5,4,v=>v+'%')}
-        ${mkSlider('growthY3','Year 3',0,20,0.5,3,v=>v+'%')}
-      </div>
-      <div style="font-size:10.5px;color:var(--t3);font-weight:600;margin-bottom:4px">Churn / month</div>
-      <div class="slider-grid-3">
-        ${mkSlider('churnY1','Year 1',0,10,0.5,2.5,v=>v+'%')}
-        ${mkSlider('churnY2','Year 2',0,10,0.5,2,v=>v+'%')}
-        ${mkSlider('churnY3','Year 3',0,10,0.5,1.5,v=>v+'%')}
+      <div class="slider-grid" style="margin-top:8px">
+        ${mkSlider('sponsorGrowthPct','Growth / Quarter',0,25,1,10,v=>v+'%')}
       </div>
     </div>
 
@@ -1056,10 +1041,8 @@ function updSlider(key,val){
   _inc[key]=parseFloat(val);
   const fmts={
     pop:v=>parseInt(v).toLocaleString('en-IN'), retailPct:v=>v+'%', homeBase:v=>v+'×', capture:v=>v+'%',
-    avgPriceY1:v=>'₹'+v, avgPriceY2:v=>'₹'+v, avgPriceY3:v=>'₹'+v,
-    sponsorY1:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorY2:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorY3:v=>'₹'+parseInt(v).toLocaleString('en-IN'),
-    growthY1:v=>v+'%', growthY2:v=>v+'%', growthY3:v=>v+'%',
-    churnY1:v=>v+'%', churnY2:v=>v+'%', churnY3:v=>v+'%',
+    startPrice:v=>'₹'+v, stepAmount:v=>'₹'+v, stepFreq:v=>v+' mo',
+    sponsorHomepage:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorSearchCat:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorCatFeatured:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorGrowthPct:v=>v+'%',
   };
   const el=document.getElementById('sv-'+key);
   if(el&&fmts[key]) el.textContent=fmts[key](val);
@@ -1259,23 +1242,9 @@ function gpMsCheck(type){
     <span style="font-size:12px;font-weight:700;color:var(--navy)">${availPins.length} pin${availPins.length!==1?'s':''} can be booked</span>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button onclick="gpMsClearBasket('${type}')" style="padding:6px 14px;background:white;color:var(--t2);border:1px solid var(--border);border-radius:7px;font-size:11px;cursor:pointer">Clear All</button>
-      ${availPins.length ? `<button onclick="pacOpenGpBook('${type}','${availPins[0]}')" style="padding:6px 14px;background:var(--navy);color:white;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer">Book Now →</button>` : ''}
+      ${availPins.length ? `<button onclick="pacOpenGpBookMulti('${type}')" style="padding:6px 14px;background:var(--navy);color:white;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer">Book Now — All ${availPins.length} Pin${availPins.length!==1?'s':''} →</button>` : ''}
     </div>
   </div></div>`;
-  // Add individual book buttons per available pin
-  if(availPins.length > 1){
-    html += `<div style="margin-top:8px;border:1px solid var(--border);border-radius:8px;overflow:hidden">
-      <div style="background:var(--bg);padding:6px 12px;font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.4px">Book Individual Pins</div>
-      ${availPins.map(p => {
-        const d2=PAC_DB[p]||{};
-        const loc2=[d2.district,d2.state].filter(Boolean).join(', ');
-        return `<div style="padding:8px 12px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px">
-          <span><strong>${p}</strong>${loc2?` <span style="color:var(--t3);font-size:10px">${loc2}</span>`:''}</span>
-          <button onclick="pacOpenGpBook('${type}','${p}')" style="padding:5px 12px;background:var(--blue);color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">Book</button>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }
   resultsEl.innerHTML = html;
 }
 // ─────────────────────────────────────────────────────────────────────────
@@ -1295,23 +1264,55 @@ function calculateIncome(){
   const retail=Math.round(s.pop*s.retailPct/100);
   const total=Math.round(retail*(1+s.homeBase));
   const cap=Math.round(total*s.capture/100);
-  const yGrowth=[s.growthY1,s.growthY2,s.growthY3];
-  const yChurn=[s.churnY1,s.churnY2,s.churnY3];
-  const yPrice=[s.avgPriceY1,s.avgPriceY2,s.avgPriceY3];
-  const ySponsor=[s.sponsorY1,s.sponsorY2,s.sponsorY3];
+  const homeBased=total-retail;
+  // Show the absolute number in brackets next to each market slider's % / × value.
+  const svRetail=document.getElementById('sv-retailPct');
+  if(svRetail) svRetail.textContent=s.retailPct+'% ('+retail.toLocaleString('en-IN')+')';
+  const svHome=document.getElementById('sv-homeBase');
+  if(svHome) svHome.textContent=s.homeBase+'× ('+homeBased.toLocaleString('en-IN')+')';
+  const svCapture=document.getElementById('sv-capture');
+  if(svCapture) svCapture.textContent=s.capture+'% ('+cap.toLocaleString('en-IN')+')';
 
-  _subs=[]; _gross=[]; _spArr=[];
-  let listings=0;
-  for(let m=1;m<=36;m++){
-    const yi=m<=12?0:m<=24?1:2;
-    const gr=yGrowth[yi]/100, ch=yChurn[yi]/100;
-    if(m<=6) listings=Math.min(Math.round(cap*m/36*2),cap);
-    else listings=Math.min(Math.round(listings*(1+gr-ch)),cap);
-    listings=Math.max(0,listings);
-    _subs.push(listings);
-    _spArr.push(ySponsor[yi]);
-    _gross.push(listings*yPrice[yi]+ySponsor[yi]);
+  // New-signup listing price for month m — cohort-locked ladder (Assumption 2):
+  // flat at startPrice until the first step (stepFreq-1 months in), then +stepAmount
+  // every stepFreq months thereafter. Default 99 → +50 every 4 months → 549 by M36.
+  function newSignupPrice(m){
+    if(m<s.stepFreq) return s.startPrice;
+    return s.startPrice + s.stepAmount*(1+Math.floor((m-s.stepFreq)/s.stepFreq));
   }
+  // Sponsorship — compounds every quarter (3 months) off the combined start value
+  // (Homepage Banner + Search & Category Banner + Category Featured), company-wide
+  // (not cohort-locked). Quarter q (0-indexed) = combinedStart × (1+growth)^q.
+  const sponsorStart=s.sponsorHomepage+s.sponsorSearchCat+s.sponsorCatFeatured;
+  function sponsorForMonth(m){
+    const q=Math.floor((m-1)/3);
+    return Math.round(sponsorStart*Math.pow(1+s.sponsorGrowthPct/100,q));
+  }
+
+  // Paid-listing growth curve — Assumption 2 (stepped, cohort-locked pricing) from the
+  // Franchise Tiers, Plans & Projections deck: Months 1–6 ramp linearly to 16% of the
+  // business cap (100/mo on a 3,750 cap), then a constant addition for Months 7–36 that
+  // lands exactly on the cap by Month 36 (105/mo on a 3,750 cap). Scales with the cap so
+  // adjusting the market sliders keeps the same Assumption-2 shape.
+  const rampStep=cap*0.16/6, steadyStep=cap*0.84/30;
+  _subs=[]; _gross=[]; _spArr=[];
+  let listings=0, prevListings=0, listingRevRunning=0;
+  for(let m=1;m<=36;m++){
+    if(m<=6) listings=rampStep*m;
+    else listings=rampStep*6+steadyStep*(m-6);
+    listings=Math.min(cap,Math.max(0,Math.round(listings)));
+    // New sign-ups this month lock in this month's price for the life of their
+    // subscription; older cohorts keep paying their own locked-in rate — so the
+    // running monthly listing revenue is cumulative: add only the new cohort's slice.
+    const delta=Math.max(0,listings-prevListings);
+    listingRevRunning += delta*newSignupPrice(m);
+    prevListings=listings;
+    const sponsor=sponsorForMonth(m);
+    _subs.push(listings);
+    _spArr.push(sponsor);
+    _gross.push(listingRevRunning+sponsor);
+  }
+
 
   const hemPct=s.hemadriPct/100;
   const ym=[1,2,3].map(y=>{
@@ -1405,14 +1406,23 @@ function renderSummaryTable(ymParam){
   const totalGross=g.reduce((a,b)=>a+b,0);
   const totalList=listRev.reduce((a,b)=>a+b,0);
   const totalSp=sp.reduce((a,b)=>a+b,0);
-  const hem=Math.round(totalGross*_inc.hemadriPct/100);
-  const net=totalGross-hem;
   const t=TIERS.find(t=>t.key===_inc.selectedTier)||TIERS[1];
-  const fpShare=Math.round(net*t.share);
+  // Marketing rule: whichever is higher — the tier's fixed monthly minimum, or 5% of
+  // that month's FP gross income. Computed month-by-month since FP income (and so the
+  // 5% floor) grows over the year, then summed for the annual total.
+  let fpShare=0, mktg=0;
+  for(let i=0;i<12;i++){
+    const grossM=g[i];
+    const hemM=Math.round(grossM*_inc.hemadriPct/100);
+    const netM=grossM-hemM;
+    const fpM=Math.round(netM*t.share);
+    const mktgM=Math.max(t.marketing,Math.round(fpM*0.05));
+    fpShare+=fpM;
+    mktg+=mktgM;
+  }
   // Franchise share of listing & sponsorship (proportional to FP revenue share)
   const fpListShare=Math.round(totalList*t.share*(1-_inc.hemadriPct/100));
   const fpSpShare=Math.round(totalSp*t.share*(1-_inc.hemadriPct/100));
-  const mktg=t.marketing*12;
   const netFp=fpShare-mktg;
   const avgSubs=Math.round(_subs.slice(yi*12,y*12).reduce((a,b)=>a+b,0)/12);
 
@@ -1421,7 +1431,7 @@ function renderSummaryTable(ymParam){
     ['Listing revenue — your share ('+Math.round(t.share*100)+'%)', fc(fpListShare), false, ''],
     ['Sponsorship revenue — your share ('+Math.round(t.share*100)+'%)', fc(fpSpShare), false, ''],
     ['FP gross share ('+Math.round(t.share*100)+'% · '+t.name+')', fc(fpShare), true, 'var(--lmi-blue)'],
-    ['Less: Min. marketing ('+fc(t.marketing)+'/mo × 12)', '− '+fc(mktg), false, '#92400E'],
+    ['Less: Marketing (min '+fc(t.marketing)+'/mo, or 5% of gross income — higher applies)', '− '+fc(mktg), false, '#92400E'],
     ['FP net income — Year '+y, fc(netFp), true, netFp>=0?'#166534':'#991B1B'],
   ].map(function(r){var l=r[0],v=r[1],bold=r[2],color=r[3];var bs=bold?'font-weight:700':'';var cs=color?'color:'+color:'';return '<tr><td style="'+bs+'">'+l+'</td><td style="text-align:right;'+bs+';'+cs+'">'+v+'</td></tr>';}).join('');
 }
@@ -1558,22 +1568,36 @@ function pacOpenWaitlist(pin){
   _pacFlow={pin,type:'fp',d:PAC_DB[pin]||{},pop:pacGetPinPop(pin),waitlist:true,referral:false};
   buildSeqModal();
 }
-function pacOpenGpBook(type,pin){
-  _pacFlow={pin,type,d:PAC_DB[pin]||{},pop:pacGetPinPop(pin),waitlist:false,referral:false};
+function pacOpenGpBookMulti(type){
+  const basket=[...gpMsBasket[type]].sort();
+  const availPins=basket.filter(pin=>{
+    const d=PAC_DB[pin]||{};
+    return (!d.fp||d.fp==='null')&&(type==='gp'?(!d.gp||d.gp==='null'):(!d.sgp||d.sgp==='null'));
+  });
+  if(!availPins.length){ alert('No available pins to book.'); return; }
+  pacOpenGpBook(type,availPins);
+}
+function pacOpenGpBook(type,pinsOrPin){
+  const pins=Array.isArray(pinsOrPin)?pinsOrPin.slice():[pinsOrPin];
+  const totalPop=pins.reduce((s,p)=>s+(pacGetPinPop(p)||0),0);
+  _pacFlow={pins,pin:pins[0],type,d:PAC_DB[pins[0]]||{},pop:totalPop,waitlist:false,referral:false};
   buildSeqModal();
 }
 function pacCloseModal(){ document.getElementById('pac-modal').classList.remove('open'); }
 
 function buildSeqModal(){
   const f=_pacFlow;
+  const pins=f.pins||[f.pin];
+  const isMulti=pins.length>1;
   const loc=[f.d.district,f.d.state].filter(Boolean).join(', ');
   const isGP = f.type==='gp' || f.type==='sgp';
 
-  // Compute amount to pay
+  // Compute amount to pay — for GP/SGP, the bulk rate applies based on how many
+  // pins are being booked together in this one flow, and the total is per-pin × count.
   function getAmount(){
     if(isGP){
-      const {rate}=gpRate(f.type,gpPinCount[f.type]||1);
-      return Math.round(rate*1.18); // per pin, one pin at a time
+      const {rate}=gpRate(f.type,pins.length);
+      return Math.round(rate*1.18)*pins.length;
     }
     const t=f.tierObj; if(!t) return 0;
     const fee=f.hasDisc?f.discFee:t.fee;
@@ -1674,7 +1698,12 @@ function buildSeqModal(){
       ${f.waitlist?'📋 Join Waitlist':isGP?'Book as '+partnerLabel:'Book as Franchise Partner'}
     </div>
     <div style="background:var(--soft-blue);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px">
-      📍 <strong>${f.pin}</strong>${loc?' — '+loc:''}${f.pop?' · Pop: '+f.pop.toLocaleString('en-IN'):''}
+      ${isMulti
+        ? `📍 <strong>${pins.length} Pin Codes Selected</strong> · Total Pop: ${f.pop.toLocaleString('en-IN')}
+           <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">
+             ${pins.map(p=>`<span style="background:white;border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:10.5px;font-weight:600">${p}</span>`).join('')}
+           </div>`
+        : `📍 <strong>${f.pin}</strong>${loc?' — '+loc:''}${f.pop?' · Pop: '+f.pop.toLocaleString('en-IN'):''}`}
     </div>
     ${sHtml}
     <div style="text-align:right;margin-top:8px"><button class="pac-cancel-btn" onclick="pacCloseModal()">✕ Close</button></div>`;
@@ -1710,12 +1739,13 @@ function validateDetails(sn){
 
 function initiatePayment(){
   const f=_pacFlow;
+  const pins=f.pins||[f.pin];
   if(f.waitlist){ finalSubmit(); return; }
   // Compute amount in paise
   let amountPaise=0;
   if(f.type==='gp'||f.type==='sgp'){
-    const {rate}=gpRate(f.type,1); // single pin token
-    amountPaise=Math.round(rate*1.18)*100;
+    const {rate}=gpRate(f.type,pins.length); // bulk rate if booking 5+ pins together
+    amountPaise=Math.round(rate*1.18)*pins.length*100;
   } else {
     const t=f.tierObj; if(!t){alert('Select a plan first.');return;}
     const fee=f.hasDisc?f.discFee:t.fee;
@@ -1726,11 +1756,12 @@ function initiatePayment(){
     amount: amountPaise,
     currency: 'INR',
     name: 'List My India™',
-    description: 'Token — Pin Code ' + f.pin,
+    description: pins.length>1 ? 'Token — '+pins.length+' Pin Codes ('+pins.join(', ')+')' : 'Token — Pin Code ' + f.pin,
     image: 'https://listmyindia.com/favicon.ico',
     prefill: { name:f.name, email:f.email, contact:f.phone },
     notes: {
-      pin_code: f.pin,
+      pin_codes: pins.join(', '),
+      pin_count: pins.length,
       partner_type: f.type,
       district: f.d.district||'',
       state: f.d.state||'',
@@ -1819,10 +1850,29 @@ function verifyOtp(){
 }
 function buildPaySummary(){
   const f=_pacFlow; const t=f.tierObj;
-  const fee=f.hasDisc?f.discFee:((t&&t.fee)||0);
-  const booking=Math.round(fee*0.05*1.18);
+  const pins=f.pins||[f.pin];
+  const isGP=f.type==='gp'||f.type==='sgp';
   const el=document.getElementById('seq-pay-body');
   if(!el) return;
+  if(isGP){
+    const {rate}=gpRate(f.type,pins.length);
+    const perPin=Math.round(rate*1.18);
+    const total=perPin*pins.length;
+    el.innerHTML=`<div style="font-size:11.5px;line-height:2">
+      <div style="display:flex;justify-content:space-between"><span>Pin Codes</span><strong>${pins.length} selected</strong></div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 8px">
+        ${pins.map(p=>`<span style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:10.5px;font-weight:600">${p}</span>`).join('')}
+      </div>
+      <div style="display:flex;justify-content:space-between"><span>Rate per pin${pins.length>=5?' (bulk, 5+)':''}</span><strong>${fc(perPin)} incl. GST</strong></div>
+      <div style="display:flex;justify-content:space-between"><span>Total (${pins.length} pin${pins.length!==1?'s':''})</span><strong style="color:var(--lmi-blue)">${fc(total)} incl. GST</strong></div>
+      ${f.refVerified?`<div style="display:flex;justify-content:space-between"><span>Referred by</span><strong>${f.partnerName} (${f.partnerType})</strong></div>`:''}
+      ${f.name?`<div style="display:flex;justify-content:space-between"><span>Applicant</span><span>${f.name}</span></div>`:''}
+    </div>
+    ${f.waitlist?'<div class="info-note">No payment now. Team will contact you when a slot opens.</div>':''}`;
+    return;
+  }
+  const fee=f.hasDisc?f.discFee:((t&&t.fee)||0);
+  const booking=Math.round(fee*0.05*1.18);
   el.innerHTML=`<div style="font-size:11.5px;line-height:2">
     <div style="display:flex;justify-content:space-between"><span>Pin Code</span><strong>${f.pin}${[f.d.district,f.d.state].filter(Boolean).length?' — '+[f.d.district,f.d.state].filter(Boolean).join(', '):''}</strong></div>
     ${t?`<div style="display:flex;justify-content:space-between"><span>Plan</span><strong>${t.name} · ${Math.round(t.share*100)}% share</strong></div>`:''}
@@ -1893,52 +1943,61 @@ function loadLiveBookings(){
 // ═════════════════════════════════════════════════════════════════════════
 function finalSubmit(){
   const f=_pacFlow, t=f.tierObj;
+  const pins=f.pins||[f.pin];
+  const isGP=f.type==='gp'||f.type==='sgp';
+  const batchId=pins.length>1?('BATCH-'+Date.now()):'';
 
-  // --- POST to Google Apps Script (Sheets + Email) ---
-  const payload={
-    pin: f.pin,
-    district: f.d.district||'',
-    state: f.d.state||'',
-    population: f.pop||'',
-    partner_type: f.type||'fp',
-    plan: t?t.name:'',
-    plan_share: t?Math.round(t.share*100)+'%':'',
-    name: f.name||'',
-    phone: f.phone||'',
-    email: f.email||'',
-    address: f.addr||'',
-    firm: f.firm||'',
-    gstin: f.gstin||'',
-    rzp_payment_id: f.rzpPaymentId||'',
-    rzp_order_id: f.rzpOrderId||'',
-    amount_paid: f.rzpPaymentId?(()=>{
-      if(f.type==='gp'||f.type==='sgp'){const {rate}=gpRate(f.type,1);return Math.round(rate*1.18);}
-      const fee=f.hasDisc?f.discFee:(t?t.fee:0);return Math.round(fee*0.05*1.18);
-    })():0,
-    referred_by: f.refVerified?(f.partnerName+' ('+f.refCode+')') : '',
-    waitlist: f.waitlist?'Yes':'No',
-    timestamp: new Date().toISOString()
-  };
-
-  if(LMI_GAS_URL){
-    fetch(LMI_GAS_URL, {
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    }).catch(()=>{});
-  }
-  // Instantly update in-memory status so page reflects booking without reload
-  if(!f.waitlist){
-    liveUpdatePacDb(f.pin, f.type, f.name||'Reserved');
-  }
+  // --- POST to Google Apps Script (Sheets + Email) — one row per pin, same applicant ---
+  const perPinAmount=(()=>{
+    if(!f.rzpPaymentId) return 0;
+    if(isGP){ const {rate}=gpRate(f.type,pins.length); return Math.round(rate*1.18); }
+    const fee=f.hasDisc?f.discFee:(t?t.fee:0); return Math.round(fee*0.05*1.18);
+  })();
+  pins.forEach(pin=>{
+    const d=PAC_DB[pin]||{};
+    const payload={
+      pin: pin,
+      batch_id: batchId,
+      pin_count_in_batch: pins.length,
+      district: d.district||'',
+      state: d.state||'',
+      population: pacGetPinPop(pin)||'',
+      partner_type: f.type||'fp',
+      plan: t?t.name:'',
+      plan_share: t?Math.round(t.share*100)+'%':'',
+      name: f.name||'',
+      phone: f.phone||'',
+      email: f.email||'',
+      address: f.addr||'',
+      firm: f.firm||'',
+      gstin: f.gstin||'',
+      rzp_payment_id: f.rzpPaymentId||'',
+      rzp_order_id: f.rzpOrderId||'',
+      amount_paid: perPinAmount,
+      referred_by: f.refVerified?(f.partnerName+' ('+f.refCode+')') : '',
+      waitlist: f.waitlist?'Yes':'No',
+      timestamp: new Date().toISOString()
+    };
+    if(LMI_GAS_URL){
+      fetch(LMI_GAS_URL, {
+        method:'POST',
+        mode:'no-cors',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      }).catch(()=>{});
+    }
+    // Instantly update in-memory status so page reflects booking without reload
+    if(!f.waitlist){
+      liveUpdatePacDb(pin, f.type, f.name||'Reserved');
+    }
+  });
 
   // Show confirmation UI
   document.getElementById('pac-modal-body').innerHTML=`
     <div style="text-align:center;padding:24px 16px">
       <div style="font-size:40px;margin-bottom:8px">${f.waitlist?'📋':'🎉'}</div>
       <div style="font-size:16px;font-weight:700;color:${f.waitlist?'var(--navy)':'#166534'};margin-bottom:6px">
-        ${f.waitlist?'Waitlist request submitted!':'Payment successful — Pin reserved!'}
+        ${f.waitlist?'Waitlist request submitted!':(pins.length>1?'Payment successful — '+pins.length+' Pins reserved!':'Payment successful — Pin reserved!')}
       </div>
       <div style="font-size:12px;color:var(--t2);margin-bottom:16px;line-height:1.6">
         ${f.waitlist
@@ -1946,7 +2005,7 @@ function finalSubmit(){
           :'Confirmation sent to <strong>'+f.email+'</strong>. Our team will reach out within 24 hours.'}
       </div>
       <div style="background:var(--soft-blue);border-radius:10px;padding:12px 14px;text-align:left;font-size:12px;margin-bottom:16px;line-height:1.9">
-        <div><strong>📍 Pin:</strong> ${f.pin}${[f.d.district,f.d.state].filter(Boolean).join(', ')?(' · '+[f.d.district,f.d.state].filter(Boolean).join(', ')):''}</div>
+        <div><strong>📍 Pin${pins.length>1?'s':''}:</strong> ${pins.length>1?pins.join(', '):f.pin+([f.d.district,f.d.state].filter(Boolean).join(', ')?(' · '+[f.d.district,f.d.state].filter(Boolean).join(', ')):'')}</div>
         ${t?'<div><strong>📦 Plan:</strong> '+t.name+' · '+Math.round(t.share*100)+'% revenue share</div>':''}
         ${f.name?'<div><strong>👤 Applicant:</strong> '+f.name+'</div>':''}
         ${f.rzpPaymentId?'<div><strong>💳 Payment ID:</strong> '+f.rzpPaymentId+'</div>':''}
