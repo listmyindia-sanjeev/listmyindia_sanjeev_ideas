@@ -415,13 +415,18 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   #scroll-body{overflow:visible;flex:none}
   #tab-bar{display:none}
   #app-header .hdr-back{display:none!important}
-  body{display:block}
-  #app-header{position:sticky}
+  body{display:block;padding-top:calc(var(--hdr-h) + 60px)}
+  /* position:sticky is unreliable here because #scroll-body's overflow
+     property changes between mobile and desktop (auto vs visible), which
+     confuses sticky's "nearest scrolling ancestor" calculation. position:fixed
+     sidesteps that entirely — it's always relative to the viewport regardless
+     of any ancestor's overflow setting. body gets padding-top above to make
+     room so content doesn't render underneath these fixed bars. */
+  #app-header{position:fixed;top:0;left:0;right:0;width:100%}
+  #desktop-nav{position:fixed;top:var(--hdr-h);left:0;right:0;width:100%}
 
   .dnav-track{max-width:560px}
   .dnav-btn{padding:8px 12px;font-size:12.5px}
-  /* On desktop the scroll context is the whole page (not #scroll-body), so
-     the sticky offset needs the header + nav height added back in. */
   #tier-sticky-wrap{top:calc(var(--hdr-h) + 60px)}
 
   .screen{display:none}
