@@ -765,71 +765,76 @@ function gpRate(type,qty){
 // ────────────────────────────────────────────────────
 let _fpSelectedTier='silver';
 // Pins a .tier-sticky-wrap element to the top of the viewport once scrolled
-// to, using IntersectionObserver + position:fixed rather than CSS
-// position:sticky (which proved unreliable in this app's nested-scroll-context
-// layout on real browsers). Safe to call multiple times on the same element —
-// re-running just resets its sentinel/observer, so it's fine to call again
-// after a full innerHTML re-render (e.g. renderTierCards() on tier switch).
+// to. Uses a plain scroll listener + getBoundingClientRect() comparison —
+// deliberately NOT IntersectionObserver, because its default root is the
+// browser viewport, which doesn't match this app's actual scroll container on
+// mobile (#scroll-body scrolls internally; the document itself does not).
+// Measuring position directly, against a scroll listener attached to whatever
+// actually scrolls, has no such "wrong root" failure mode. Safe to call again
+// on the same wrap after a full innerHTML re-render.
 function initStickyWrap(wrap){
   if(!wrap) return;
-  // Clean up a previous run's sentinel/placeholder if this exact node was
-  // already initialized (shouldn't normally happen since re-renders replace
-  // the node entirely, but harmless to guard against).
-  if(wrap._stickyObserver){ wrap._stickyObserver.disconnect(); }
+  if(wrap._stickyCleanup) wrap._stickyCleanup();
   wrap.classList.remove('is-pinned');
   wrap.style.top=''; wrap.style.left=''; wrap.style.width='';
-
-  const sentinel=document.createElement('div');
-  sentinel.style.cssText='height:1px';
-  wrap.parentNode.insertBefore(sentinel, wrap);
 
   const placeholder=document.createElement('div');
   placeholder.className='tier-sticky-placeholder';
   wrap.parentNode.insertBefore(placeholder, wrap);
 
+  function isDesktop(){ return window.innerWidth>=600; }
   function topOffset(){
-    if(window.innerWidth>=600){
+    if(isDesktop()){
       const hdr=document.getElementById('app-header'), nav=document.getElementById('desktop-nav');
       return (hdr?hdr.offsetHeight:0)+(nav?nav.offsetHeight:0);
     }
-    // Mobile: #app-header/#desktop-nav sit outside #scroll-body and are
-    // already permanently visible, so the pin point is simply the top of
-    // the scrollable area.
     const sb=document.getElementById('scroll-body');
     return sb?sb.getBoundingClientRect().top:0;
   }
 
-  function pin(){
-    const rect=wrap.getBoundingClientRect();
-    placeholder.style.height=rect.height+'px';
-    placeholder.style.display='block';
-    wrap.classList.add('is-pinned');
-    wrap.style.top=topOffset()+'px';
-    wrap.style.left=rect.left+'px';
-    wrap.style.width=rect.width+'px';
-  }
-  function unpin(){
-    wrap.classList.remove('is-pinned');
-    wrap.style.top=''; wrap.style.left=''; wrap.style.width='';
-    placeholder.style.display='none';
+  let pinned=false;
+  function update(){
+    // Skip work if this wrap's screen isn't the active one (offsetParent is
+    // null for display:none elements/ancestors) — but only when NOT already
+    // pinned, since a pinned (position:fixed) element legitimately has a
+    // null offsetParent too.
+    if(!pinned && wrap.offsetParent===null) return;
+    const off=topOffset();
+    if(!pinned){
+      const rect=wrap.getBoundingClientRect();
+      if(rect.top<=off){
+        placeholder.style.height=rect.height+'px';
+        placeholder.style.display='block';
+        wrap.style.left=rect.left+'px';
+        wrap.style.width=rect.width+'px';
+        wrap.style.top=off+'px';
+        wrap.classList.add('is-pinned');
+        pinned=true;
+      }
+    } else {
+      const pr=placeholder.getBoundingClientRect();
+      if(pr.top>off){
+        wrap.classList.remove('is-pinned');
+        wrap.style.top=''; wrap.style.left=''; wrap.style.width='';
+        placeholder.style.display='none';
+        pinned=false;
+      } else {
+        wrap.style.left=pr.left+'px';
+        wrap.style.width=pr.width+'px';
+        wrap.style.top=off+'px';
+      }
+    }
   }
 
-  const observer=new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      if(!entry.isIntersecting && entry.boundingClientRect.top<0) pin();
-      else if(entry.isIntersecting) unpin();
-    });
-  },{threshold:0});
-  observer.observe(sentinel);
-  wrap._stickyObserver=observer;
-
-  window.addEventListener('resize',()=>{
-    if(!wrap.classList.contains('is-pinned')) return;
-    unpin();
-    // remeasure against natural (unpinned) layout, then re-pin
-    const rect=wrap.getBoundingClientRect();
-    if(rect.top<topOffset()) pin();
-  });
+  const sb=document.getElementById('scroll-body');
+  let scrollTarget=isDesktop()?window:sb;
+  scrollTarget.addEventListener('scroll', update, {passive:true});
+  window.addEventListener('resize', update);
+  wrap._stickyCleanup=function(){
+    scrollTarget.removeEventListener('scroll', update);
+    window.removeEventListener('resize', update);
+  };
+  update();
 }
 
 function selectFpTier(key){ _fpSelectedTier=key; renderTierCards(); }
