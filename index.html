@@ -299,18 +299,19 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
 .pill-tab.active{background:var(--surface);color:var(--blue);border-color:var(--blue);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .single-detail-card{border-radius:12px;padding:16px;width:100%;box-sizing:border-box;margin-bottom:12px}
 .income-banner{background:var(--navy);color:white;border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:6px}
-/* Sticks to the top of the scrollable area once reached, so the live total
-   stays on screen while adjusting sliders further down the page. On mobile,
-   #app-header/#desktop-nav sit OUTSIDE the scrolling container (#scroll-body)
-   and are already permanently visible, so top:0 here means "right at the top
-   of the scrollable area" — which is already just below the nav. On desktop,
-   the scrolling context becomes the whole page instead, so the header+nav
-   height needs to be added back in (see the desktop override below). */
-#tier-sticky-wrap{
-  position:sticky;top:0;z-index:60;
+/* Pinning for .tier-sticky-wrap is done in JS (see initStickyWrap), not CSS
+   position:sticky — sticky proved unreliable in this app's layout (nested
+   inside #scroll-body, whose overflow property changes between mobile and
+   desktop). JS toggles .is-pinned below instead, which is unaffected by any
+   ancestor scroll-context ambiguity. */
+.tier-sticky-wrap{
   background:var(--bg);padding-bottom:10px;
+}
+.tier-sticky-wrap.is-pinned{
+  position:fixed;z-index:60;
   box-shadow:0 10px 12px -10px rgba(0,0,0,.15);
 }
+.tier-sticky-placeholder{display:none}
 .income-banner .yr{font-size:9.5px;opacity:.7}
 .income-banner .amt{font-size:14px;font-weight:700}
 
@@ -427,7 +428,6 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
 
   .dnav-track{max-width:560px}
   .dnav-btn{padding:8px 12px;font-size:12.5px}
-  #tier-sticky-wrap{top:calc(var(--hdr-h) + 60px)}
 
   .screen{display:none}
   .screen.active{display:block}
@@ -764,14 +764,84 @@ function gpRate(type,qty){
 // TIER CARDS
 // ────────────────────────────────────────────────────
 let _fpSelectedTier='silver';
+// Pins a .tier-sticky-wrap element to the top of the viewport once scrolled
+// to, using IntersectionObserver + position:fixed rather than CSS
+// position:sticky (which proved unreliable in this app's nested-scroll-context
+// layout on real browsers). Safe to call multiple times on the same element —
+// re-running just resets its sentinel/observer, so it's fine to call again
+// after a full innerHTML re-render (e.g. renderTierCards() on tier switch).
+function initStickyWrap(wrap){
+  if(!wrap) return;
+  // Clean up a previous run's sentinel/placeholder if this exact node was
+  // already initialized (shouldn't normally happen since re-renders replace
+  // the node entirely, but harmless to guard against).
+  if(wrap._stickyObserver){ wrap._stickyObserver.disconnect(); }
+  wrap.classList.remove('is-pinned');
+  wrap.style.top=''; wrap.style.left=''; wrap.style.width='';
+
+  const sentinel=document.createElement('div');
+  sentinel.style.cssText='height:1px';
+  wrap.parentNode.insertBefore(sentinel, wrap);
+
+  const placeholder=document.createElement('div');
+  placeholder.className='tier-sticky-placeholder';
+  wrap.parentNode.insertBefore(placeholder, wrap);
+
+  function topOffset(){
+    if(window.innerWidth>=600){
+      const hdr=document.getElementById('app-header'), nav=document.getElementById('desktop-nav');
+      return (hdr?hdr.offsetHeight:0)+(nav?nav.offsetHeight:0);
+    }
+    // Mobile: #app-header/#desktop-nav sit outside #scroll-body and are
+    // already permanently visible, so the pin point is simply the top of
+    // the scrollable area.
+    const sb=document.getElementById('scroll-body');
+    return sb?sb.getBoundingClientRect().top:0;
+  }
+
+  function pin(){
+    const rect=wrap.getBoundingClientRect();
+    placeholder.style.height=rect.height+'px';
+    placeholder.style.display='block';
+    wrap.classList.add('is-pinned');
+    wrap.style.top=topOffset()+'px';
+    wrap.style.left=rect.left+'px';
+    wrap.style.width=rect.width+'px';
+  }
+  function unpin(){
+    wrap.classList.remove('is-pinned');
+    wrap.style.top=''; wrap.style.left=''; wrap.style.width='';
+    placeholder.style.display='none';
+  }
+
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(!entry.isIntersecting && entry.boundingClientRect.top<0) pin();
+      else if(entry.isIntersecting) unpin();
+    });
+  },{threshold:0});
+  observer.observe(sentinel);
+  wrap._stickyObserver=observer;
+
+  window.addEventListener('resize',()=>{
+    if(!wrap.classList.contains('is-pinned')) return;
+    unpin();
+    // remeasure against natural (unpinned) layout, then re-pin
+    const rect=wrap.getBoundingClientRect();
+    if(rect.top<topOffset()) pin();
+  });
+}
+
 function selectFpTier(key){ _fpSelectedTier=key; renderTierCards(); }
 function renderTierCards(){
   const el=document.getElementById('fp-tiers');
   if(!el) return;
   const t=TIERS.find(tt=>tt.key===_fpSelectedTier)||TIERS[1];
   el.innerHTML=`
-  <div class="pill-tabs">
-    ${TIERS.map(tt=>`<button class="pill-tab${tt.key===_fpSelectedTier?' active':''}" onclick="selectFpTier('${tt.key}')">${tt.name.replace('LMI ','')} · ${Math.round(tt.share*100)}%</button>`).join('')}
+  <div class="tier-sticky-wrap">
+    <div class="pill-tabs">
+      ${TIERS.map(tt=>`<button class="pill-tab${tt.key===_fpSelectedTier?' active':''}" onclick="selectFpTier('${tt.key}')">${tt.name.replace('LMI ','')} · ${Math.round(tt.share*100)}%</button>`).join('')}
+    </div>
   </div>
   <div class="tiers-grid">
     <div class="tier-card ${t.key==='silver'?'popular':''}">
@@ -819,6 +889,7 @@ function renderTierCards(){
     <div style="font-size:10px;color:#7F1D1D;margin-top:4px">Covers: Autism, Down syndrome, Dyslexia, Cerebral Palsy, Muscular Dystrophy, visual/hearing impairment, ADHD, anxiety. Valid medical documentation required.</div>
   </div>
 `;
+  initStickyWrap(el.querySelector('.tier-sticky-wrap'));
 }
 
 // ────────────────────────────────────────────────────
@@ -1063,7 +1134,7 @@ function buildIncomePanel(){
 
     <!-- Franchise tier — sticky so its live total stays visible while adjusting
          the assumption sliders further down the page. -->
-    <div id="tier-sticky-wrap">
+    <div class="tier-sticky-wrap">
       <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 8px">📊 Select Franchise Tier</div>
       <div class="pill-tabs" id="tier-tabs"></div>
       <div class="income-banner" id="inc-banner"><div class="yr">Select a tier above</div></div>
@@ -1126,6 +1197,7 @@ function buildIncomePanel(){
 
   </div><!-- /inc-body -->
   `;
+  initStickyWrap(el.querySelector('.tier-sticky-wrap'));
 }
 
 
