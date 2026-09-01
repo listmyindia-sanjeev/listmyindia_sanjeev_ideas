@@ -399,12 +399,14 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
 .app-footer{text-align:center;padding:20px 16px;font-size:10px;color:var(--t3);border-top:1px solid var(--border);margin-top:8px}
 
 /* top nav — segmented control style, shown at ALL widths (mobile keeps this
-   instead of relying only on the bottom tab bar) */
+   instead of relying only on the bottom tab bar). Lives inside #scroll-body
+   now (not fixed/sticky) so it collapses away as you scroll down, freeing up
+   vertical space on mobile — only the Franchise Tier section stays pinned
+   once you scroll to it (see .tier-sticky-wrap / initStickyWrap). */
 #desktop-nav{
   display:flex;background:var(--soft-blue);
   border-bottom:1px solid var(--border);
   justify-content:center;
-  position:sticky;top:var(--hdr-h);z-index:90;
   padding:8px 10px;
 }
 .dnav-track{
@@ -432,15 +434,16 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   #scroll-body{overflow:visible;flex:none}
   #tab-bar{display:none}
   #app-header .hdr-back{display:none!important}
-  body{display:block;padding-top:calc(var(--hdr-h) + 60px)}
+  body{display:block;padding-top:var(--hdr-h)}
   /* position:sticky is unreliable here because #scroll-body's overflow
      property changes between mobile and desktop (auto vs visible), which
      confuses sticky's "nearest scrolling ancestor" calculation. position:fixed
      sidesteps that entirely — it's always relative to the viewport regardless
      of any ancestor's overflow setting. body gets padding-top above to make
-     room so content doesn't render underneath these fixed bars. */
+     room so content doesn't render underneath the fixed header. Nav is no
+     longer fixed here either — see #desktop-nav comment above, it scrolls
+     away with the rest of the content on desktop too now. */
   #app-header{position:fixed;top:0;left:0;right:0;width:100%}
-  #desktop-nav{position:fixed;top:var(--hdr-h);left:0;right:0;width:100%}
 
   .dnav-track{max-width:560px}
   .dnav-btn{padding:8px 12px;font-size:12.5px}
@@ -483,19 +486,23 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   </div>
 </div>
 
-<!-- ═══ DESKTOP NAV ═══════════════════════════════════════════════════════ -->
-<div id="desktop-nav">
-  <div class="dnav-track">
-    <button class="dnav-btn active" onclick="navScreen('home')">Home</button>
-    <button class="dnav-btn" onclick="navScreen('growth')">Growth</button>
-    <button class="dnav-btn" onclick="navScreen('sgp')">Super GP</button>
-    <button class="dnav-btn" onclick="navScreen('franchise')">Franchise</button>
-    <button class="dnav-btn" onclick="navScreen('income')">Income</button>
-  </div>
-</div>
-
 <!-- ═══ SCROLL BODY ═══════════════════════════════════════════════════════ -->
 <div id="scroll-body">
+
+  <!-- Nav lives INSIDE the scroll container now (not fixed/sticky) so it
+       collapses away naturally as you scroll down — frees up vertical space
+       on mobile, where screen real estate is tight. Only the header (logo)
+       stays permanently visible; the Franchise Tier section has its own
+       independent sticky behavior (see initStickyWrap) once you scroll to it. -->
+  <div id="desktop-nav">
+    <div class="dnav-track">
+      <button class="dnav-btn active" onclick="navScreen('home')">Home</button>
+      <button class="dnav-btn" onclick="navScreen('growth')">Growth</button>
+      <button class="dnav-btn" onclick="navScreen('sgp')">Super GP</button>
+      <button class="dnav-btn" onclick="navScreen('franchise')">Franchise</button>
+      <button class="dnav-btn" onclick="navScreen('income')">Income</button>
+    </div>
+  </div>
 
   <!-- ─── HOME SCREEN ───────────────────────────────────────────────────── -->
   <div class="screen active" id="screen-home">
@@ -731,13 +738,13 @@ let incGpPinCount = {gp:1,sgp:1};
 
 let _inc = {
   pop:100000,retailPct:1.25,homeBase:5,capture:100,
-  startFree:300,startPaidPct:10,targetPaidPct:50,
+  startPaid:100,
   startPrice:99,stepAmount:50,
   sponsorHomepage:9999,sponsorSearchCat:7499,sponsorCatFeatured:12495,
   hemadriPct:25,selectedTier:'silver',selectedYear:1,selectedGpType:'gp',
 };
 let _subs=[],_gross=[],_spArr=[];
-let _free=[],_paidPctArr=[],_setupRev=[],_listingRevCum=[],_listingAddOn=[];
+let _setupRev=[],_listingRevCum=[],_listingAddOn=[];
 let _newPaidDelta=[],_listingPriceRate=[],_setupFeeRate=[];
 let _spHomepage=[],_spSearchCat=[],_spCatFeatured=[];
 
@@ -806,9 +813,12 @@ function initStickyWrap(wrap){
 
   function isDesktop(){ return window.innerWidth>=600; }
   function topOffset(){
+    // Nav is no longer fixed on either mobile or desktop — it lives inside
+    // #scroll-body and scrolls away naturally. On desktop, only the header
+    // is genuinely fixed chrome, so that's the only height to account for.
     if(isDesktop()){
-      const hdr=document.getElementById('app-header'), nav=document.getElementById('desktop-nav');
-      return (hdr?hdr.offsetHeight:0)+(nav?nav.offsetHeight:0);
+      const hdr=document.getElementById('app-header');
+      return hdr?hdr.offsetHeight:0;
     }
     const sb=document.getElementById('scroll-body');
     return sb?sb.getBoundingClientRect().top:0;
@@ -1186,21 +1196,53 @@ function buildIncomePanel(){
     <!-- Franchise tier — sticky so its live total (and the selected-pin chip)
          stay visible while adjusting the assumption sliders further down. -->
     <div class="tier-sticky-wrap">
-      <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 8px">📊 Select Franchise Tier</div>
-      <div class="pill-tabs" id="tier-tabs"></div>
-      <!-- Wrapper is position:relative so the pin chip can overlay the banner
-           without living inside it — #inc-banner's innerHTML gets fully
-           replaced by calculateIncome() on every change, which would wipe out
-           the chip if it were nested inside instead. -->
-      <div style="position:relative">
-        <div class="income-banner" id="inc-banner"><div class="yr">Select a tier above</div></div>
-        <!-- Pin summary chip — appears after a pin is selected. -->
-        <div id="inc-pin-summary" style="display:none;position:absolute;top:10px;right:12px;background:rgba(255,255,255,.14);border-radius:8px;padding:5px 11px;text-align:right;max-width:45%">
-          <div style="color:rgba(255,255,255,.6);font-size:9px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:1px">Selected</div>
-          <div id="inc-pin-label" style="color:white;font-weight:700;font-size:12px;line-height:1.3;word-break:break-word"></div>
-          <div id="inc-pop-label" style="color:var(--yellow);font-size:10px;margin-top:1px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 0 8px;flex-wrap:nowrap;overflow:hidden">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);white-space:nowrap;flex-shrink:0">📊 Select Franchise Tier</div>
+        <!-- Pin summary chip — appears after a pin is selected, one line, right-aligned. -->
+        <div id="inc-pin-summary" style="display:none;font-size:10.5px;color:var(--t2);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">
+          <span style="color:var(--t3);text-transform:uppercase;letter-spacing:.4px;font-size:9px">Selected</span>
+          <strong id="inc-pin-label" style="color:var(--navy)"></strong>
+          <span id="inc-pop-label" style="color:var(--blue)"></span>
         </div>
       </div>
+      <div class="pill-tabs" id="tier-tabs"></div>
+      <div class="income-banner" id="inc-banner"><div class="yr">Select a tier above</div></div>
+    </div>
+
+    <!-- Income Goal Calculator — "option 2": pick a target monthly income and
+         a month to reach it by, see what it takes instead of reading it off
+         the growth-curve projection above. -->
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">🎯 Income Goal Calculator</div>
+      <div class="info-note" style="margin-bottom:10px">Alternative to the growth-projection view above — pick the FP gross monthly income you want, and by which month, to see what it would take to get there.</div>
+      <div class="slider-grid" style="margin-bottom:10px">
+        <div>
+          <label style="font-size:10.5px;color:var(--t2);font-weight:600;display:block;margin-bottom:4px">Desired FP Gross Monthly Income</label>
+          <select id="goal-income" class="pac-form-field" style="margin-bottom:0" onchange="calculateIncomeGoal()">
+            <option value="25000">₹25,000/mo</option>
+            <option value="50000" selected>₹50,000/mo</option>
+            <option value="75000">₹75,000/mo</option>
+            <option value="100000">₹1,00,000/mo</option>
+            <option value="150000">₹1,50,000/mo</option>
+            <option value="200000">₹2,00,000/mo</option>
+            <option value="300000">₹3,00,000/mo</option>
+            <option value="500000">₹5,00,000/mo</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:10.5px;color:var(--t2);font-weight:600;display:block;margin-bottom:4px">Achieve By</label>
+          <select id="goal-month" class="pac-form-field" style="margin-bottom:0" onchange="calculateIncomeGoal()">
+            <option value="3">Month 3</option>
+            <option value="6">Month 6</option>
+            <option value="9">Month 9</option>
+            <option value="12" selected>Month 12 (Year 1)</option>
+            <option value="18">Month 18</option>
+            <option value="24">Month 24 (Year 2)</option>
+            <option value="36">Month 36 (Year 3)</option>
+          </select>
+        </div>
+      </div>
+      <div id="goal-result"></div>
     </div>
 
     <!-- Summary table -->
@@ -1229,19 +1271,14 @@ function buildIncomePanel(){
         ${mkSlider('pop','Population',10000,500000,5000,100000,v=>parseInt(v).toLocaleString('en-IN'))}
         ${mkSlider('retailPct','Retail store %',0.5,3,0.25,1.25,v=>v+'%')}
         ${mkSlider('homeBase','Home-based × retail',1,10,0.5,5,v=>v+'×')}
-        ${mkSlider('capture','Free Listing Target %',10,100,5,100,v=>v+'%')}
+        ${mkSlider('capture','Paid Listing Target %',10,100,5,50,v=>v+'%')}
       </div>
     </div>
 
-    <!-- Adoption curve sliders -->
+    <!-- Adoption curve slider -->
     <div class="card">
       <div class="card-title">📈 Adoption Curve — S-Curve over 36 Months</div>
-      <div class="info-note" style="margin-bottom:8px">Free listings ramp from the Month-1 starting count up to the Free Listing Target above (S-curve: slow start, fast middle, slow finish). The % of free listings that convert to paid ramps from the start rate up to the target rate over the same 36 months.</div>
-      <div class="slider-grid-3">
-        ${mkSlider('startFree','Month-1 Free Listings',0,2000,50,300,v=>parseInt(v).toLocaleString('en-IN'))}
-        ${mkSlider('startPaidPct','Start Paid %',1,50,1,10,v=>v+'%')}
-        ${mkSlider('targetPaidPct','Target Paid %',10,100,5,50,v=>v+'%')}
-      </div>
+      <div class="info-note" style="margin-bottom:0">Paid listings ramp on an S-curve (slow start, fast middle, slow finish) from a fixed <strong>100 paid listings in Month 1</strong> up to the Paid Listing Target set by the "Market Capture %" slider above, applied to your total addressable businesses. This starting count is a fixed assumption, not user-adjustable.</div>
     </div>
 
     <!-- Pricing ladder sliders -->
@@ -1267,6 +1304,9 @@ function buildIncomePanel(){
 
     <!-- Month-wise breakdown — populated by renderMonthlyBreakdown() -->
     <div id="inc-monthly-breakdown"></div>
+
+    <!-- Price ladder reference table — populated by renderPriceLadderReference() -->
+    <div id="inc-price-ladder-ref"></div>
 
     <!-- Legal disclaimer — shown last, after all figures -->
     <div class="disclaimer-box">
@@ -1297,7 +1337,6 @@ function updSlider(key,val){
   _inc[key]=parseFloat(val);
   const fmts={
     pop:v=>parseInt(v).toLocaleString('en-IN'), retailPct:v=>v+'%', homeBase:v=>v+'×', capture:v=>v+'%',
-    startFree:v=>parseInt(v).toLocaleString('en-IN'), startPaidPct:v=>v+'%', targetPaidPct:v=>v+'%',
     startPrice:v=>'₹'+v, stepAmount:v=>'₹'+v,
     sponsorHomepage:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorSearchCat:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorCatFeatured:v=>'₹'+parseInt(v).toLocaleString('en-IN'),
   };
@@ -1544,45 +1583,38 @@ function renderMonthlyBreakdown(){
 
   function listingRows(){
     let rows='';
-    let yrNewPaid=0, yrAddOn=0, yrSetup=0, yrFpShare=0;
+    let yrFpShare=0, yrRevSum=0, yrCount=0;
     for(let m=startM;m<=36;m++){
       const tillLast=m===1?0:_listingRevCum[m-2];
       const addOn=_listingAddOn[m-1];
       const setup=_setupRev[m-1];
-      const prevPaid=m===1?0:_subs[m-2];
-      const growthPct=prevPaid>0?(_newPaidDelta[m-1]/prevPaid*100):null;
-      const fpShare=Math.round((tillLast+addOn+setup)*(1-hemPct)*t.share);
+      const paidCount=_subs[m-1];
+      const monthlyRecurring=tillLast+addOn; // total recurring revenue collected this month, across all active cohorts
+      const avgPrice=paidCount>0?Math.round(monthlyRecurring/paidCount):0;
+      const fpShare=Math.round((monthlyRecurring+setup)*(1-hemPct)*t.share);
       rows+=`<tr>
         <td>${monthLabel(m)}</td>
-        <td>${_free[m-1].toLocaleString('en-IN')}</td>
-        <td>${_paidPctArr[m-1].toFixed(1)}%</td>
-        <td>${_subs[m-1].toLocaleString('en-IN')}</td>
-        <td>${_newPaidDelta[m-1].toLocaleString('en-IN')}</td>
-        <td>${growthPct===null?'—':growthPct.toFixed(1)+'%'}</td>
+        <td>${paidCount.toLocaleString('en-IN')}</td>
+        <td>${fc(avgPrice)}</td>
         <td>${fc(_listingPriceRate[m-1])}</td>
-        <td>${fc(_setupFeeRate[m-1])}</td>
-        <td>${fc(tillLast)}</td>
-        <td>${fc(addOn)}</td>
-        <td>${fc(setup)}</td>
         <td style="color:var(--lmi-blue);font-weight:600">${fc(fpShare)}</td>
       </tr>`;
-      yrNewPaid+=_newPaidDelta[m-1]; yrAddOn+=addOn; yrSetup+=setup; yrFpShare+=fpShare;
+      yrFpShare+=fpShare; yrRevSum+=monthlyRecurring; yrCount++;
       // End of a business year (Month 12/24/36) — or the last row rendered,
       // whichever comes first — emit a subtotal for whatever months of that
       // year were actually shown (may be a partial year if startM falls
-      // mid-year).
+      // mid-year). Paid Listings shows the year-end count (a stock, not
+      // summable); Avg Price shows the year's blended average.
       if(m%12===0 || m===36){
         const yearNum=Math.ceil(m/12);
         rows+=`<tr class="year-total-row">
-          <td colspan="4">YEAR ${yearNum} TOTAL${m%12!==0?' (partial)':''}</td>
-          <td>${yrNewPaid.toLocaleString('en-IN')}</td>
-          <td colspan="3">—</td>
+          <td>YEAR ${yearNum} TOTAL${m%12!==0?' (partial)':''}</td>
+          <td>${paidCount.toLocaleString('en-IN')} <span style="font-weight:400;font-size:9px">(year-end)</span></td>
+          <td>${fc(Math.round(yrRevSum/yrCount))} <span style="font-weight:400;font-size:9px">(avg)</span></td>
           <td>—</td>
-          <td>${fc(yrAddOn)}</td>
-          <td>${fc(yrSetup)}</td>
           <td style="color:var(--lmi-blue)">${fc(yrFpShare)}</td>
         </tr>`;
-        yrNewPaid=0; yrAddOn=0; yrSetup=0; yrFpShare=0;
+        yrFpShare=0; yrRevSum=0; yrCount=0;
       }
     }
     return rows;
@@ -1628,13 +1660,14 @@ function renderMonthlyBreakdown(){
     <div class="info-note" style="margin-bottom:10px">Starting from ${monthLabel(startM)} (next month) through Month 36 (${monthLabel(36)}). FP Share reflects the selected tier (${t.name}, ${Math.round(t.share*100)}%) on net-of-tech-share revenue.</div>
 
     <div class="card" style="padding:12px">
-      <div class="card-title">🏷️ Business Listings — Free, Paid & Setup Fee</div>
+      <div class="card-title">🏷️ Business Listings</div>
       <div class="month-breakdown-scroll">
-        <table class="month-breakdown-table">
-          <thead><tr><th>Month</th><th>Free</th><th>% Paid</th><th>Paid</th><th>New Paid<br>This Mo</th><th>% Growth<br>(Paid)</th><th>Plan<br>Price</th><th>Setup Fee<br>Rate</th><th>Recurring<br>Till Last Mo</th><th>Recurring<br>Add-On</th><th>Setup Fee<br>This Mo</th><th>FP Share</th></tr></thead>
+        <table class="month-breakdown-table" style="min-width:480px">
+          <thead><tr><th>Month</th><th>Paid<br>Listings</th><th>Avg. Listing<br>Price</th><th>New Reg.<br>Price</th><th>Revenue<br>to FP</th></tr></thead>
           <tbody>${listingRows()}</tbody>
         </table>
       </div>
+      <div style="font-size:10px;color:var(--t3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">💡 To reach ${_subs[35].toLocaleString('en-IN')} paid listings (100% of target, per the Paid Listing Target % slider above) by Month 36, you'd need to average roughly <strong style="color:var(--navy)">${Math.round((_subs[35]-_inc.startPaid)/36).toLocaleString('en-IN')} new paid listings/month</strong> over the 3 years — a simple 36-month average, not the actual S-curve pace shown above.</div>
     </div>
 
     <div class="card" style="padding:12px">
@@ -1647,6 +1680,88 @@ function renderMonthlyBreakdown(){
       </div>
     </div>
 
+  `;
+}
+
+// Price ladder reference table — shows how listing/setup/sponsorship prices
+// step up quarter by quarter, in the same Apr–Mar rate-card layout as the
+// official Franchise Tiers deck. Recomputed from the live slider values, so
+// it always matches whatever the rest of the page is currently showing.
+function renderPriceLadderReference(){
+  const el=document.getElementById('inc-price-ladder-ref');
+  if(!el) return;
+  const s=_inc;
+  const LAUNCH_YEAR=2026, LAUNCH_MONTH=9;
+  const LISTING_MRP=699, SETUP_MRP=499;
+
+  function calendarForBizMonth(m){
+    const idx=(LAUNCH_MONTH-1)+(m-1);
+    return { year: LAUNCH_YEAR+Math.floor(idx/12), month:(idx%12)+1 };
+  }
+  function fiscalQuarterIndex(year,month){
+    const fyYear = month>=4 ? year : year-1;
+    return fyYear*4 + Math.floor(((month-4+12)%12)/3);
+  }
+  function quarterIdxForBizMonth(m){ const c=calendarForBizMonth(m); return fiscalQuarterIndex(c.year,c.month); }
+  const LAUNCH_QIDX=quarterIdxForBizMonth(1);
+  function quartersSinceLaunch(m){ return quarterIdxForBizMonth(m)-LAUNCH_QIDX; }
+  function newSignupPrice(m){ return Math.min(LISTING_MRP, s.startPrice+s.stepAmount*quartersSinceLaunch(m)); }
+  function setupCharge(m){ return Math.min(SETUP_MRP, s.startPrice+s.stepAmount*quartersSinceLaunch(m)); }
+  const SPONSOR_DEFAULTS={
+    homepage:{launch:7499,settled:9999,step:10000,mrp:99999,key:'sponsorHomepage'},
+    searchCat:{launch:4999,settled:7499,step:7500,mrp:74999,key:'sponsorSearchCat'},
+    catFeat:{launch:1499*5,settled:2499*5,step:2500*5,mrp:24999*5,key:'sponsorCatFeatured'},
+  };
+  const SETTLED_BASE_QIDX=quarterIdxForBizMonth(2);
+  function sponsorPriceFor(prodKey,m){
+    const d=SPONSOR_DEFAULTS[prodKey];
+    const settledNow=s[d.key];
+    const scale=d.settled?settledNow/d.settled:1;
+    if(m===1) return Math.round(d.launch*scale);
+    const q=quarterIdxForBizMonth(m)-SETTLED_BASE_QIDX;
+    return Math.round(Math.min(d.mrp*scale, settledNow+d.step*scale*q));
+  }
+
+  // Start from the CURRENT real-world month (not launch, not "next month" —
+  // per this table's spec specifically), showing 36 months forward.
+  const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function monthLabelShort(m){
+    const c=calendarForBizMonth(m);
+    return MONTH_NAMES[c.month-1]+"'"+String(c.year).slice(-2);
+  }
+  const now=new Date();
+  const monthsSinceLaunch=(now.getFullYear()-LAUNCH_YEAR)*12+((now.getMonth()+1)-LAUNCH_MONTH);
+  const currentBizMonth=Math.max(1, monthsSinceLaunch+1);
+
+  let rows='';
+  let prevQ=null;
+  for(let i=0;i<36;i++){
+    const m=currentBizMonth+i;
+    const q=quartersSinceLaunch(m);
+    const isStepMonth=(prevQ!==null && q!==prevQ);
+    prevQ=q;
+    rows+=`<tr${isStepMonth?' class="year-total-row"':''}>
+      <td style="text-align:left;font-weight:600">${monthLabelShort(m)}${isStepMonth?' 🔺':''}</td>
+      <td>${fc(0)}</td>
+      <td>${fc(newSignupPrice(m))}</td>
+      <td>${fc(setupCharge(m))}</td>
+      <td>${fc(sponsorPriceFor('homepage',m))}</td>
+      <td>${fc(sponsorPriceFor('searchCat',m))}</td>
+      <td>${fc(sponsorPriceFor('catFeat',m))}</td>
+    </tr>`;
+  }
+
+  el.innerHTML=`
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 4px">📋 Price Ladder Reference</div>
+    <div class="info-note" style="margin-bottom:10px">Month-wise pricing starting from ${monthLabelShort(currentBizMonth)} (current month) through ${monthLabelShort(currentBizMonth+35)} — 36 months out. Price holds flat for the rest of the fiscal quarter (Apr–Jun / Jul–Sep / Oct–Dec / Jan–Mar) containing sign-up, then steps up (🔺) on the 1st of the next quarter. Recalculated live from the sliders above.</div>
+    <div class="card" style="padding:12px">
+      <div class="month-breakdown-scroll">
+        <table class="month-breakdown-table" style="min-width:640px">
+          <thead><tr><th style="text-align:left">Month</th><th>LMI Free</th><th>LMI Star</th><th>Setup<br>Charge</th><th>Homepage<br>Banner</th><th>Search &amp;<br>Category</th><th>Category<br>Featured</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
   `;
 }
 
@@ -1707,10 +1822,8 @@ function buildIncomePDF(){
     ['Market','Population',s.pop.toLocaleString('en-IN')],
     ['Market','Retail Store %',s.retailPct+'%'],
     ['Market','Home-based × Retail',s.homeBase+'×'],
-    ['Market','Free Listing Target %',s.capture+'%'],
-    ['Adoption Curve','Month-1 Free Listings',s.startFree.toLocaleString('en-IN')],
-    ['Adoption Curve','Start Paid %',s.startPaidPct+'%'],
-    ['Adoption Curve','Target Paid %',s.targetPaidPct+'%'],
+    ['Market','Paid Listing Target %',s.capture+'%'],
+    ['Adoption Curve','Month-1 Paid Listings',s.startPaid.toLocaleString('en-IN')],
     ['Listing Pricing','Start Price',fc(s.startPrice)],
     ['Listing Pricing','Step Amount / Quarter',fc(s.stepAmount)],
     ['Sponsorship','Homepage Banner (settled)',fc(s.sponsorHomepage)],
@@ -1747,15 +1860,16 @@ function buildIncomePDF(){
     for(let m=startM;m<=36;m++){
       const tillLast=m===1?0:_listingRevCum[m-2];
       const addOn=_listingAddOn[m-1], setup=_setupRev[m-1];
-      const fpShare=Math.round((tillLast+addOn+setup)*(1-hemPct)*t.share);
-      listBody.push([monthLabel(m),_free[m-1].toLocaleString('en-IN'),_paidPctArr[m-1].toFixed(1)+'%',
-        _subs[m-1].toLocaleString('en-IN'),_newPaidDelta[m-1],fc(_listingPriceRate[m-1]),fc(_setupFeeRate[m-1]),
-        fc(addOn),fc(setup),fc(fpShare)]);
+      const paidCount=_subs[m-1];
+      const monthlyRecurring=tillLast+addOn;
+      const avgPrice=paidCount>0?Math.round(monthlyRecurring/paidCount):0;
+      const fpShare=Math.round((monthlyRecurring+setup)*(1-hemPct)*t.share);
+      listBody.push([monthLabel(m),paidCount.toLocaleString('en-IN'),fc(avgPrice),fc(_listingPriceRate[m-1]),fc(fpShare)]);
       if(m%12===0||m===36){
-        listBody.push(['YEAR '+Math.ceil(m/12)+' TOTAL','','','','','','','','','']);
+        listBody.push(['YEAR '+Math.ceil(m/12)+' TOTAL','','','','']);
       }
     }
-    table(['Month','Free','% Paid','Paid','New Paid','Plan Price','Setup Fee','Add-On Rev','Setup Rev','FP Share'],listBody,{styles:{fontSize:7,cellPadding:2}});
+    table(['Month','Paid Listings','Avg. Listing Price','New Reg. Price','Revenue to FP'],listBody,{styles:{fontSize:7,cellPadding:2}});
   }
 
   // ── Month-wise Sponsorship ──
@@ -1917,9 +2031,9 @@ function calculateIncome(){
   const s=_inc;
   const retail=Math.round(s.pop*s.retailPct/100);
   const total=Math.round(retail*(1+s.homeBase));
-  // 'capture' now means "Free Listing Target %" — the % of total addressable
-  // businesses (retail + home-based) that free listings ramp toward by Month 36.
-  const freeTarget=Math.round(total*s.capture/100);
+  // 'capture' now means "Paid Listing Target %" — the % of total addressable
+  // businesses (retail + home-based) that paid listings ramp toward by Month 36.
+  const paidTarget=Math.round(total*s.capture/100);
   const homeBased=total-retail;
   // Show the absolute number in brackets next to each market slider's % / × value.
   const svRetail=document.getElementById('sv-retailPct');
@@ -1927,7 +2041,7 @@ function calculateIncome(){
   const svHome=document.getElementById('sv-homeBase');
   if(svHome) svHome.textContent=s.homeBase+'× ('+homeBased.toLocaleString('en-IN')+')';
   const svCapture=document.getElementById('sv-capture');
-  if(svCapture) svCapture.textContent=s.capture+'% ('+freeTarget.toLocaleString('en-IN')+')';
+  if(svCapture) svCapture.textContent=s.capture+'% ('+paidTarget.toLocaleString('en-IN')+')';
 
   // ── Recurring listing price (cohort-locked): flat within a real fiscal
   // quarter (Apr–Jun, Jul–Sep, Oct–Dec, Jan–Mar), stepping up +stepAmount at
@@ -1987,28 +2101,21 @@ function calculateIncome(){
   }
 
   // ── Adoption curve — S-curve (smoothstep: slow start, fast middle, slow
-  // finish) from Month-1 starting free listings up to the Free Listing Target
-  // over 36 months. % of free listings converting to paid ramps from Start
-  // Paid % to Target Paid % on the same curve.
+  // finish), applied directly to paid listings from the Month-1 starting
+  // count up to the Paid Listing Target — no free-listing step in between.
   function smoothstep(t){ t=Math.max(0,Math.min(1,t)); return t*t*(3-2*t); }
-  function freeListingsFor(m){
+  function paidListingsFor(m){
     const sm=smoothstep((m-1)/35);
-    return Math.max(0,Math.round(s.startFree + (freeTarget-s.startFree)*sm));
-  }
-  function paidPctFor(m){
-    const sm=smoothstep((m-1)/35);
-    return Math.max(0,Math.min(100, s.startPaidPct + (s.targetPaidPct-s.startPaidPct)*sm));
+    return Math.max(0,Math.round(s.startPaid + (paidTarget-s.startPaid)*sm));
   }
 
   _subs=[]; _gross=[]; _spArr=[];
-  _free=[]; _paidPctArr=[]; _setupRev=[]; _listingRevCum=[]; _listingAddOn=[];
+  _setupRev=[]; _listingRevCum=[]; _listingAddOn=[];
   _newPaidDelta=[]; _listingPriceRate=[]; _setupFeeRate=[];
   _spHomepage=[]; _spSearchCat=[]; _spCatFeatured=[];
   let prevPaid=0, listingRevRunning=0;
   for(let m=1;m<=36;m++){
-    const free=freeListingsFor(m);
-    const paidPct=paidPctFor(m);
-    const paid=Math.min(free, Math.round(free*paidPct/100));
+    const paid=paidListingsFor(m);
     const delta=Math.max(0,paid-prevPaid);
     const rate=newSignupPrice(m), setupRate=setupCharge(m);
     const addOn=delta*rate;
@@ -2021,8 +2128,6 @@ function calculateIncome(){
     const spC=sponsorPriceFor('catFeat',m);
     const sponsorTotal=spH+spS+spC;
 
-    _free.push(free);
-    _paidPctArr.push(paidPct);
     _subs.push(paid);
     _newPaidDelta.push(delta);
     _listingPriceRate.push(rate);
@@ -2038,6 +2143,7 @@ function calculateIncome(){
   }
 
   renderMonthlyBreakdown();
+  renderPriceLadderReference();
 
   const hemPct=s.hemadriPct/100;
   const ym=[1,2,3].map(y=>{
@@ -2113,16 +2219,74 @@ function calculateIncome(){
     const t=TIERS.find(t=>t.key===_inc.selectedTier);
     const yrs=ym.map(m=>Math.round(m.net*t.share));
     const tot=yrs.reduce((a,b)=>a+b,0);
+
+    // Investment payback — cumulative FP GROSS share (marketing expense
+    // removed from this calculation by request) against this tier's own
+    // "Total Funds Needed to Start". This is the franchise partner's own
+    // breakeven, not anything to do with LMI's company revenue.
+    let cumGross=0, paybackMonth=null;
+    for(let m=1;m<=36;m++){
+      const grossM=_gross[m-1];
+      const hemM=Math.round(grossM*_inc.hemadriPct/100);
+      const netM=grossM-hemM;
+      const fpM=Math.round(netM*t.share);
+      cumGross+=fpM;
+      if(paybackMonth===null && cumGross>=t.totalStart){ paybackMonth=m; break; }
+    }
+    const paybackLine = paybackMonth
+      ? `✅ Investment payback: <strong>Month ${paybackMonth}</strong> (recovers ${fc(t.totalStart)} start-up cost)`
+      : `⏳ Investment not yet recovered within 36 months (start-up cost: ${fc(t.totalStart)})`;
+
     banner.innerHTML=`
       <div style="width:100%;margin-bottom:6px;padding-right:130px">
         <div style="font-weight:700;font-size:12px">${t.name} · ${Math.round(t.share*100)}% revenue share</div>
         <div style="font-size:9.5px;opacity:.6">${t.bestFor}</div>
       </div>
       ${yrs.map((v,i)=>`<div><span class="yr">Year ${i+1}</span><div class="amt">${fc(v)}</div></div>`).join('')}
-      <div><span class="yr" style="color:#FEEF22">3-Yr Total</span><div class="amt" style="color:#FEEF22">${fc(tot)}</div></div>`;
+      <div><span class="yr" style="color:#FEEF22">3-Yr Total</span><div class="amt" style="color:#FEEF22">${fc(tot)}</div></div>
+      <div style="width:100%;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.2);font-size:10px;opacity:.9">${paybackLine} <span style="opacity:.65">— gross FP share, before the FP's own operating costs.</span></div>`;
   }
 
   renderSummaryTable(ym);
+  calculateIncomeGoal();
+}
+
+// Income Goal Calculator — "option 2". Works backward from a target FP net
+// monthly income (after marketing spend) and a target month, to estimate the
+// paid-listing count needed — using this month's actual sponsorship revenue
+// and blended listing price from the CURRENT growth curve as the basis —
+// then compares that against what the curve actually projects for that month.
+function calculateIncomeGoal(){
+  const resultEl=document.getElementById('goal-result');
+  if(!resultEl || !_gross.length) return;
+  const incomeSel=document.getElementById('goal-income'), monthSel=document.getElementById('goal-month');
+  if(!incomeSel || !monthSel) return;
+  const targetGross=parseFloat(incomeSel.value);
+  const M=parseInt(monthSel.value,10);
+  const t=TIERS.find(tt=>tt.key===_inc.selectedTier)||TIERS[1];
+  const hemPct=_inc.hemadriPct/100;
+
+  // Back-solve required FP gross share directly — marketing expense removed
+  // from this calculation by request; focus is purely on gross revenue.
+  const grossNeeded=targetGross/((1-hemPct)*t.share);
+
+  const sponsorAtM=_spArr[M-1]||0;
+  const listingRevNeeded=Math.max(0,grossNeeded-sponsorAtM);
+  const avgPriceAtM=_subs[M-1]>0 ? (_listingRevCum[M-1]/_subs[M-1]) : _listingPriceRate[M-1];
+  const requiredPaid=avgPriceAtM>0 ? Math.ceil(listingRevNeeded/avgPriceAtM) : 0;
+  const projectedPaid=_subs[M-1]||0;
+  const achievable=projectedPaid>=requiredPaid;
+
+  resultEl.innerHTML=`
+    <div style="background:${achievable?'#F0FDF4':'#FFF8E1'};border:1px solid ${achievable?'#86EFAC':'#F5D100'};border-radius:8px;padding:12px">
+      <div style="font-size:12px;font-weight:700;color:${achievable?'#166534':'#92400E'};margin-bottom:6px">
+        ${achievable?'✅ Achievable with current assumptions':'⚠️ Needs faster growth than currently modeled'}
+      </div>
+      <div style="font-size:11px;color:var(--t2);line-height:1.8">
+        To gross ${fc(targetGross)}/mo as ${t.name} by Month ${M}, you'd need roughly <strong>${requiredPaid.toLocaleString('en-IN')} paid listings</strong> at that point (≈${fc(Math.round(avgPriceAtM))}/listing blended, plus ${fc(sponsorAtM)} sponsorship that month).<br>
+        Your current growth assumptions above project <strong>${projectedPaid.toLocaleString('en-IN')} paid listings</strong> by Month ${M}${achievable?' — already ahead of the goal.':' — '+(requiredPaid-projectedPaid).toLocaleString('en-IN')+' short of target. Try increasing the Paid Listing Target % or Month-1 Paid Listings above.'}
+      </div>
+    </div>`;
 }
 
 function selectTier(key){ _inc.selectedTier=key; calculateIncome(); }
@@ -2138,32 +2302,25 @@ function renderSummaryTable(ymParam){
   const totalList=listRev.reduce((a,b)=>a+b,0);
   const totalSp=sp.reduce((a,b)=>a+b,0);
   const t=TIERS.find(t=>t.key===_inc.selectedTier)||TIERS[1];
-  // Marketing rule: whichever is higher — the tier's fixed monthly minimum, or 5% of
-  // that month's FP gross income. Computed month-by-month since FP income (and so the
-  // 5% floor) grows over the year, then summed for the annual total.
-  let fpShare=0, mktg=0;
+  // Gross FP share only — marketing expense deduction removed from this
+  // view by request; focus is purely on gross revenue to the franchise partner.
+  let fpShare=0;
   for(let i=0;i<12;i++){
     const grossM=g[i];
     const hemM=Math.round(grossM*_inc.hemadriPct/100);
     const netM=grossM-hemM;
-    const fpM=Math.round(netM*t.share);
-    const mktgM=Math.max(t.marketing,Math.round(fpM*0.05));
-    fpShare+=fpM;
-    mktg+=mktgM;
+    fpShare+=Math.round(netM*t.share);
   }
   // Franchise share of listing & sponsorship (proportional to FP revenue share)
   const fpListShare=Math.round(totalList*t.share*(1-_inc.hemadriPct/100));
   const fpSpShare=Math.round(totalSp*t.share*(1-_inc.hemadriPct/100));
-  const netFp=fpShare-mktg;
   const avgSubs=Math.round(_subs.slice(yi*12,y*12).reduce((a,b)=>a+b,0)/12);
 
   tbody.innerHTML=[
     ['Avg paid listings/mo', avgSubs.toLocaleString('en-IN')+' listings', false, ''],
     ['Listing revenue — your share ('+Math.round(t.share*100)+'%)', fc(fpListShare), false, ''],
     ['Sponsorship revenue — your share ('+Math.round(t.share*100)+'%)', fc(fpSpShare), false, ''],
-    ['FP gross share ('+Math.round(t.share*100)+'% · '+t.name+')', fc(fpShare), true, 'var(--lmi-blue)'],
-    ['Less: Marketing (min '+fc(t.marketing)+'/mo, or 5% of gross income — higher applies)', '− '+fc(mktg), false, '#92400E'],
-    ['FP net income — Year '+y, fc(netFp), true, netFp>=0?'#166534':'#991B1B'],
+    ['FP gross share ('+Math.round(t.share*100)+'% · '+t.name+') — Year '+y, fc(fpShare), true, 'var(--lmi-blue)'],
   ].map(function(r){var l=r[0],v=r[1],bold=r[2],color=r[3];var bs=bold?'font-weight:700':'';var cs=color?'color:'+color:'';return '<tr><td style="'+bs+'">'+l+'</td><td style="text-align:right;'+bs+';'+cs+'">'+v+'</td></tr>';}).join('');
 }
 
