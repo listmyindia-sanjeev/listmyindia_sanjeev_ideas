@@ -323,6 +323,22 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
 .slab-tag{display:inline-block;padding:1px 6px;border-radius:8px;font-size:9px;font-weight:700;margin-left:4px}
 .slab-tag-current{background:var(--blue);color:white}.slab-tag-next{background:#16A34A;color:white}
 .gp-interim-box{background:#FFF8E1;border:1px solid #F5D100;border-radius:6px;padding:10px 12px;margin-top:8px;font-size:11px;color:var(--amber)}
+.disclaimer-box{background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:10px 12px;margin-bottom:14px;color:#7F1D1D}
+.disclaimer-box li{margin-bottom:3px}
+.disclaimer-box li:last-child{margin-bottom:0}
+
+/* Month-wise breakdown tables (Income Potential — Free/Paid listings + each
+   sponsorship product). Horizontally scrollable since there are many rows/
+   cols; header row stays visible while scrolling vertically within its own
+   max-height so 35 rows doesn't blow out page length. */
+.month-breakdown-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-height:340px;overflow-y:auto;border-radius:8px;border:1px solid var(--border)}
+.month-breakdown-table{width:100%;min-width:800px;border-collapse:collapse;font-size:10.5px;white-space:nowrap}
+.month-breakdown-table th{position:sticky;top:0;background:var(--navy);color:white;padding:6px 7px;text-align:right;font-size:9.5px;font-weight:700;z-index:1}
+.month-breakdown-table th:first-child{text-align:left}
+.month-breakdown-table td{padding:5px 7px;border-bottom:1px solid var(--border);text-align:right}
+.month-breakdown-table td:first-child{text-align:left;font-weight:600;color:var(--t2)}
+.month-breakdown-table tbody tr:nth-child(even){background:var(--bg)}
+.month-breakdown-table tr.year-total-row td{background:var(--soft-blue)!important;font-weight:700;color:var(--navy);border-top:1.5px solid var(--blue);border-bottom:1.5px solid var(--blue)}
 
 /* questionnaire */
 .sec-group{border-radius:10px;padding:10px 10px 4px;margin-bottom:12px}
@@ -450,6 +466,8 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   .tiers-grid{max-width:420px;margin-left:auto;margin-right:auto}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -712,12 +730,16 @@ let gpPinCount = {gp:1,sgp:50};
 let incGpPinCount = {gp:1,sgp:1};
 
 let _inc = {
-  pop:100000,retailPct:1.25,homeBase:5,capture:50,
-  startPrice:99,stepAmount:50,stepFreq:4,
-  sponsorHomepage:9999,sponsorSearchCat:7499,sponsorCatFeatured:12495,sponsorGrowthPct:10,
+  pop:100000,retailPct:1.25,homeBase:5,capture:100,
+  startFree:300,startPaidPct:10,targetPaidPct:50,
+  startPrice:99,stepAmount:50,
+  sponsorHomepage:9999,sponsorSearchCat:7499,sponsorCatFeatured:12495,
   hemadriPct:25,selectedTier:'silver',selectedYear:1,selectedGpType:'gp',
 };
 let _subs=[],_gross=[],_spArr=[];
+let _free=[],_paidPctArr=[],_setupRev=[],_listingRevCum=[],_listingAddOn=[];
+let _newPaidDelta=[],_listingPriceRate=[],_setupFeeRate=[];
+let _spHomepage=[],_spSearchCat=[],_spCatFeatured=[];
 
 // ────────────────────────────────────────────────────
 // NAV
@@ -1097,12 +1119,6 @@ function buildIncomePanel(){
   el.innerHTML=`
   <!-- ═══ STEP 1: PIN SELECTOR — always visible ══════════════════ -->
   <div id="inc-pin-selector" style="background:var(--navy);border-radius:14px;padding:20px;margin-bottom:16px;position:relative">
-    <!-- Pin summary chip — upper right, appears after pin selected -->
-    <div id="inc-pin-summary" style="display:none;position:absolute;top:12px;right:12px;background:rgba(255,255,255,.12);border-radius:8px;padding:5px 11px;text-align:right;max-width:50%">
-      <div style="color:rgba(255,255,255,.5);font-size:9px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:1px">Selected</div>
-      <div id="inc-pin-label" style="color:white;font-weight:700;font-size:12px;line-height:1.3;word-break:break-word"></div>
-      <div id="inc-pop-label" style="color:var(--yellow);font-size:10px;margin-top:1px"></div>
-    </div>
     <div style="color:var(--yellow);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">Step 1</div>
     <div style="color:white;font-size:17px;font-weight:700;margin-bottom:4px">Select your Pin Code</div>
     <div style="color:rgba(255,255,255,.6);font-size:11px;margin-bottom:14px">Population auto-fills · All projections update instantly</div>
@@ -1132,15 +1148,55 @@ function buildIncomePanel(){
   <!-- ═══ STEP 2+: Everything hidden until pin selected ═══════════ -->
   <div id="inc-body" style="display:none">
 
+    <!-- Lead-capture modal — shown before any PDF download/share -->
+    <div id="pdf-lead-overlay" style="display:none;position:fixed;inset:0;background:rgba(5,19,45,.55);z-index:200;align-items:center;justify-content:center;padding:16px">
+      <div style="background:var(--surface);border-radius:14px;padding:20px;max-width:420px;width:100%;max-height:88vh;overflow-y:auto">
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px">Just a few details first</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:14px">We'll send you this report and have our team follow up.</div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <input type="text" id="pdf-lead-name" class="pac-form-field" placeholder="Full name *">
+          <input type="tel" id="pdf-lead-mobile" class="pac-form-field" placeholder="Mobile number *">
+          <input type="email" id="pdf-lead-email" class="pac-form-field" placeholder="Email address *">
+          <input type="text" id="pdf-lead-pin" class="pac-form-field" placeholder="Your base location PIN code *" maxlength="6" oninput="pdfLeadPinLookup()">
+          <div id="pdf-lead-location" style="font-size:10.5px;color:var(--t3);margin-top:-4px"></div>
+          <select id="pdf-lead-interest" class="pac-form-field">
+            <option value="">Interested in… *</option>
+            <option value="Growth Partner">Growth Partner</option>
+            <option value="Super Growth Partner">Super Growth Partner</option>
+            <option value="Franchise Partner">Franchise Partner</option>
+          </select>
+          <textarea id="pdf-lead-comment" class="pac-form-field" rows="3" placeholder="Comments (optional)" style="resize:vertical"></textarea>
+        </div>
+
+        <div id="pdf-lead-error" style="display:none;color:#991B1B;font-size:10.5px;margin-top:8px"></div>
+
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button class="submit-btn" style="flex:1;background:var(--surface);color:var(--t2);border:1.5px solid var(--border)" onclick="closePdfLeadModal()">Cancel</button>
+          <button class="submit-btn" style="flex:1" id="pdf-lead-submit-btn" onclick="submitPdfLead()">Continue →</button>
+        </div>
+      </div>
+    </div>
+
     <!-- GP/SGP income -->
     <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 8px">🌱 GP / SGP Referral Income</div>
     <div class="pill-tabs" id="gp-type-tabs"></div>
     <div id="gp-inc-detail"></div>
 
-    <!-- Franchise tier — sticky so its live total stays visible while adjusting
-         the assumption sliders further down the page. -->
+    <!-- Franchise tier — sticky so its live total (and the selected-pin chip)
+         stay visible while adjusting the assumption sliders further down. -->
     <div class="tier-sticky-wrap">
-      <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 8px">📊 Select Franchise Tier</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin:16px 0 8px">
+        <div style="font-size:13px;font-weight:700;color:var(--navy)">📊 Select Franchise Tier</div>
+        <!-- Pin summary chip — appears after a pin is selected; lives here (not
+             the pin-selector panel above) specifically so it stays visible once
+             this section becomes sticky and the pin panel has scrolled away. -->
+        <div id="inc-pin-summary" style="display:none;background:var(--soft-blue);border:1px solid #C7D7F5;border-radius:8px;padding:5px 11px;text-align:right;max-width:55%;flex-shrink:0">
+          <div style="color:var(--t3);font-size:9px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:1px">Selected</div>
+          <div id="inc-pin-label" style="color:var(--navy);font-weight:700;font-size:12px;line-height:1.3;word-break:break-word"></div>
+          <div id="inc-pop-label" style="color:var(--blue);font-size:10px;margin-top:1px"></div>
+        </div>
+      </div>
       <div class="pill-tabs" id="tier-tabs"></div>
       <div class="income-banner" id="inc-banner"><div class="yr">Select a tier above</div></div>
     </div>
@@ -1171,34 +1227,63 @@ function buildIncomePanel(){
         ${mkSlider('pop','Population',10000,500000,5000,100000,v=>parseInt(v).toLocaleString('en-IN'))}
         ${mkSlider('retailPct','Retail store %',0.5,3,0.25,1.25,v=>v+'%')}
         ${mkSlider('homeBase','Home-based × retail',1,10,0.5,5,v=>v+'×')}
-        ${mkSlider('capture','Market capture %',1,50,1,10,v=>v+'%')}
+        ${mkSlider('capture','Free Listing Target %',10,100,5,100,v=>v+'%')}
+      </div>
+    </div>
+
+    <!-- Adoption curve sliders -->
+    <div class="card">
+      <div class="card-title">📈 Adoption Curve — S-Curve over 36 Months</div>
+      <div class="info-note" style="margin-bottom:8px">Free listings ramp from the Month-1 starting count up to the Free Listing Target above (S-curve: slow start, fast middle, slow finish). The % of free listings that convert to paid ramps from the start rate up to the target rate over the same 36 months.</div>
+      <div class="slider-grid-3">
+        ${mkSlider('startFree','Month-1 Free Listings',0,2000,50,300,v=>parseInt(v).toLocaleString('en-IN'))}
+        ${mkSlider('startPaidPct','Start Paid %',1,50,1,10,v=>v+'%')}
+        ${mkSlider('targetPaidPct','Target Paid %',10,100,5,50,v=>v+'%')}
       </div>
     </div>
 
     <!-- Pricing ladder sliders -->
     <div class="card">
       <div class="card-title">💰 Listing Price Ladder — Cohort-Locked</div>
-      <div class="info-note" style="margin-bottom:8px">Each subscriber locks in the price active on their signup month for life — earlier cohorts are never repriced upward. New sign-ups pay the starting price until the first step, then step up every N months.</div>
-      <div class="slider-grid-3">
+      <div class="info-note" style="margin-bottom:8px">Each subscriber locks in the price active on their signup month for life — earlier cohorts are never repriced upward. New sign-ups pay the starting price until the next fiscal quarter (Apr–Jun / Jul–Sep / Oct–Dec / Jan–Mar) begins, then step up at each subsequent quarter start, capped at ₹699 MRP. The one-time setup charge follows the same ladder, capped at ₹499 MRP.</div>
+      <div class="slider-grid">
         ${mkSlider('startPrice','Start Price',49,699,10,99,fc2)}
-        ${mkSlider('stepAmount','Step Amount',0,200,10,50,fc2)}
-        ${mkSlider('stepFreq','Step Every (mo)',1,12,1,4,v=>v+' mo')}
+        ${mkSlider('stepAmount','Step Amount / Quarter',0,200,10,50,fc2)}
       </div>
     </div>
 
     <!-- Sponsorship sliders — broken out by product -->
     <div class="card">
-      <div class="card-title">🎯 Sponsorship Revenue — Compounding</div>
-      <div class="info-note" style="margin-bottom:8px">Default combined: ₹9,999 + ₹7,499 + ₹12,495 (5 slots × ₹2,499) = ₹29,993/mo for Months 1–3, then the total compounds every quarter thereafter (company-wide, not cohort-locked).</div>
+      <div class="card-title">🎯 Sponsorship Revenue — Quarterly Step-Up</div>
+      <div class="info-note" style="margin-bottom:8px">Month 1 (launch) is priced lower as a one-time teaser, then settles to the price below from Month 2, stepping up at the start of each real fiscal quarter (Apr–Jun / Jul–Sep / Oct–Dec / Jan–Mar) thereafter until it reaches MRP. Applies to whoever holds the slot each month (not cohort-locked, unlike listings).</div>
       <div class="slider-grid-3">
         ${mkSlider('sponsorHomepage','Homepage Banner',0,99999,500,9999,fc2)}
         ${mkSlider('sponsorSearchCat','Search & Category Banner',0,74999,500,7499,fc2)}
         ${mkSlider('sponsorCatFeatured','Category Featured (slots)',0,99999,500,12495,fc2)}
       </div>
-      <div class="slider-grid" style="margin-top:8px">
-        ${mkSlider('sponsorGrowthPct','Growth / Quarter',0,25,1,10,v=>v+'%')}
-      </div>
     </div>
+
+    <!-- Month-wise breakdown — populated by renderMonthlyBreakdown() -->
+    <div id="inc-monthly-breakdown"></div>
+
+    <!-- Legal disclaimer — shown last, after all figures -->
+    <div class="disclaimer-box">
+      <div style="font-weight:700;font-size:11.5px;margin-bottom:6px">⚠️ Important Notice</div>
+      <ol style="margin:0;padding-left:16px;font-size:10.5px;line-height:1.7">
+        <li>This Income Potential calculation is for <strong>reference and illustrative purposes only</strong> and cannot be used as a legal document.</li>
+        <li>Population per pin code is estimated from the total district population, using available data sources, pro-rata population growth %, and the number of pin codes available in that district — it is not a verified, pin-code-level census figure.</li>
+        <li>Actual results may vary from these assumptions.</li>
+        <li>Only the target number that is <strong>mutually agreed and signed</strong> is binding — this representation is for understanding the working strategy only.</li>
+        <li>Management may change any pricing or strategy as deemed fit for overall growth. Any such change will be binding on all related parties.</li>
+      </ol>
+    </div>
+
+    <!-- PDF export — placed last, after the person has seen the full report -->
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button class="submit-btn" style="flex:1;font-size:12px;padding:10px" onclick="openPdfLeadModal('download')">⬇️ Download PDF</button>
+      <button class="submit-btn" style="flex:1;font-size:12px;padding:10px;background:var(--surface);color:var(--blue);border:1.5px solid var(--blue)" onclick="openPdfLeadModal('share')">📤 Share PDF</button>
+    </div>
+    <div id="pdf-status" style="display:none;text-align:center;font-size:11px;color:var(--t3);margin-top:6px"></div>
 
   </div><!-- /inc-body -->
   `;
@@ -1210,8 +1295,9 @@ function updSlider(key,val){
   _inc[key]=parseFloat(val);
   const fmts={
     pop:v=>parseInt(v).toLocaleString('en-IN'), retailPct:v=>v+'%', homeBase:v=>v+'×', capture:v=>v+'%',
-    startPrice:v=>'₹'+v, stepAmount:v=>'₹'+v, stepFreq:v=>v+' mo',
-    sponsorHomepage:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorSearchCat:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorCatFeatured:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorGrowthPct:v=>v+'%',
+    startFree:v=>parseInt(v).toLocaleString('en-IN'), startPaidPct:v=>v+'%', targetPaidPct:v=>v+'%',
+    startPrice:v=>'₹'+v, stepAmount:v=>'₹'+v,
+    sponsorHomepage:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorSearchCat:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorCatFeatured:v=>'₹'+parseInt(v).toLocaleString('en-IN'),
   };
   const el=document.getElementById('sv-'+key);
   if(el&&fmts[key]) el.textContent=fmts[key](val);
@@ -1422,6 +1508,406 @@ function incUpdateGpQty(type){
   if(sel){ incGpPinCount[type]=parseInt(sel.value)||1; }
   calculateIncome();
 }
+// Month-wise breakdown table — Free Listings/Paid%/Recurring+Setup revenue,
+// and each of the 3 sponsorship products, always starting from whichever
+// calendar month is "next" relative to today (business Month 1 = Sep 2026,
+// the platform's launch month), through Month 36.
+function renderMonthlyBreakdown(){
+  const el=document.getElementById('inc-monthly-breakdown');
+  if(!el) return;
+  const s=_inc;
+  const t=TIERS.find(tt=>tt.key===s.selectedTier)||TIERS[1];
+  const hemPct=s.hemadriPct/100;
+
+  const LAUNCH_YEAR=2026, LAUNCH_MONTH=9; // September 2026 = business Month 1
+  const now=new Date();
+  const monthsSinceLaunch=(now.getFullYear()-LAUNCH_YEAR)*12+((now.getMonth()+1)-LAUNCH_MONTH);
+  const currentBizMonth=monthsSinceLaunch+1;
+  const startM=Math.max(1,currentBizMonth+1); // "next month" relative to today
+
+  if(startM>36){
+    el.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 8px">📅 Month-wise Breakdown</div>
+    <div class="info-note">The 36-month projection window has already completed relative to today's date.</div>`;
+    return;
+  }
+
+  const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function monthLabel(m){
+    const idx=(LAUNCH_MONTH-1)+(m-1);
+    const y=LAUNCH_YEAR+Math.floor(idx/12);
+    return MONTH_NAMES[idx%12]+' '+y;
+  }
+  // Sum of a plain (non-cumulative) monthly array through month m-1 (0 for m=1).
+  function cumThrough(arr,m){ let sum=0; for(let i=0;i<m-1;i++) sum+=arr[i]; return sum; }
+
+  function listingRows(){
+    let rows='';
+    let yrNewPaid=0, yrAddOn=0, yrSetup=0, yrFpShare=0;
+    for(let m=startM;m<=36;m++){
+      const tillLast=m===1?0:_listingRevCum[m-2];
+      const addOn=_listingAddOn[m-1];
+      const setup=_setupRev[m-1];
+      const prevPaid=m===1?0:_subs[m-2];
+      const growthPct=prevPaid>0?(_newPaidDelta[m-1]/prevPaid*100):null;
+      const fpShare=Math.round((tillLast+addOn+setup)*(1-hemPct)*t.share);
+      rows+=`<tr>
+        <td>${monthLabel(m)}</td>
+        <td>${_free[m-1].toLocaleString('en-IN')}</td>
+        <td>${_paidPctArr[m-1].toFixed(1)}%</td>
+        <td>${_subs[m-1].toLocaleString('en-IN')}</td>
+        <td>${_newPaidDelta[m-1].toLocaleString('en-IN')}</td>
+        <td>${growthPct===null?'—':growthPct.toFixed(1)+'%'}</td>
+        <td>${fc(_listingPriceRate[m-1])}</td>
+        <td>${fc(_setupFeeRate[m-1])}</td>
+        <td>${fc(tillLast)}</td>
+        <td>${fc(addOn)}</td>
+        <td>${fc(setup)}</td>
+        <td style="color:var(--lmi-blue);font-weight:600">${fc(fpShare)}</td>
+      </tr>`;
+      yrNewPaid+=_newPaidDelta[m-1]; yrAddOn+=addOn; yrSetup+=setup; yrFpShare+=fpShare;
+      // End of a business year (Month 12/24/36) — or the last row rendered,
+      // whichever comes first — emit a subtotal for whatever months of that
+      // year were actually shown (may be a partial year if startM falls
+      // mid-year).
+      if(m%12===0 || m===36){
+        const yearNum=Math.ceil(m/12);
+        rows+=`<tr class="year-total-row">
+          <td colspan="4">YEAR ${yearNum} TOTAL${m%12!==0?' (partial)':''}</td>
+          <td>${yrNewPaid.toLocaleString('en-IN')}</td>
+          <td colspan="3">—</td>
+          <td>—</td>
+          <td>${fc(yrAddOn)}</td>
+          <td>${fc(yrSetup)}</td>
+          <td style="color:var(--lmi-blue)">${fc(yrFpShare)}</td>
+        </tr>`;
+        yrNewPaid=0; yrAddOn=0; yrSetup=0; yrFpShare=0;
+      }
+    }
+    return rows;
+  }
+
+  function sponsorCombinedRows(){
+    let rows='';
+    let yrH=0, yrSC=0, yrCF=0, yrTotal=0, yrFpShare=0;
+    for(let m=startM;m<=36;m++){
+      const h=_spHomepage[m-1], sc=_spSearchCat[m-1], cf=_spCatFeatured[m-1];
+      const thisMonthTotal=h+sc+cf;
+      const tillLastTotal=cumThrough(_spHomepage,m)+cumThrough(_spSearchCat,m)+cumThrough(_spCatFeatured,m);
+      const fpShare=Math.round(thisMonthTotal*(1-hemPct)*t.share);
+      rows+=`<tr>
+        <td>${monthLabel(m)}</td>
+        <td>${fc(h)}</td>
+        <td>${fc(sc)}</td>
+        <td>${fc(cf)}</td>
+        <td style="font-weight:600">${fc(thisMonthTotal)}</td>
+        <td>${fc(tillLastTotal)}</td>
+        <td style="color:var(--lmi-blue);font-weight:600">${fc(fpShare)}</td>
+      </tr>`;
+      yrH+=h; yrSC+=sc; yrCF+=cf; yrTotal+=thisMonthTotal; yrFpShare+=fpShare;
+      if(m%12===0 || m===36){
+        const yearNum=Math.ceil(m/12);
+        rows+=`<tr class="year-total-row">
+          <td>YEAR ${yearNum} TOTAL${m%12!==0?' (partial)':''}</td>
+          <td>${fc(yrH)}</td>
+          <td>${fc(yrSC)}</td>
+          <td>${fc(yrCF)}</td>
+          <td>${fc(yrTotal)}</td>
+          <td>—</td>
+          <td style="color:var(--lmi-blue)">${fc(yrFpShare)}</td>
+        </tr>`;
+        yrH=0; yrSC=0; yrCF=0; yrTotal=0; yrFpShare=0;
+      }
+    }
+    return rows;
+  }
+
+  el.innerHTML=`
+    <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 4px">📅 Month-wise Breakdown</div>
+    <div class="info-note" style="margin-bottom:10px">Starting from ${monthLabel(startM)} (next month) through Month 36 (${monthLabel(36)}). FP Share reflects the selected tier (${t.name}, ${Math.round(t.share*100)}%) on net-of-tech-share revenue.</div>
+
+    <div class="card" style="padding:12px">
+      <div class="card-title">🏷️ Business Listings — Free, Paid & Setup Fee</div>
+      <div class="month-breakdown-scroll">
+        <table class="month-breakdown-table">
+          <thead><tr><th>Month</th><th>Free</th><th>% Paid</th><th>Paid</th><th>New Paid<br>This Mo</th><th>% Growth<br>(Paid)</th><th>Plan<br>Price</th><th>Setup Fee<br>Rate</th><th>Recurring<br>Till Last Mo</th><th>Recurring<br>Add-On</th><th>Setup Fee<br>This Mo</th><th>FP Share</th></tr></thead>
+          <tbody>${listingRows()}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="padding:12px">
+      <div class="card-title">🎯 Sponsorship — All 3 Products</div>
+      <div class="month-breakdown-scroll">
+        <table class="month-breakdown-table">
+          <thead><tr><th>Month</th><th>Homepage<br>Banner</th><th>Search &amp;<br>Category</th><th>Category<br>Featured</th><th>Total<br>This Mo</th><th>Cumulative<br>Till Last Mo</th><th>FP Share</th></tr></thead>
+          <tbody>${sponsorCombinedRows()}</tbody>
+        </table>
+      </div>
+    </div>
+
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PDF EXPORT — builds a jsPDF document from the currently selected assumptions
+// (pin/tier/GP-SGP/sliders all read live at generation time), then either
+// triggers a browser download or hands it to the Web Share API as a file.
+// ═══════════════════════════════════════════════════════════════════════════
+function buildIncomePDF(){
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF({ unit:'pt', format:'a4' });
+  const s=_inc;
+  const t=TIERS.find(tt=>tt.key===s.selectedTier)||TIERS[1];
+  const pin=(document.getElementById('inc-pin')||{}).value||'';
+  const dist=(document.getElementById('inc-dist')||{}).value||'';
+  const state=(document.getElementById('inc-state')||{}).value||'';
+  const pageW=doc.internal.pageSize.getWidth();
+  const margin=40;
+  let y=48;
+
+  function h1(text){
+    doc.setFontSize(16); doc.setFont(undefined,'bold'); doc.setTextColor(0,70,191);
+    doc.text(text,margin,y); y+=20;
+  }
+  function h2(text){
+    doc.setFontSize(11.5); doc.setFont(undefined,'bold'); doc.setTextColor(5,19,45);
+    doc.text(text,margin,y); y+=14;
+  }
+  function pText(text,size){
+    doc.setFontSize(size||9.5); doc.setFont(undefined,'normal'); doc.setTextColor(74,85,104);
+    const lines=doc.splitTextToSize(text,pageW-margin*2);
+    doc.text(lines,margin,y); y+=lines.length*(size?size*1.3:12)+4;
+  }
+  function ensureSpace(needed){
+    if(y+needed>doc.internal.pageSize.getHeight()-40){ doc.addPage(); y=48; }
+  }
+  function table(head,body,opts){
+    doc.autoTable(Object.assign({
+      startY:y, head:[head], body:body, margin:{left:margin,right:margin},
+      styles:{fontSize:8,cellPadding:3}, headStyles:{fillColor:[0,70,191],textColor:255,fontStyle:'bold'},
+      alternateRowStyles:{fillColor:[247,249,252]},
+    },opts||{}));
+    y=doc.lastAutoTable.finalY+16;
+  }
+
+  // ── Header ──
+  h1('List My India™ — Income Potential Report');
+  doc.setFontSize(9); doc.setTextColor(148,163,184);
+  doc.text('Generated '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),margin,y); y+=16;
+
+  h2('Pin Code: '+(pin||'—')+(dist?' · '+dist:'')+(state?', '+state:''));
+  y+=6;
+
+  // ── Selected assumptions ──
+  ensureSpace(140);
+  h2('Selected Assumptions');
+  table(['Category','Assumption','Value'],[
+    ['Market','Population',s.pop.toLocaleString('en-IN')],
+    ['Market','Retail Store %',s.retailPct+'%'],
+    ['Market','Home-based × Retail',s.homeBase+'×'],
+    ['Market','Free Listing Target %',s.capture+'%'],
+    ['Adoption Curve','Month-1 Free Listings',s.startFree.toLocaleString('en-IN')],
+    ['Adoption Curve','Start Paid %',s.startPaidPct+'%'],
+    ['Adoption Curve','Target Paid %',s.targetPaidPct+'%'],
+    ['Listing Pricing','Start Price',fc(s.startPrice)],
+    ['Listing Pricing','Step Amount / Quarter',fc(s.stepAmount)],
+    ['Sponsorship','Homepage Banner (settled)',fc(s.sponsorHomepage)],
+    ['Sponsorship','Search & Category (settled)',fc(s.sponsorSearchCat)],
+    ['Sponsorship','Category Featured (settled)',fc(s.sponsorCatFeatured)],
+    ['Selection','Franchise Tier',t.name+' ('+Math.round(t.share*100)+'% share)'],
+    ['Selection','GP/SGP Type',s.selectedGpType==='gp'?'Growth Partner':'Super Growth Partner'],
+  ]);
+
+  // ── Franchise Tier 3-year summary ──
+  ensureSpace(100);
+  h2('Franchise Tier Summary — '+t.name);
+  const hemPct=s.hemadriPct/100;
+  const yrTotals=[1,2,3].map(yr=>{
+    const g=_gross.slice((yr-1)*12,yr*12);
+    return Math.round(g.reduce((a,b)=>a+b,0)*(1-hemPct)*t.share);
+  });
+  table(['Year 1','Year 2','Year 3','3-Yr Total'],[[fc(yrTotals[0]),fc(yrTotals[1]),fc(yrTotals[2]),fc(yrTotals.reduce((a,b)=>a+b,0))]]);
+
+  // ── Month-wise Business Listings ──
+  ensureSpace(60);
+  h2('Month-wise Breakdown — Business Listings');
+  const LAUNCH_YEAR=2026, LAUNCH_MONTH=9;
+  const now=new Date();
+  const monthsSinceLaunch=(now.getFullYear()-LAUNCH_YEAR)*12+((now.getMonth()+1)-LAUNCH_MONTH);
+  const startM=Math.max(1,monthsSinceLaunch+2);
+  const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function monthLabel(m){
+    const idx=(LAUNCH_MONTH-1)+(m-1);
+    return MONTH_NAMES[idx%12]+' '+(LAUNCH_YEAR+Math.floor(idx/12));
+  }
+  if(startM<=36){
+    const listBody=[];
+    for(let m=startM;m<=36;m++){
+      const tillLast=m===1?0:_listingRevCum[m-2];
+      const addOn=_listingAddOn[m-1], setup=_setupRev[m-1];
+      const fpShare=Math.round((tillLast+addOn+setup)*(1-hemPct)*t.share);
+      listBody.push([monthLabel(m),_free[m-1].toLocaleString('en-IN'),_paidPctArr[m-1].toFixed(1)+'%',
+        _subs[m-1].toLocaleString('en-IN'),_newPaidDelta[m-1],fc(_listingPriceRate[m-1]),fc(_setupFeeRate[m-1]),
+        fc(addOn),fc(setup),fc(fpShare)]);
+      if(m%12===0||m===36){
+        listBody.push(['YEAR '+Math.ceil(m/12)+' TOTAL','','','','','','','','','']);
+      }
+    }
+    table(['Month','Free','% Paid','Paid','New Paid','Plan Price','Setup Fee','Add-On Rev','Setup Rev','FP Share'],listBody,{styles:{fontSize:7,cellPadding:2}});
+  }
+
+  // ── Month-wise Sponsorship ──
+  ensureSpace(60);
+  h2('Month-wise Breakdown — Sponsorship');
+  if(startM<=36){
+    const spBody=[];
+    for(let m=startM;m<=36;m++){
+      const hp=_spHomepage[m-1], sc=_spSearchCat[m-1], cf=_spCatFeatured[m-1];
+      const totalM=hp+sc+cf;
+      const fpShare=Math.round(totalM*(1-hemPct)*t.share);
+      spBody.push([monthLabel(m),fc(hp),fc(sc),fc(cf),fc(totalM),fc(fpShare)]);
+    }
+    table(['Month','Homepage','Search & Cat.','Cat. Featured','Total This Mo','FP Share'],spBody,{styles:{fontSize:7,cellPadding:2}});
+  }
+
+  // ── Disclaimer ──
+  ensureSpace(120);
+  h2('⚠️ Important Notice');
+  pText('1. This Income Potential calculation is for reference and illustrative purposes only and cannot be used as a legal document.\n'+
+    '2. Population per pin code is estimated from the total district population, using available data sources, pro-rata population growth %, and the number of pin codes available in that district — it is not a verified, pin-code-level census figure.\n'+
+    '3. Actual results may vary from these assumptions.\n'+
+    '4. Only the target number that is mutually agreed and signed is binding — this representation is for understanding the working strategy only.\n'+
+    '5. Management may change any pricing or strategy as deemed fit for overall growth. Any such change will be binding on all related parties.',8.5);
+
+  return doc;
+}
+
+// ── Lead-capture modal — shown before any PDF download/share ──
+let _pdfLeadPendingAction=null;
+
+function openPdfLeadModal(action){
+  _pdfLeadPendingAction=action;
+  const ov=document.getElementById('pdf-lead-overlay');
+  if(ov) ov.style.display='flex';
+  const err=document.getElementById('pdf-lead-error');
+  if(err) err.style.display='none';
+}
+function closePdfLeadModal(){
+  const ov=document.getElementById('pdf-lead-overlay');
+  if(ov) ov.style.display='none';
+}
+// Reverse-lookup: given a pin code, find its district/state from PINCODE_DATA.
+function findLocationForPin(pin){
+  pin=String(pin).trim();
+  for(const state in PINCODE_DATA){
+    for(const dist in PINCODE_DATA[state]){
+      const pins=PINCODE_DATA[state][dist][2]||[];
+      if(pins.some(p=>String(p[0])===pin)) return {state,district:dist};
+    }
+  }
+  return null;
+}
+function pdfLeadPinLookup(){
+  const pin=document.getElementById('pdf-lead-pin').value.trim();
+  const locEl=document.getElementById('pdf-lead-location');
+  if(!locEl) return;
+  if(pin.length<6){ locEl.textContent=''; return; }
+  const loc=findLocationForPin(pin);
+  locEl.textContent=loc ? ('📍 '+loc.district+', '+loc.state) : '⚠️ Pin code not found — you can still continue.';
+  locEl.style.color=loc ? 'var(--t3)' : '#92400E';
+}
+function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+async function submitPdfLead(){
+  const name=document.getElementById('pdf-lead-name').value.trim();
+  const mobile=document.getElementById('pdf-lead-mobile').value.trim();
+  const email=document.getElementById('pdf-lead-email').value.trim();
+  const pin=document.getElementById('pdf-lead-pin').value.trim();
+  const interest=document.getElementById('pdf-lead-interest').value;
+  const comment=document.getElementById('pdf-lead-comment').value.trim();
+  const errEl=document.getElementById('pdf-lead-error');
+
+  if(!name||!mobile||!email||!pin||!interest){
+    if(errEl){ errEl.textContent='Please fill in all required fields (marked *).'; errEl.style.display='block'; }
+    return;
+  }
+  if(!isValidEmail(email)){
+    if(errEl){ errEl.textContent='Please enter a valid email address.'; errEl.style.display='block'; }
+    return;
+  }
+  if(errEl) errEl.style.display='none';
+
+  const loc=findLocationForPin(pin)||{};
+  const btn=document.getElementById('pdf-lead-submit-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Submitting…'; }
+
+  const payload={
+    action: 'pdf_lead',
+    name, mobile, email, pin,
+    district: loc.district||'', state: loc.state||'',
+    interest, comment,
+    incTier: (TIERS.find(tt=>tt.key===_inc.selectedTier)||{}).name||'',
+    incPin: (document.getElementById('inc-pin')||{}).value||'',
+    timestamp: new Date().toISOString()
+  };
+
+  if(LMI_GAS_URL && !LMI_GAS_URL.includes('YOUR_SCRIPT_ID')){
+    try{
+      await fetch(LMI_GAS_URL, {
+        method:'POST', mode:'no-cors',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+    }catch(e){ console.error('Lead submission failed:',e); }
+  }
+
+  if(btn){ btn.disabled=false; btn.textContent='Continue →'; }
+  closePdfLeadModal();
+
+  if(_pdfLeadPendingAction==='share') shareIncomePDF();
+  else downloadIncomePDF();
+}
+
+function downloadIncomePDF(){
+  const statusEl=document.getElementById('pdf-status');
+  try{
+    if(!window.jspdf){ alert('PDF library still loading — please try again in a moment.'); return; }
+    if(statusEl){ statusEl.style.display='block'; statusEl.textContent='Generating PDF…'; }
+    const doc=buildIncomePDF();
+    const pin=(document.getElementById('inc-pin')||{}).value||'pin';
+    doc.save('LMI-Income-Potential-'+pin+'.pdf');
+    if(statusEl){ statusEl.textContent='Downloaded.'; setTimeout(()=>statusEl.style.display='none',2000); }
+  }catch(e){
+    console.error(e);
+    if(statusEl){ statusEl.textContent='Could not generate PDF — see console.'; }
+  }
+}
+
+async function shareIncomePDF(){
+  const statusEl=document.getElementById('pdf-status');
+  try{
+    if(!window.jspdf){ alert('PDF library still loading — please try again in a moment.'); return; }
+    if(statusEl){ statusEl.style.display='block'; statusEl.textContent='Generating PDF…'; }
+    const doc=buildIncomePDF();
+    const pin=(document.getElementById('inc-pin')||{}).value||'pin';
+    const filename='LMI-Income-Potential-'+pin+'.pdf';
+    const blob=doc.output('blob');
+    const file=new File([blob],filename,{type:'application/pdf'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({ files:[file], title:'List My India — Income Potential', text:'Income Potential projection for pin '+pin });
+      if(statusEl) statusEl.style.display='none';
+    } else {
+      // Fallback: browser can't share files (most desktop browsers) — just download instead.
+      doc.save(filename);
+      if(statusEl){ statusEl.textContent='Sharing not supported on this browser — downloaded instead.'; setTimeout(()=>statusEl.style.display='none',3000); }
+    }
+  }catch(e){
+    if(e && e.name==='AbortError') { if(statusEl) statusEl.style.display='none'; return; } // user cancelled share sheet
+    console.error(e);
+    if(statusEl){ statusEl.textContent='Could not share PDF — see console.'; }
+  }
+}
+
 function calculateIncome(){
   // Don't calculate if pin not yet selected (inc-body hidden)
   const body=document.getElementById('inc-body');
@@ -1429,7 +1915,9 @@ function calculateIncome(){
   const s=_inc;
   const retail=Math.round(s.pop*s.retailPct/100);
   const total=Math.round(retail*(1+s.homeBase));
-  const cap=Math.round(total*s.capture/100);
+  // 'capture' now means "Free Listing Target %" — the % of total addressable
+  // businesses (retail + home-based) that free listings ramp toward by Month 36.
+  const freeTarget=Math.round(total*s.capture/100);
   const homeBased=total-retail;
   // Show the absolute number in brackets next to each market slider's % / × value.
   const svRetail=document.getElementById('sv-retailPct');
@@ -1437,48 +1925,117 @@ function calculateIncome(){
   const svHome=document.getElementById('sv-homeBase');
   if(svHome) svHome.textContent=s.homeBase+'× ('+homeBased.toLocaleString('en-IN')+')';
   const svCapture=document.getElementById('sv-capture');
-  if(svCapture) svCapture.textContent=s.capture+'% ('+cap.toLocaleString('en-IN')+')';
+  if(svCapture) svCapture.textContent=s.capture+'% ('+freeTarget.toLocaleString('en-IN')+')';
 
-  // New-signup listing price for month m — cohort-locked ladder (Assumption 2):
-  // flat at startPrice until the first step (stepFreq-1 months in), then +stepAmount
-  // every stepFreq months thereafter. Default 99 → +50 every 4 months → 549 by M36.
+  // ── Recurring listing price (cohort-locked): flat within a real fiscal
+  // quarter (Apr–Jun, Jul–Sep, Oct–Dec, Jan–Mar), stepping up +stepAmount at
+  // the start of each subsequent fiscal quarter — not a rolling N-month
+  // window — capped at MRP ₹699. The one-time setup charge follows the
+  // identical fiscal-quarter ladder, capped at its own lower MRP ₹499.
+  const LISTING_MRP=699, SETUP_MRP=499;
+  const LAUNCH_YEAR=2026, LAUNCH_MONTH=9; // September 2026 = business Month 1
+  // Maps business month index (1=launch) to {year, month} on the real calendar.
+  function calendarForBizMonth(m){
+    const idx=(LAUNCH_MONTH-1)+(m-1);
+    return { year: LAUNCH_YEAR+Math.floor(idx/12), month:(idx%12)+1 };
+  }
+  // Absolute, monotonically-increasing fiscal-quarter index for a given
+  // calendar year/month, where fiscal quarters are Apr–Jun / Jul–Sep /
+  // Oct–Dec / Jan–Mar (fiscal year starts April).
+  function fiscalQuarterIndex(year,month){
+    const fyYear = month>=4 ? year : year-1;
+    const offsetFromApr = (month-4+12)%12;
+    return fyYear*4 + Math.floor(offsetFromApr/3);
+  }
+  function quarterIdxForBizMonth(m){
+    const c=calendarForBizMonth(m);
+    return fiscalQuarterIndex(c.year,c.month);
+  }
+  const LAUNCH_QIDX=quarterIdxForBizMonth(1);
+  function quartersSinceLaunch(m){ return quarterIdxForBizMonth(m)-LAUNCH_QIDX; }
+
   function newSignupPrice(m){
-    if(m<s.stepFreq) return s.startPrice;
-    return s.startPrice + s.stepAmount*(1+Math.floor((m-s.stepFreq)/s.stepFreq));
+    return Math.min(LISTING_MRP, s.startPrice + s.stepAmount*quartersSinceLaunch(m));
   }
-  // Sponsorship — compounds every quarter (3 months) off the combined start value
-  // (Homepage Banner + Search & Category Banner + Category Featured), company-wide
-  // (not cohort-locked). Quarter q (0-indexed) = combinedStart × (1+growth)^q.
-  const sponsorStart=s.sponsorHomepage+s.sponsorSearchCat+s.sponsorCatFeatured;
-  function sponsorForMonth(m){
-    const q=Math.floor((m-1)/3);
-    return Math.round(sponsorStart*Math.pow(1+s.sponsorGrowthPct/100,q));
+  function setupCharge(m){
+    return Math.min(SETUP_MRP, s.startPrice + s.stepAmount*quartersSinceLaunch(m));
   }
 
-  // Paid-listing growth curve — Assumption 2 (stepped, cohort-locked pricing) from the
-  // Franchise Tiers, Plans & Projections deck: Months 1–6 ramp linearly to 16% of the
-  // business cap (100/mo on a 3,750 cap), then a constant addition for Months 7–36 that
-  // lands exactly on the cap by Month 36 (105/mo on a 3,750 cap). Scales with the cap so
-  // adjusting the market sliders keeps the same Assumption-2 shape.
-  const rampStep=cap*0.16/6, steadyStep=cap*0.84/30;
+  // ── Sponsorship — 3 products. Month 1 = one-time launch teaser price;
+  // Month 2 onward = the slider's settled price, stepping up +step at the
+  // start of each subsequent real fiscal quarter (same universal Apr–Jun /
+  // Jul–Sep / Oct–Dec / Jan–Mar boundaries as listings), until it reaches
+  // that product's MRP. Applies to whoever holds the slot each month — not
+  // cohort-locked, unlike listings. Launch price/step/MRP all scale
+  // proportionally with the slider so the rate card's shape holds even if
+  // you adjust it.
+  const SPONSOR_DEFAULTS={
+    homepage:  {launch:7499,    settled:9999,  step:10000, mrp:99999,   key:'sponsorHomepage'},
+    searchCat: {launch:4999,    settled:7499,  step:7500,  mrp:74999,   key:'sponsorSearchCat'},
+    catFeat:   {launch:1499*5,  settled:2499*5,step:2500*5,mrp:24999*5, key:'sponsorCatFeatured'}, // aggregate of 5 modeled slots
+  };
+  const SETTLED_BASE_QIDX=quarterIdxForBizMonth(2); // quarter containing Month 2 = the settled-price baseline
+  function sponsorPriceFor(prodKey,m){
+    const d=SPONSOR_DEFAULTS[prodKey];
+    const settledNow=s[d.key];
+    const scale=d.settled?settledNow/d.settled:1;
+    if(m===1) return Math.round(d.launch*scale);
+    const q=quarterIdxForBizMonth(m)-SETTLED_BASE_QIDX;
+    return Math.round(Math.min(d.mrp*scale, settledNow + d.step*scale*q));
+  }
+
+  // ── Adoption curve — S-curve (smoothstep: slow start, fast middle, slow
+  // finish) from Month-1 starting free listings up to the Free Listing Target
+  // over 36 months. % of free listings converting to paid ramps from Start
+  // Paid % to Target Paid % on the same curve.
+  function smoothstep(t){ t=Math.max(0,Math.min(1,t)); return t*t*(3-2*t); }
+  function freeListingsFor(m){
+    const sm=smoothstep((m-1)/35);
+    return Math.max(0,Math.round(s.startFree + (freeTarget-s.startFree)*sm));
+  }
+  function paidPctFor(m){
+    const sm=smoothstep((m-1)/35);
+    return Math.max(0,Math.min(100, s.startPaidPct + (s.targetPaidPct-s.startPaidPct)*sm));
+  }
+
   _subs=[]; _gross=[]; _spArr=[];
-  let listings=0, prevListings=0, listingRevRunning=0;
+  _free=[]; _paidPctArr=[]; _setupRev=[]; _listingRevCum=[]; _listingAddOn=[];
+  _newPaidDelta=[]; _listingPriceRate=[]; _setupFeeRate=[];
+  _spHomepage=[]; _spSearchCat=[]; _spCatFeatured=[];
+  let prevPaid=0, listingRevRunning=0;
   for(let m=1;m<=36;m++){
-    if(m<=6) listings=rampStep*m;
-    else listings=rampStep*6+steadyStep*(m-6);
-    listings=Math.min(cap,Math.max(0,Math.round(listings)));
-    // New sign-ups this month lock in this month's price for the life of their
-    // subscription; older cohorts keep paying their own locked-in rate — so the
-    // running monthly listing revenue is cumulative: add only the new cohort's slice.
-    const delta=Math.max(0,listings-prevListings);
-    listingRevRunning += delta*newSignupPrice(m);
-    prevListings=listings;
-    const sponsor=sponsorForMonth(m);
-    _subs.push(listings);
-    _spArr.push(sponsor);
-    _gross.push(listingRevRunning+sponsor);
+    const free=freeListingsFor(m);
+    const paidPct=paidPctFor(m);
+    const paid=Math.min(free, Math.round(free*paidPct/100));
+    const delta=Math.max(0,paid-prevPaid);
+    const rate=newSignupPrice(m), setupRate=setupCharge(m);
+    const addOn=delta*rate;
+    listingRevRunning += addOn;
+    const setupRevThisMonth=delta*setupRate;
+    prevPaid=paid;
+
+    const spH=sponsorPriceFor('homepage',m);
+    const spS=sponsorPriceFor('searchCat',m);
+    const spC=sponsorPriceFor('catFeat',m);
+    const sponsorTotal=spH+spS+spC;
+
+    _free.push(free);
+    _paidPctArr.push(paidPct);
+    _subs.push(paid);
+    _newPaidDelta.push(delta);
+    _listingPriceRate.push(rate);
+    _setupFeeRate.push(setupRate);
+    _listingRevCum.push(listingRevRunning);
+    _listingAddOn.push(addOn);
+    _setupRev.push(setupRevThisMonth);
+    _spHomepage.push(spH);
+    _spSearchCat.push(spS);
+    _spCatFeatured.push(spC);
+    _spArr.push(sponsorTotal);
+    _gross.push(listingRevRunning + setupRevThisMonth + sponsorTotal);
   }
 
+  renderMonthlyBreakdown();
 
   const hemPct=s.hemadriPct/100;
   const ym=[1,2,3].map(y=>{
