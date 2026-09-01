@@ -327,18 +327,22 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
 .disclaimer-box li{margin-bottom:3px}
 .disclaimer-box li:last-child{margin-bottom:0}
 
-/* Month-wise breakdown tables (Income Potential — Free/Paid listings + each
-   sponsorship product). Horizontally scrollable since there are many rows/
-   cols; header row stays visible while scrolling vertically within its own
-   max-height so 35 rows doesn't blow out page length. */
+/* Month-wise breakdown tables (Income Potential — Paid listings + each
+   sponsorship product). No forced min-width — let the table shrink to fit
+   the mobile screen (auto column sizing); only scrolls horizontally if it
+   genuinely can't fit even at minimum padding/font size. Header row stays
+   visible while scrolling vertically within its own max-height so 35 rows
+   doesn't blow out page length. */
 .month-breakdown-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-height:340px;overflow-y:auto;border-radius:8px;border:1px solid var(--border)}
-.month-breakdown-table{width:100%;min-width:800px;border-collapse:collapse;font-size:10.5px;white-space:nowrap}
-.month-breakdown-table th{position:sticky;top:0;background:var(--navy);color:white;padding:6px 7px;text-align:right;font-size:9.5px;font-weight:700;z-index:1}
+.month-breakdown-table{width:100%;border-collapse:collapse;font-size:9.5px;table-layout:auto}
+.month-breakdown-table th{position:sticky;top:0;background:var(--navy);color:white;padding:5px 3px;text-align:right;font-size:8.5px;font-weight:700;z-index:1;line-height:1.25}
 .month-breakdown-table th:first-child{text-align:left}
-.month-breakdown-table td{padding:5px 7px;border-bottom:1px solid var(--border);text-align:right}
+.month-breakdown-table td{padding:4px 3px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap}
 .month-breakdown-table td:first-child{text-align:left;font-weight:600;color:var(--t2)}
 .month-breakdown-table tbody tr:nth-child(even){background:var(--bg)}
 .month-breakdown-table tr.year-total-row td{background:var(--soft-blue)!important;font-weight:700;color:var(--navy);border-top:1.5px solid var(--blue);border-bottom:1.5px solid var(--blue)}
+.month-breakdown-table tr.current-month-row td{background:#FFF8E1!important;font-weight:700}
+.current-month-badge{display:inline-block;background:var(--yellow);color:var(--navy);font-size:7.5px;font-weight:700;padding:1px 5px;border-radius:6px;margin-left:4px;letter-spacing:.3px;vertical-align:middle}
 
 /* questionnaire */
 .sec-group{border-radius:10px;padding:10px 10px 4px;margin-bottom:12px}
@@ -1565,7 +1569,7 @@ function renderMonthlyBreakdown(){
   const now=new Date();
   const monthsSinceLaunch=(now.getFullYear()-LAUNCH_YEAR)*12+((now.getMonth()+1)-LAUNCH_MONTH);
   const currentBizMonth=monthsSinceLaunch+1;
-  const startM=Math.max(1,currentBizMonth+1); // "next month" relative to today
+  const startM=Math.max(1,currentBizMonth); // include the current month as the first row, for context
 
   if(startM>36){
     el.innerHTML=`<div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 8px">📅 Month-wise Breakdown</div>
@@ -1593,8 +1597,9 @@ function renderMonthlyBreakdown(){
       const monthlyRecurring=tillLast+addOn; // total recurring revenue collected this month, across all active cohorts
       const avgPrice=paidCount>0?Math.round(monthlyRecurring/paidCount):0;
       const fpShare=Math.round((monthlyRecurring+setup)*(1-hemPct)*t.share);
-      rows+=`<tr>
-        <td>${monthLabel(m)}</td>
+      const isCurrent=(m===currentBizMonth);
+      rows+=`<tr${isCurrent?' class="current-month-row"':''}>
+        <td>${monthLabel(m)}${isCurrent?' <span class="current-month-badge">CURRENT</span>':''}</td>
         <td>${paidCount.toLocaleString('en-IN')}</td>
         <td>${fc(avgPrice)}</td>
         <td>${fc(_listingPriceRate[m-1])}</td>
@@ -1629,8 +1634,9 @@ function renderMonthlyBreakdown(){
       const thisMonthTotal=h+sc+cf;
       const tillLastTotal=cumThrough(_spHomepage,m)+cumThrough(_spSearchCat,m)+cumThrough(_spCatFeatured,m);
       const fpShare=Math.round(thisMonthTotal*(1-hemPct)*t.share);
-      rows+=`<tr>
-        <td>${monthLabel(m)}</td>
+      const isCurrent=(m===currentBizMonth);
+      rows+=`<tr${isCurrent?' class="current-month-row"':''}>
+        <td>${monthLabel(m)}${isCurrent?' <span class="current-month-badge">CURRENT</span>':''}</td>
         <td>${fc(h)}</td>
         <td>${fc(sc)}</td>
         <td>${fc(cf)}</td>
@@ -1658,12 +1664,12 @@ function renderMonthlyBreakdown(){
 
   el.innerHTML=`
     <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 4px">📅 Month-wise Breakdown</div>
-    <div class="info-note" style="margin-bottom:10px">Starting from ${monthLabel(startM)} (next month) through Month 36 (${monthLabel(36)}). FP Share reflects the selected tier (${t.name}, ${Math.round(t.share*100)}%) on net-of-tech-share revenue.</div>
+    <div class="info-note" style="margin-bottom:10px">Starting from ${monthLabel(startM)} (current month, highlighted below) through Month 36 (${monthLabel(36)}). FP Share reflects the selected tier (${t.name}, ${Math.round(t.share*100)}%) on net-of-tech-share revenue.</div>
 
     <div class="card" style="padding:12px">
       <div class="card-title">🏷️ Business Listings</div>
       <div class="month-breakdown-scroll">
-        <table class="month-breakdown-table" style="min-width:480px">
+        <table class="month-breakdown-table">
           <thead><tr><th>Month</th><th>Paid<br>Listings</th><th>Avg. Listing<br>Price</th><th>New Reg.<br>Price</th><th>Revenue<br>to FP</th></tr></thead>
           <tbody>${listingRows()}</tbody>
         </table>
@@ -1757,7 +1763,7 @@ function renderPriceLadderReference(){
     <div class="info-note" style="margin-bottom:10px">Month-wise pricing starting from ${monthLabelShort(currentBizMonth)} (current month) through ${monthLabelShort(currentBizMonth+35)} — 36 months out. Price holds flat for the rest of the fiscal quarter (Apr–Jun / Jul–Sep / Oct–Dec / Jan–Mar) containing sign-up, then steps up (🔺) on the 1st of the next quarter. Recalculated live from the sliders above.</div>
     <div class="card" style="padding:12px">
       <div class="month-breakdown-scroll">
-        <table class="month-breakdown-table" style="min-width:640px">
+        <table class="month-breakdown-table">
           <thead><tr><th style="text-align:left">Month</th><th>LMI Free</th><th>LMI Star</th><th>Setup<br>Charge</th><th>Homepage<br>Banner</th><th>Search &amp;<br>Category</th><th>Category<br>Featured</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
@@ -1850,7 +1856,8 @@ function buildIncomePDF(){
   const LAUNCH_YEAR=2026, LAUNCH_MONTH=9;
   const now=new Date();
   const monthsSinceLaunch=(now.getFullYear()-LAUNCH_YEAR)*12+((now.getMonth()+1)-LAUNCH_MONTH);
-  const startM=Math.max(1,monthsSinceLaunch+2);
+  const startM=Math.max(1,monthsSinceLaunch+1); // include current month, matching the on-screen table
+  const currentBizMonthPdf=Math.max(1,monthsSinceLaunch+1);
   const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function monthLabel(m){
     const idx=(LAUNCH_MONTH-1)+(m-1);
@@ -1865,7 +1872,8 @@ function buildIncomePDF(){
       const monthlyRecurring=tillLast+addOn;
       const avgPrice=paidCount>0?Math.round(monthlyRecurring/paidCount):0;
       const fpShare=Math.round((monthlyRecurring+setup)*(1-hemPct)*t.share);
-      listBody.push([monthLabel(m),paidCount.toLocaleString('en-IN'),fc(avgPrice),fc(_listingPriceRate[m-1]),fc(fpShare)]);
+      const label=monthLabel(m)+(m===currentBizMonthPdf?' (Current)':'');
+      listBody.push([label,paidCount.toLocaleString('en-IN'),fc(avgPrice),fc(_listingPriceRate[m-1]),fc(fpShare)]);
       if(m%12===0||m===36){
         listBody.push(['YEAR '+Math.ceil(m/12)+' TOTAL','','','','']);
       }
@@ -1882,7 +1890,7 @@ function buildIncomePDF(){
       const hp=_spHomepage[m-1], sc=_spSearchCat[m-1], cf=_spCatFeatured[m-1];
       const totalM=hp+sc+cf;
       const fpShare=Math.round(totalM*(1-hemPct)*t.share);
-      spBody.push([monthLabel(m),fc(hp),fc(sc),fc(cf),fc(totalM),fc(fpShare)]);
+      spBody.push([monthLabel(m)+(m===currentBizMonthPdf?' (Current)':''),fc(hp),fc(sc),fc(cf),fc(totalM),fc(fpShare)]);
     }
     table(['Month','Homepage','Search & Cat.','Cat. Featured','Total This Mo','FP Share'],spBody,{styles:{fontSize:7,cellPadding:2}});
   }
