@@ -742,16 +742,39 @@ let incGpPinCount = {gp:1,sgp:1};
 
 let _inc = {
   pop:100000,retailPct:1.25,homeBase:5,
-  capture:50, // Paid Listing Target % — fixed internally now, no longer a slider (see Month-1 Paid Listings below instead)
+  capture:50, // Paid Listing Target % — reference/comparison only now, no longer drives the curve (see Weekly Signups below instead)
   startPaid:Math.max(100,Math.round(100000*0.001)), // 0.1% of default population, or 100, whichever is higher
+  weeklySignups:26, // default = the 36-month average implied by reaching the Paid Listing Target at default population; recalculated on pincode selection
   startPrice:99,stepAmount:50,
-  sponsorHomepage:9999,sponsorSearchCat:7499,sponsorCatFeatured:12495,
+  sponsorHomepage:9999,sponsorSearchCat:7499,catFeatSlots:4,
   hemadriPct:25,selectedTier:'silver',selectedYear:1,selectedGpType:'gp',
 };
+// Tracks whether the person has manually touched the Month-1 Paid Listings /
+// Weekly Signups sliders — until they do, each auto-follows Population
+// whenever it changes (via slider or real pincode selection). Once manually
+// touched, that slider becomes independent and stops auto-updating.
+let _startPaidTouched=false;
+let _weeklySignupsTouched=false;
 let _subs=[],_gross=[],_spArr=[];
 let _setupRev=[],_listingRevCum=[],_listingAddOn=[];
-let _newPaidDelta=[],_listingPriceRate=[],_setupFeeRate=[];
+let _newPaidDelta=[],_listingPriceRate=[],_setupFeeRate=[],_signupsPerWeek=[];
 let _spHomepage=[],_spSearchCat=[],_spCatFeatured=[];
+
+// Computes the 36-month average weekly signup rate that would be needed to
+// reach the Paid Listing Target — used only to set a sensible DEFAULT for the
+// Weekly Signups slider (on pincode selection / population change), not to
+// drive the actual growth model, which is forward-computed from whatever the
+// slider is actually set to.
+function computeDefaultWeeklySignups(pop,retailPct,homeBase,capturePct,startPaidVal){
+  const retail=Math.round(pop*retailPct/100);
+  const total=Math.round(retail*(1+homeBase));
+  const paidTarget=Math.round(total*capturePct/100);
+  const RAMP_MONTHS=6;
+  const totalAddNeeded=Math.max(0,paidTarget-startPaidVal);
+  const rampWeight=(RAMP_MONTHS-1)/2, steadyWeight=(36-RAMP_MONTHS);
+  const steadyRateMonthly=(rampWeight+steadyWeight)>0 ? totalAddNeeded/(rampWeight+steadyWeight) : 0;
+  return Math.max(1,Math.round(steadyRateMonthly/4.33));
+}
 
 // ────────────────────────────────────────────────────
 // NAV
@@ -1126,7 +1149,7 @@ function buildIncomePanel(){
   function mkSlider(id,label,min,max,step,val,fmtFn){
     return `<div class="slider-item">
       <div class="slider-label">${label}<span class="slider-val" id="sv-${id}">${fmtFn(val)}</span></div>
-      <input type="range" min="${min}" max="${max}" step="${step}" value="${val}" oninput="updSlider('${id}',this.value)">
+      <input type="range" id="sl-${id}" min="${min}" max="${max}" step="${step}" value="${val}" oninput="updSlider('${id}',this.value)">
     </div>`;
   }
   const fc2=(v)=>'₹'+parseInt(v).toLocaleString('en-IN');
@@ -1279,10 +1302,14 @@ function buildIncomePanel(){
       </div>
     </div>
 
-    <!-- Adoption curve note -->
+    <!-- Adoption curve slider -->
     <div class="card">
-      <div class="card-title">📈 Adoption Curve — S-Curve over 36 Months</div>
-      <div class="info-note" style="margin-bottom:0">Paid listings ramp on an S-curve (slow start, fast middle, slow finish) from the Month-1 Paid Listings count above up to 50% of your total addressable businesses (retail + home-based), reached by Month 36.</div>
+      <div class="card-title">📈 Adoption Curve — Ramp-to-Plateau over 36 Months</div>
+      <div class="info-note" style="margin-bottom:8px">Models the FP's actual sales capacity. Months 1–6 are a learning ramp (new sign-ups per month grow from a small base up to the weekly pace below), then that pace holds flat for the rest of the 3 years — it's a real, adjustable input now, not backward-solved from a target. Defaults to the 36-month average that would reach 50% of your total addressable businesses; adjust it if you know a more realistic pace for this FP.</div>
+      <div class="slider-grid">
+        ${mkSlider('weeklySignups','Steady Weekly Signups (after ramp-up)',1,200,1,_inc.weeklySignups,v=>parseInt(v)+'/week')}
+      </div>
+      <div id="adoption-curve-outcome" style="margin-top:8px"></div>
     </div>
 
     <!-- Pricing ladder sliders -->
@@ -1298,11 +1325,11 @@ function buildIncomePanel(){
     <!-- Sponsorship sliders — broken out by product -->
     <div class="card">
       <div class="card-title">🎯 Sponsorship Revenue — Quarterly Step-Up</div>
-      <div class="info-note" style="margin-bottom:8px">Month 1 (launch) is priced lower as a one-time teaser, then settles to the price below from Month 2, stepping up at the start of each real fiscal quarter (Apr–Jun / Jul–Sep / Oct–Dec / Jan–Mar) thereafter until it reaches MRP. Applies to whoever holds the slot each month (not cohort-locked, unlike listings).</div>
+      <div class="info-note" style="margin-bottom:8px">Priced at the start value for the current fiscal quarter (Apr–Jun / Jul–Sep / Oct–Dec / Jan–Mar), stepping up at the start of each subsequent quarter until it reaches MRP. Applies to whoever holds the slot each month (not cohort-locked, unlike listings). Homepage Banner and Search & Category Banner are 1 slot per pin code; Category Featured allows 4 slots per available category — adjust the slider below for how many slots (across however many categories) you expect to sell.</div>
       <div class="slider-grid-3">
         ${mkSlider('sponsorHomepage','Homepage Banner',0,99999,500,9999,fc2)}
         ${mkSlider('sponsorSearchCat','Search & Category Banner',0,74999,500,7499,fc2)}
-        ${mkSlider('sponsorCatFeatured','Category Featured (slots)',0,99999,500,12495,fc2)}
+        ${mkSlider('catFeatSlots','Category Featured — Slots',0,40,1,4,v=>parseInt(v)+' slot'+(v==1?'':'s'))}
       </div>
     </div>
 
@@ -1341,12 +1368,38 @@ function updSlider(key,val){
   _inc[key]=parseFloat(val);
   const fmts={
     pop:v=>parseInt(v).toLocaleString('en-IN'), retailPct:v=>v+'%', homeBase:v=>v+'×', capture:v=>v+'%',
-    startPaid:v=>parseInt(v).toLocaleString('en-IN'),
+    startPaid:v=>parseInt(v).toLocaleString('en-IN'), weeklySignups:v=>parseInt(v)+'/week',
     startPrice:v=>'₹'+v, stepAmount:v=>'₹'+v,
-    sponsorHomepage:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorSearchCat:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorCatFeatured:v=>'₹'+parseInt(v).toLocaleString('en-IN'),
+    sponsorHomepage:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorSearchCat:v=>'₹'+parseInt(v).toLocaleString('en-IN'), catFeatSlots:v=>parseInt(v)+' slot'+(v==1?'':'s'),
   };
   const el=document.getElementById('sv-'+key);
   if(el&&fmts[key]) el.textContent=fmts[key](val);
+
+  // Month-1 Paid Listings auto-follows Population (0.1% of pop, or 100,
+  // whichever higher) until the person manually adjusts it themselves.
+  if(key==='startPaid'){
+    _startPaidTouched=true;
+  } else if(key==='weeklySignups'){
+    _weeklySignupsTouched=true;
+  } else if(key==='pop'){
+    if(!_startPaidTouched){
+      const newStartPaid=Math.max(100,Math.round(_inc.pop*0.001));
+      _inc.startPaid=newStartPaid;
+      const spInput=document.getElementById('sl-startPaid');
+      const spLabel=document.getElementById('sv-startPaid');
+      if(spInput) spInput.value=newStartPaid;
+      if(spLabel) spLabel.textContent=fmts.startPaid(newStartPaid);
+    }
+    if(!_weeklySignupsTouched){
+      const newWeekly=computeDefaultWeeklySignups(_inc.pop,_inc.retailPct,_inc.homeBase,_inc.capture,_inc.startPaid);
+      _inc.weeklySignups=newWeekly;
+      const wsInput=document.getElementById('sl-weeklySignups');
+      const wsLabel=document.getElementById('sv-weeklySignups');
+      if(wsInput) wsInput.value=newWeekly;
+      if(wsLabel) wsLabel.textContent=fmts.weeklySignups(newWeekly);
+    }
+  }
+
   calculateIncome();
 }
 
@@ -1588,7 +1641,7 @@ function renderMonthlyBreakdown(){
 
   function listingRows(){
     let rows='';
-    let yrFpShare=0, yrRevSum=0, yrCount=0;
+    let yrFpShare=0, yrRevSum=0, yrCount=0, yrSignupWeekSum=0;
     for(let m=startM;m<=36;m++){
       const tillLast=m===1?0:_listingRevCum[m-2];
       const addOn=_listingAddOn[m-1];
@@ -1597,30 +1650,33 @@ function renderMonthlyBreakdown(){
       const monthlyRecurring=tillLast+addOn; // total recurring revenue collected this month, across all active cohorts
       const avgPrice=paidCount>0?Math.round(monthlyRecurring/paidCount):0;
       const fpShare=Math.round((monthlyRecurring+setup)*(1-hemPct)*t.share);
+      const signupsPerWeek=_signupsPerWeek[m-1];
       const isCurrent=(m===currentBizMonth);
       rows+=`<tr${isCurrent?' class="current-month-row"':''}>
         <td>${monthLabel(m)}${isCurrent?' <span class="current-month-badge">CURRENT</span>':''}</td>
         <td>${paidCount.toLocaleString('en-IN')}</td>
+        <td>${signupsPerWeek.toFixed(1)}</td>
         <td>${fc(avgPrice)}</td>
         <td>${fc(_listingPriceRate[m-1])}</td>
         <td style="color:var(--lmi-blue);font-weight:600">${fc(fpShare)}</td>
       </tr>`;
-      yrFpShare+=fpShare; yrRevSum+=monthlyRecurring; yrCount++;
+      yrFpShare+=fpShare; yrRevSum+=monthlyRecurring; yrCount++; yrSignupWeekSum+=signupsPerWeek;
       // End of a business year (Month 12/24/36) — or the last row rendered,
       // whichever comes first — emit a subtotal for whatever months of that
       // year were actually shown (may be a partial year if startM falls
       // mid-year). Paid Listings shows the year-end count (a stock, not
-      // summable); Avg Price shows the year's blended average.
+      // summable); Avg Price and Signups/Week show the year's blended average.
       if(m%12===0 || m===36){
         const yearNum=Math.ceil(m/12);
         rows+=`<tr class="year-total-row">
           <td>YEAR ${yearNum} TOTAL${m%12!==0?' (partial)':''}</td>
           <td>${paidCount.toLocaleString('en-IN')} <span style="font-weight:400;font-size:9px">(year-end)</span></td>
+          <td>${(yrSignupWeekSum/yrCount).toFixed(1)} <span style="font-weight:400;font-size:9px">(avg)</span></td>
           <td>${fc(Math.round(yrRevSum/yrCount))} <span style="font-weight:400;font-size:9px">(avg)</span></td>
           <td>—</td>
           <td style="color:var(--lmi-blue)">${fc(yrFpShare)}</td>
         </tr>`;
-        yrFpShare=0; yrRevSum=0; yrCount=0;
+        yrFpShare=0; yrRevSum=0; yrCount=0; yrSignupWeekSum=0;
       }
     }
     return rows;
@@ -1670,11 +1726,11 @@ function renderMonthlyBreakdown(){
       <div class="card-title">🏷️ Business Listings</div>
       <div class="month-breakdown-scroll">
         <table class="month-breakdown-table">
-          <thead><tr><th>Month</th><th>Paid<br>Listings</th><th>Avg. Listing<br>Price</th><th>New Reg.<br>Price</th><th>Revenue<br>to FP</th></tr></thead>
+          <thead><tr><th>Month</th><th>Paid<br>Listings</th><th>Signups<br>/Week</th><th>Avg. Listing<br>Price</th><th>New Reg.<br>Price</th><th>Revenue<br>to FP</th></tr></thead>
           <tbody>${listingRows()}</tbody>
         </table>
       </div>
-      <div style="font-size:10px;color:var(--t3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">💡 To reach ${_subs[35].toLocaleString('en-IN')} paid listings (100% of target, per the Paid Listing Target % slider above) by Month 36, you'd need to average roughly <strong style="color:var(--navy)">${Math.round((_subs[35]-_inc.startPaid)/36).toLocaleString('en-IN')} new paid listings/month</strong> over the 3 years — a simple 36-month average, not the actual S-curve pace shown above.</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">💡 To reach ${_subs[35].toLocaleString('en-IN')} paid listings (100% of target, per the Paid Listing Target % slider above) by Month 36, you'd need to average roughly <strong style="color:var(--navy)">${Math.round((_subs[35]-_inc.startPaid)/36).toLocaleString('en-IN')} new paid listings/month</strong> over the 3 years — a simple 36-month average, not the actual ramp-to-plateau pace shown above (which is slower in Months 1–6 while the FP ramps up, then holds at a steady rate).</div>
     </div>
 
     <div class="card" style="padding:12px">
@@ -1714,20 +1770,6 @@ function renderPriceLadderReference(){
   function quartersSinceLaunch(m){ return quarterIdxForBizMonth(m)-LAUNCH_QIDX; }
   function newSignupPrice(m){ return Math.min(LISTING_MRP, s.startPrice+s.stepAmount*quartersSinceLaunch(m)); }
   function setupCharge(m){ return Math.min(SETUP_MRP, s.startPrice+s.stepAmount*quartersSinceLaunch(m)); }
-  const SPONSOR_DEFAULTS={
-    homepage:{launch:7499,settled:9999,step:10000,mrp:99999,key:'sponsorHomepage'},
-    searchCat:{launch:4999,settled:7499,step:7500,mrp:74999,key:'sponsorSearchCat'},
-    catFeat:{launch:1499*5,settled:2499*5,step:2500*5,mrp:24999*5,key:'sponsorCatFeatured'},
-  };
-  const SETTLED_BASE_QIDX=quarterIdxForBizMonth(2);
-  function sponsorPriceFor(prodKey,m){
-    const d=SPONSOR_DEFAULTS[prodKey];
-    const settledNow=s[d.key];
-    const scale=d.settled?settledNow/d.settled:1;
-    if(m===1) return Math.round(d.launch*scale);
-    const q=quarterIdxForBizMonth(m)-SETTLED_BASE_QIDX;
-    return Math.round(Math.min(d.mrp*scale, settledNow+d.step*scale*q));
-  }
 
   // Start from the CURRENT real-world month (not launch, not "next month" —
   // per this table's spec specifically), showing 36 months forward.
@@ -1739,6 +1781,25 @@ function renderPriceLadderReference(){
   const now=new Date();
   const monthsSinceLaunch=(now.getFullYear()-LAUNCH_YEAR)*12+((now.getMonth()+1)-LAUNCH_MONTH);
   const currentBizMonth=Math.max(1, monthsSinceLaunch+1);
+
+  // Sponsorship — no separate "launch month" discount anymore: each product
+  // simply starts at its quoted price for the CURRENT fiscal quarter (Apr–Jun
+  // / Jul–Sep / Oct–Dec / Jan–Mar), stepping up every subsequent quarter
+  // until it reaches MRP. Category Featured is priced per slot; the slot
+  // count (default 4, "4 per available category" — can go higher across
+  // multiple categories) is the adjustable slider, not the price itself.
+  const CURRENT_QIDX=quarterIdxForBizMonth(currentBizMonth);
+  function quartersFromNow(m){ return Math.max(0,quarterIdxForBizMonth(m)-CURRENT_QIDX); }
+  function sponsorPriceFor(prodKey,m){
+    const q=quartersFromNow(m);
+    if(prodKey==='homepage')  return Math.round(Math.min(99999, s.sponsorHomepage+10000*q));
+    if(prodKey==='searchCat') return Math.round(Math.min(74999, s.sponsorSearchCat+7500*q));
+    if(prodKey==='catFeat'){
+      const perSlot=Math.round(Math.min(9999, 999+1000*q));
+      return perSlot*s.catFeatSlots;
+    }
+    return 0;
+  }
 
   let rows='';
   let prevQ=null;
@@ -1760,7 +1821,7 @@ function renderPriceLadderReference(){
 
   el.innerHTML=`
     <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 4px">📋 Price Ladder Reference</div>
-    <div class="info-note" style="margin-bottom:10px">Month-wise pricing starting from ${monthLabelShort(currentBizMonth)} (current month) through ${monthLabelShort(currentBizMonth+35)} — 36 months out. Price holds flat for the rest of the fiscal quarter (Apr–Jun / Jul–Sep / Oct–Dec / Jan–Mar) containing sign-up, then steps up (🔺) on the 1st of the next quarter. Recalculated live from the sliders above.</div>
+    <div class="info-note" style="margin-bottom:10px">Month-wise pricing starting from ${monthLabelShort(currentBizMonth)} (current month) through ${monthLabelShort(currentBizMonth+35)} — 36 months out. Listing/setup price holds flat for the rest of the fiscal quarter (Apr–Jun / Jul–Sep / Oct–Dec / Jan–Mar) containing sign-up, then steps up (🔺) on the 1st of the next quarter. Sponsorship prices start at their current-quarter rate and step up the same way, with Category Featured shown at ${_inc.catFeatSlots} slot${_inc.catFeatSlots==1?'':'s'} (adjustable above). Recalculated live from the sliders above.</div>
     <div class="card" style="padding:12px">
       <div class="month-breakdown-scroll">
         <table class="month-breakdown-table">
@@ -1831,11 +1892,12 @@ function buildIncomePDF(){
     ['Market','Home-based × Retail',s.homeBase+'×'],
     ['Market','Paid Listing Target %',s.capture+'%'],
     ['Adoption Curve','Month-1 Paid Listings',s.startPaid.toLocaleString('en-IN')],
+    ['Adoption Curve','Steady Weekly Signups',s.weeklySignups+'/week'],
     ['Listing Pricing','Start Price',fc(s.startPrice)],
     ['Listing Pricing','Step Amount / Quarter',fc(s.stepAmount)],
     ['Sponsorship','Homepage Banner (settled)',fc(s.sponsorHomepage)],
     ['Sponsorship','Search & Category (settled)',fc(s.sponsorSearchCat)],
-    ['Sponsorship','Category Featured (settled)',fc(s.sponsorCatFeatured)],
+    ['Sponsorship','Category Featured — Slots',s.catFeatSlots+' slots'],
     ['Selection','Franchise Tier',t.name+' ('+Math.round(t.share*100)+'% share)'],
     ['Selection','GP/SGP Type',s.selectedGpType==='gp'?'Growth Partner':'Super Growth Partner'],
   ]);
@@ -2086,46 +2148,53 @@ function calculateIncome(){
     return Math.min(SETUP_MRP, s.startPrice + s.stepAmount*quartersSinceLaunch(m));
   }
 
-  // ── Sponsorship — 3 products. Month 1 = one-time launch teaser price;
-  // Month 2 onward = the slider's settled price, stepping up +step at the
-  // start of each subsequent real fiscal quarter (same universal Apr–Jun /
-  // Jul–Sep / Oct–Dec / Jan–Mar boundaries as listings), until it reaches
-  // that product's MRP. Applies to whoever holds the slot each month — not
-  // cohort-locked, unlike listings. Launch price/step/MRP all scale
-  // proportionally with the slider so the rate card's shape holds even if
-  // you adjust it.
-  const SPONSOR_DEFAULTS={
-    homepage:  {launch:7499,    settled:9999,  step:10000, mrp:99999,   key:'sponsorHomepage'},
-    searchCat: {launch:4999,    settled:7499,  step:7500,  mrp:74999,   key:'sponsorSearchCat'},
-    catFeat:   {launch:1499*5,  settled:2499*5,step:2500*5,mrp:24999*5, key:'sponsorCatFeatured'}, // aggregate of 5 modeled slots
-  };
-  const SETTLED_BASE_QIDX=quarterIdxForBizMonth(2); // quarter containing Month 2 = the settled-price baseline
+  // ── Sponsorship — 3 products. No separate "launch month" discount: each
+  // simply starts at its quoted price for the CURRENT fiscal quarter (Apr–Jun
+  // / Jul–Sep / Oct–Dec / Jan–Mar — dynamically today's quarter, not a fixed
+  // launch-relative one), stepping up every subsequent quarter until it
+  // reaches MRP. Applies to whoever holds the slot each month — not
+  // cohort-locked, unlike listings. Category Featured is priced per slot
+  // (fixed ladder); the slot count is what's adjustable (default 4, "4 per
+  // available category" — can go higher across multiple categories).
+  const nowForSponsor=new Date();
+  const monthsSinceLaunchForSponsor=(nowForSponsor.getFullYear()-LAUNCH_YEAR)*12+((nowForSponsor.getMonth()+1)-LAUNCH_MONTH);
+  const currentBizMonthForSponsor=Math.max(1,monthsSinceLaunchForSponsor+1);
+  const CURRENT_QIDX=quarterIdxForBizMonth(currentBizMonthForSponsor);
+  function quartersFromNow(m){ return Math.max(0,quarterIdxForBizMonth(m)-CURRENT_QIDX); }
   function sponsorPriceFor(prodKey,m){
-    const d=SPONSOR_DEFAULTS[prodKey];
-    const settledNow=s[d.key];
-    const scale=d.settled?settledNow/d.settled:1;
-    if(m===1) return Math.round(d.launch*scale);
-    const q=quarterIdxForBizMonth(m)-SETTLED_BASE_QIDX;
-    return Math.round(Math.min(d.mrp*scale, settledNow + d.step*scale*q));
+    const q=quartersFromNow(m);
+    if(prodKey==='homepage')  return Math.round(Math.min(99999, s.sponsorHomepage+10000*q));
+    if(prodKey==='searchCat') return Math.round(Math.min(74999, s.sponsorSearchCat+7500*q));
+    if(prodKey==='catFeat'){
+      const perSlot=Math.round(Math.min(9999, 999+1000*q));
+      return perSlot*s.catFeatSlots;
+    }
+    return 0;
   }
 
-  // ── Adoption curve — S-curve (smoothstep: slow start, fast middle, slow
-  // finish), applied directly to paid listings from the Month-1 starting
-  // count up to the Paid Listing Target — no free-listing step in between.
-  function smoothstep(t){ t=Math.max(0,Math.min(1,t)); return t*t*(3-2*t); }
-  function paidListingsFor(m){
-    const sm=smoothstep((m-1)/35);
-    return Math.max(0,Math.round(s.startPaid + (paidTarget-s.startPaid)*sm));
+  // ── Adoption curve — Ramp-to-Plateau (sales capacity model), forward-
+  // computed from the Weekly Signups slider (a real input now, not a target
+  // to backward-solve toward). Months 1–6 are the FP's learning ramp: new
+  // sign-ups per month grow linearly from a small base up to that weekly
+  // pace. From Month 7 onward, that steady rate holds flat for the rest of
+  // the 3 years — wherever it happens to land relative to the Paid Listing
+  // Target is just a reference comparison, shown below, not a constraint.
+  const RAMP_MONTHS=6;
+  const steadyRate=s.weeklySignups*4.33; // convert weekly input to a monthly rate
+  function monthlyAddFor(m){
+    if(m<=1) return 0; // Month 1 is the starting base itself, not an "addition"
+    if(m<=RAMP_MONTHS) return Math.round(steadyRate*(m-1)/RAMP_MONTHS);
+    return Math.round(steadyRate);
   }
 
   _subs=[]; _gross=[]; _spArr=[];
   _setupRev=[]; _listingRevCum=[]; _listingAddOn=[];
-  _newPaidDelta=[]; _listingPriceRate=[]; _setupFeeRate=[];
+  _newPaidDelta=[]; _listingPriceRate=[]; _setupFeeRate=[]; _signupsPerWeek=[];
   _spHomepage=[]; _spSearchCat=[]; _spCatFeatured=[];
   let prevPaid=0, listingRevRunning=0;
   for(let m=1;m<=36;m++){
-    const paid=paidListingsFor(m);
-    const delta=Math.max(0,paid-prevPaid);
+    const delta=m===1?0:monthlyAddFor(m);
+    const paid=(m===1?s.startPaid:prevPaid+delta);
     const rate=newSignupPrice(m), setupRate=setupCharge(m);
     const addOn=delta*rate;
     listingRevRunning += addOn;
@@ -2139,6 +2208,7 @@ function calculateIncome(){
 
     _subs.push(paid);
     _newPaidDelta.push(delta);
+    _signupsPerWeek.push(delta/4.33); // ~4.33 weeks/month average
     _listingPriceRate.push(rate);
     _setupFeeRate.push(setupRate);
     _listingRevCum.push(listingRevRunning);
@@ -2149,6 +2219,18 @@ function calculateIncome(){
     _spCatFeatured.push(spC);
     _spArr.push(sponsorTotal);
     _gross.push(listingRevRunning + setupRevThisMonth + sponsorTotal);
+  }
+
+  // Feedback on where this weekly pace actually lands, vs. the Paid Listing
+  // Target — comparison only now, doesn't constrain the curve above.
+  const outcomeEl=document.getElementById('adoption-curve-outcome');
+  if(outcomeEl){
+    const month36Count=_subs[35];
+    const pctOfTarget=paidTarget>0?Math.round(month36Count/paidTarget*100):0;
+    const short=paidTarget-month36Count;
+    outcomeEl.innerHTML = `<div style="background:${pctOfTarget>=100?'#F0FDF4':'#FFF8E1'};border:1px solid ${pctOfTarget>=100?'#86EFAC':'#F5D100'};border-radius:8px;padding:8px 10px;font-size:10.5px;color:${pctOfTarget>=100?'#166534':'#92400E'}">
+      ${pctOfTarget>=100?'✅':'⚠️'} At ${s.weeklySignups}/week, you'll reach <strong>${month36Count.toLocaleString('en-IN')} paid listings</strong> by Month 36 — <strong>${pctOfTarget}%</strong> of the ${paidTarget.toLocaleString('en-IN')}-listing target${pctOfTarget<100?' ('+short.toLocaleString('en-IN')+' short)':''}.
+    </div>`;
   }
 
   renderMonthlyBreakdown();
@@ -3009,6 +3091,31 @@ function incPinChange(){
   });
   const popLbl=document.getElementById('sv-pop');
   if(popLbl) popLbl.textContent=pop.toLocaleString('en-IN');
+
+  // Month-1 Paid Listings auto-follows this pin's real population (0.1% of
+  // pop, or 100, whichever is higher) — same rule as the manual Population
+  // slider, but this is the path that actually fires most often, since
+  // selecting a real pin is how population normally gets set.
+  if(!_startPaidTouched){
+    const newStartPaid=Math.max(100,Math.round(pop*0.001));
+    _inc.startPaid=newStartPaid;
+    const spInput=document.getElementById('sl-startPaid');
+    const spLabel=document.getElementById('sv-startPaid');
+    if(spInput) spInput.value=newStartPaid;
+    if(spLabel) spLabel.textContent=newStartPaid.toLocaleString('en-IN');
+  }
+
+  // Weekly Signups defaults to the 36-month average that would reach the
+  // Paid Listing Target for THIS pin's real population — recalculated fresh
+  // every time a pin is selected, unless manually overridden already.
+  if(!_weeklySignupsTouched){
+    const newWeekly=computeDefaultWeeklySignups(pop,_inc.retailPct,_inc.homeBase,_inc.capture,_inc.startPaid);
+    _inc.weeklySignups=newWeekly;
+    const wsInput=document.getElementById('sl-weeklySignups');
+    const wsLabel=document.getElementById('sv-weeklySignups');
+    if(wsInput) wsInput.value=newWeekly;
+    if(wsLabel) wsLabel.textContent=newWeekly+'/week';
+  }
 
   // Show pin summary chip
   const summary=document.getElementById('inc-pin-summary');
