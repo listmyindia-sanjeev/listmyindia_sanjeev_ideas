@@ -1186,19 +1186,21 @@ function buildIncomePanel(){
     <!-- Franchise tier — sticky so its live total (and the selected-pin chip)
          stay visible while adjusting the assumption sliders further down. -->
     <div class="tier-sticky-wrap">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin:16px 0 8px">
-        <div style="font-size:13px;font-weight:700;color:var(--navy)">📊 Select Franchise Tier</div>
-        <!-- Pin summary chip — appears after a pin is selected; lives here (not
-             the pin-selector panel above) specifically so it stays visible once
-             this section becomes sticky and the pin panel has scrolled away. -->
-        <div id="inc-pin-summary" style="display:none;background:var(--soft-blue);border:1px solid #C7D7F5;border-radius:8px;padding:5px 11px;text-align:right;max-width:55%;flex-shrink:0">
-          <div style="color:var(--t3);font-size:9px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:1px">Selected</div>
-          <div id="inc-pin-label" style="color:var(--navy);font-weight:700;font-size:12px;line-height:1.3;word-break:break-word"></div>
-          <div id="inc-pop-label" style="color:var(--blue);font-size:10px;margin-top:1px"></div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 8px">📊 Select Franchise Tier</div>
+      <div class="pill-tabs" id="tier-tabs"></div>
+      <!-- Wrapper is position:relative so the pin chip can overlay the banner
+           without living inside it — #inc-banner's innerHTML gets fully
+           replaced by calculateIncome() on every change, which would wipe out
+           the chip if it were nested inside instead. -->
+      <div style="position:relative">
+        <div class="income-banner" id="inc-banner"><div class="yr">Select a tier above</div></div>
+        <!-- Pin summary chip — appears after a pin is selected. -->
+        <div id="inc-pin-summary" style="display:none;position:absolute;top:10px;right:12px;background:rgba(255,255,255,.14);border-radius:8px;padding:5px 11px;text-align:right;max-width:45%">
+          <div style="color:rgba(255,255,255,.6);font-size:9px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:1px">Selected</div>
+          <div id="inc-pin-label" style="color:white;font-weight:700;font-size:12px;line-height:1.3;word-break:break-word"></div>
+          <div id="inc-pop-label" style="color:var(--yellow);font-size:10px;margin-top:1px"></div>
         </div>
       </div>
-      <div class="pill-tabs" id="tier-tabs"></div>
-      <div class="income-banner" id="inc-banner"><div class="yr">Select a tier above</div></div>
     </div>
 
     <!-- Summary table -->
@@ -2112,7 +2114,7 @@ function calculateIncome(){
     const yrs=ym.map(m=>Math.round(m.net*t.share));
     const tot=yrs.reduce((a,b)=>a+b,0);
     banner.innerHTML=`
-      <div style="width:100%;margin-bottom:6px">
+      <div style="width:100%;margin-bottom:6px;padding-right:130px">
         <div style="font-weight:700;font-size:12px">${t.name} · ${Math.round(t.share*100)}% revenue share</div>
         <div style="font-size:9.5px;opacity:.6">${t.bestFor}</div>
       </div>
