@@ -742,39 +742,22 @@ let incGpPinCount = {gp:1,sgp:1};
 
 let _inc = {
   pop:100000,retailPct:1.25,homeBase:5,
-  capture:50, // Paid Listing Target % — reference/comparison only now, no longer drives the curve (see Weekly Signups below instead)
-  startPaid:Math.max(100,Math.round(100000*0.001)), // 0.1% of default population, or 100, whichever is higher
-  weeklySignups:26, // default = the 36-month average implied by reaching the Paid Listing Target at default population; recalculated on pincode selection
+  capture:25, // Paid Listing Target % — reference/comparison only, doesn't drive the curve. 25% is the Franchise Minimum bar used elsewhere.
+  startPaid:Math.max(1,Math.round(Math.max(100,Math.round(100000*0.001))/4.33)), // weekly rate — derived from the old "0.1% of pop, or 100, whichever higher" absolute default, converted to a weekly pace. Drives both the ramp and the steady plateau.
   startPrice:99,stepAmount:50,
   sponsorHomepage:9999,sponsorSearchCat:7499,catFeatSlots:4,
   hemadriPct:25,selectedTier:'silver',selectedYear:1,selectedGpType:'gp',
 };
-// Tracks whether the person has manually touched the Month-1 Paid Listings /
-// Weekly Signups sliders — until they do, each auto-follows Population
-// whenever it changes (via slider or real pincode selection). Once manually
-// touched, that slider becomes independent and stops auto-updating.
+// Tracks whether the person has manually touched the Paid Listings /Week
+// slider — until they do, it auto-follows Population whenever it changes
+// (via slider or real pincode selection). Once manually touched, it becomes
+// independent and stops auto-updating.
 let _startPaidTouched=false;
-let _weeklySignupsTouched=false;
 let _subs=[],_gross=[],_spArr=[];
 let _setupRev=[],_listingRevCum=[],_listingAddOn=[];
 let _newPaidDelta=[],_listingPriceRate=[],_setupFeeRate=[],_signupsPerWeek=[];
+let _freeListings=[],_users=[];
 let _spHomepage=[],_spSearchCat=[],_spCatFeatured=[];
-
-// Computes the 36-month average weekly signup rate that would be needed to
-// reach the Paid Listing Target — used only to set a sensible DEFAULT for the
-// Weekly Signups slider (on pincode selection / population change), not to
-// drive the actual growth model, which is forward-computed from whatever the
-// slider is actually set to.
-function computeDefaultWeeklySignups(pop,retailPct,homeBase,capturePct,startPaidVal){
-  const retail=Math.round(pop*retailPct/100);
-  const total=Math.round(retail*(1+homeBase));
-  const paidTarget=Math.round(total*capturePct/100);
-  const RAMP_MONTHS=6;
-  const totalAddNeeded=Math.max(0,paidTarget-startPaidVal);
-  const rampWeight=(RAMP_MONTHS-1)/2, steadyWeight=(36-RAMP_MONTHS);
-  const steadyRateMonthly=(rampWeight+steadyWeight)>0 ? totalAddNeeded/(rampWeight+steadyWeight) : 0;
-  return Math.max(1,Math.round(steadyRateMonthly/4.33));
-}
 
 // ────────────────────────────────────────────────────
 // NAV
@@ -1236,42 +1219,6 @@ function buildIncomePanel(){
       <div class="income-banner" id="inc-banner"><div class="yr">Select a tier above</div></div>
     </div>
 
-    <!-- Income Goal Calculator — "option 2": pick a target monthly income and
-         a month to reach it by, see what it takes instead of reading it off
-         the growth-curve projection above. -->
-    <div class="card" style="margin-top:16px">
-      <div class="card-title">🎯 Income Goal Calculator</div>
-      <div class="info-note" style="margin-bottom:10px">Alternative to the growth-projection view above — pick the FP gross monthly income you want, and by which month, to see what it would take to get there.</div>
-      <div class="slider-grid" style="margin-bottom:10px">
-        <div>
-          <label style="font-size:10.5px;color:var(--t2);font-weight:600;display:block;margin-bottom:4px">Desired FP Gross Monthly Income</label>
-          <select id="goal-income" class="pac-form-field" style="margin-bottom:0" onchange="calculateIncomeGoal()">
-            <option value="25000">₹25,000/mo</option>
-            <option value="50000" selected>₹50,000/mo</option>
-            <option value="75000">₹75,000/mo</option>
-            <option value="100000">₹1,00,000/mo</option>
-            <option value="150000">₹1,50,000/mo</option>
-            <option value="200000">₹2,00,000/mo</option>
-            <option value="300000">₹3,00,000/mo</option>
-            <option value="500000">₹5,00,000/mo</option>
-          </select>
-        </div>
-        <div>
-          <label style="font-size:10.5px;color:var(--t2);font-weight:600;display:block;margin-bottom:4px">Achieve By</label>
-          <select id="goal-month" class="pac-form-field" style="margin-bottom:0" onchange="calculateIncomeGoal()">
-            <option value="3">Month 3</option>
-            <option value="6">Month 6</option>
-            <option value="9">Month 9</option>
-            <option value="12" selected>Month 12 (Year 1)</option>
-            <option value="18">Month 18</option>
-            <option value="24">Month 24 (Year 2)</option>
-            <option value="36">Month 36 (Year 3)</option>
-          </select>
-        </div>
-      </div>
-      <div id="goal-result"></div>
-    </div>
-
     <!-- Summary table -->
     <div class="card" style="margin-top:16px">
       <div class="year-tabs">
@@ -1298,18 +1245,8 @@ function buildIncomePanel(){
         ${mkSlider('pop','Population',10000,500000,5000,100000,v=>parseInt(v).toLocaleString('en-IN'))}
         ${mkSlider('retailPct','Retail store %',0.5,3,0.25,1.25,v=>v+'%')}
         ${mkSlider('homeBase','Home-based × retail',1,10,0.5,5,v=>v+'×')}
-        ${mkSlider('startPaid','Month-1 Paid Listings',10,2000,10,_inc.startPaid,v=>parseInt(v).toLocaleString('en-IN'))}
+        ${mkSlider('startPaid','Paid Listings /Week',1,200,1,_inc.startPaid,v=>parseInt(v)+'/week')}
       </div>
-    </div>
-
-    <!-- Adoption curve slider -->
-    <div class="card">
-      <div class="card-title">📈 Adoption Curve — Ramp-to-Plateau over 36 Months</div>
-      <div class="info-note" style="margin-bottom:8px">Models the FP's actual sales capacity. Months 1–6 are a learning ramp (new sign-ups per month grow from a small base up to the weekly pace below), then that pace holds flat for the rest of the 3 years — it's a real, adjustable input now, not backward-solved from a target. Defaults to the 36-month average that would reach 50% of your total addressable businesses; adjust it if you know a more realistic pace for this FP.</div>
-      <div class="slider-grid">
-        ${mkSlider('weeklySignups','Steady Weekly Signups (after ramp-up)',1,200,1,_inc.weeklySignups,v=>parseInt(v)+'/week')}
-      </div>
-      <div id="adoption-curve-outcome" style="margin-top:8px"></div>
     </div>
 
     <!-- Pricing ladder sliders -->
@@ -1368,35 +1305,26 @@ function updSlider(key,val){
   _inc[key]=parseFloat(val);
   const fmts={
     pop:v=>parseInt(v).toLocaleString('en-IN'), retailPct:v=>v+'%', homeBase:v=>v+'×', capture:v=>v+'%',
-    startPaid:v=>parseInt(v).toLocaleString('en-IN'), weeklySignups:v=>parseInt(v)+'/week',
+    startPaid:v=>parseInt(v)+'/week',
     startPrice:v=>'₹'+v, stepAmount:v=>'₹'+v,
     sponsorHomepage:v=>'₹'+parseInt(v).toLocaleString('en-IN'), sponsorSearchCat:v=>'₹'+parseInt(v).toLocaleString('en-IN'), catFeatSlots:v=>parseInt(v)+' slot'+(v==1?'':'s'),
   };
   const el=document.getElementById('sv-'+key);
   if(el&&fmts[key]) el.textContent=fmts[key](val);
 
-  // Month-1 Paid Listings auto-follows Population (0.1% of pop, or 100,
-  // whichever higher) until the person manually adjusts it themselves.
+  // Paid Listings /Week auto-follows Population (0.1% of pop, or 100,
+  // whichever higher, converted to weekly) until the person manually
+  // adjusts it themselves.
   if(key==='startPaid'){
     _startPaidTouched=true;
-  } else if(key==='weeklySignups'){
-    _weeklySignupsTouched=true;
   } else if(key==='pop'){
     if(!_startPaidTouched){
-      const newStartPaid=Math.max(100,Math.round(_inc.pop*0.001));
+      const newStartPaid=Math.max(1,Math.round(Math.max(100,Math.round(_inc.pop*0.001))/4.33));
       _inc.startPaid=newStartPaid;
       const spInput=document.getElementById('sl-startPaid');
       const spLabel=document.getElementById('sv-startPaid');
       if(spInput) spInput.value=newStartPaid;
       if(spLabel) spLabel.textContent=fmts.startPaid(newStartPaid);
-    }
-    if(!_weeklySignupsTouched){
-      const newWeekly=computeDefaultWeeklySignups(_inc.pop,_inc.retailPct,_inc.homeBase,_inc.capture,_inc.startPaid);
-      _inc.weeklySignups=newWeekly;
-      const wsInput=document.getElementById('sl-weeklySignups');
-      const wsLabel=document.getElementById('sv-weeklySignups');
-      if(wsInput) wsInput.value=newWeekly;
-      if(wsLabel) wsLabel.textContent=fmts.weeklySignups(newWeekly);
     }
   }
 
@@ -1654,6 +1582,8 @@ function renderMonthlyBreakdown(){
       const isCurrent=(m===currentBizMonth);
       rows+=`<tr${isCurrent?' class="current-month-row"':''}>
         <td>${monthLabel(m)}${isCurrent?' <span class="current-month-badge">CURRENT</span>':''}</td>
+        <td>${_users[m-1].toLocaleString('en-IN')}</td>
+        <td>${_freeListings[m-1].toLocaleString('en-IN')}</td>
         <td>${paidCount.toLocaleString('en-IN')}</td>
         <td>${signupsPerWeek.toFixed(1)}</td>
         <td>${fc(avgPrice)}</td>
@@ -1664,12 +1594,15 @@ function renderMonthlyBreakdown(){
       // End of a business year (Month 12/24/36) — or the last row rendered,
       // whichever comes first — emit a subtotal for whatever months of that
       // year were actually shown (may be a partial year if startM falls
-      // mid-year). Paid Listings shows the year-end count (a stock, not
-      // summable); Avg Price and Signups/Week show the year's blended average.
+      // mid-year). Users/Free/Paid Listings show the year-end count (a
+      // stock, not summable); Avg Price and Signups/Week show the year's
+      // blended average.
       if(m%12===0 || m===36){
         const yearNum=Math.ceil(m/12);
         rows+=`<tr class="year-total-row">
           <td>YEAR ${yearNum} TOTAL${m%12!==0?' (partial)':''}</td>
+          <td>${_users[m-1].toLocaleString('en-IN')} <span style="font-weight:400;font-size:9px">(year-end)</span></td>
+          <td>${_freeListings[m-1].toLocaleString('en-IN')} <span style="font-weight:400;font-size:9px">(year-end)</span></td>
           <td>${paidCount.toLocaleString('en-IN')} <span style="font-weight:400;font-size:9px">(year-end)</span></td>
           <td>${(yrSignupWeekSum/yrCount).toFixed(1)} <span style="font-weight:400;font-size:9px">(avg)</span></td>
           <td>${fc(Math.round(yrRevSum/yrCount))} <span style="font-weight:400;font-size:9px">(avg)</span></td>
@@ -1723,14 +1656,15 @@ function renderMonthlyBreakdown(){
     <div class="info-note" style="margin-bottom:10px">Starting from ${monthLabel(startM)} (current month, highlighted below) through Month 36 (${monthLabel(36)}). FP Share reflects the selected tier (${t.name}, ${Math.round(t.share*100)}%) on net-of-tech-share revenue.</div>
 
     <div class="card" style="padding:12px">
-      <div class="card-title">🏷️ Business Listings</div>
+      <div class="card-title">🏷️ Business Listings, Free Reach & Users</div>
+      <div class="info-note" style="margin-bottom:8px">Users and Free Listings are benchmarked reference tracks (not slider-adjustable) — Free Listings ramps to 90% of your total addressable businesses by Month 36 (low-friction, no sales close needed, 4-month ramp); Users/Buyers ramps to 30% of population by Month 36 (marketing/awareness-driven, slower 9-month ramp). Paid Listings remains the adjustable Weekly Signups slider above.</div>
       <div class="month-breakdown-scroll">
         <table class="month-breakdown-table">
-          <thead><tr><th>Month</th><th>Paid<br>Listings</th><th>Signups<br>/Week</th><th>Avg. Listing<br>Price</th><th>New Reg.<br>Price</th><th>Revenue<br>to FP</th></tr></thead>
+          <thead><tr><th>Month</th><th>Users<br>(target)</th><th>Free<br>Listings</th><th>Paid<br>Listings</th><th>Signups<br>/Week</th><th>Avg. Listing<br>Price</th><th>New Reg.<br>Price</th><th>Revenue<br>to FP</th></tr></thead>
           <tbody>${listingRows()}</tbody>
         </table>
       </div>
-      <div style="font-size:10px;color:var(--t3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">💡 To reach ${_subs[35].toLocaleString('en-IN')} paid listings (100% of target, per the Paid Listing Target % slider above) by Month 36, you'd need to average roughly <strong style="color:var(--navy)">${Math.round((_subs[35]-_inc.startPaid)/36).toLocaleString('en-IN')} new paid listings/month</strong> over the 3 years — a simple 36-month average, not the actual ramp-to-plateau pace shown above (which is slower in Months 1–6 while the FP ramps up, then holds at a steady rate).</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">💡 To reach ${_subs[35].toLocaleString('en-IN')} paid listings (100% of target, per the Paid Listing Target % slider above) by Month 36, you'd need to average roughly <strong style="color:var(--navy)">${Math.round((_subs[35]-_subs[0])/36).toLocaleString('en-IN')} new paid listings/month</strong> over the 3 years — a simple 36-month average, not the actual ramp-to-plateau pace shown above (which is slower in Months 1–6 while the FP ramps up, then holds at a steady rate).</div>
     </div>
 
     <div class="card" style="padding:12px">
@@ -1891,8 +1825,9 @@ function buildIncomePDF(){
     ['Market','Retail Store %',s.retailPct+'%'],
     ['Market','Home-based × Retail',s.homeBase+'×'],
     ['Market','Paid Listing Target %',s.capture+'%'],
-    ['Adoption Curve','Month-1 Paid Listings',s.startPaid.toLocaleString('en-IN')],
-    ['Adoption Curve','Steady Weekly Signups',s.weeklySignups+'/week'],
+    ['Adoption Curve','Paid Listings /Week (Month-1 pace)',s.startPaid+'/week'],
+    ['Adoption Curve (fixed)','Free Listings Target (90% TAM, Yr 3)',_freeListings[35].toLocaleString('en-IN')],
+    ['Adoption Curve (fixed)','Users/Buyers Target (30% pop., Yr 3)',_users[35].toLocaleString('en-IN')],
     ['Listing Pricing','Start Price',fc(s.startPrice)],
     ['Listing Pricing','Step Amount / Quarter',fc(s.stepAmount)],
     ['Sponsorship','Homepage Banner (settled)',fc(s.sponsorHomepage)],
@@ -1935,12 +1870,12 @@ function buildIncomePDF(){
       const avgPrice=paidCount>0?Math.round(monthlyRecurring/paidCount):0;
       const fpShare=Math.round((monthlyRecurring+setup)*(1-hemPct)*t.share);
       const label=monthLabel(m)+(m===currentBizMonthPdf?' (Current)':'');
-      listBody.push([label,paidCount.toLocaleString('en-IN'),fc(avgPrice),fc(_listingPriceRate[m-1]),fc(fpShare)]);
+      listBody.push([label,_users[m-1].toLocaleString('en-IN'),_freeListings[m-1].toLocaleString('en-IN'),paidCount.toLocaleString('en-IN'),fc(avgPrice),fc(_listingPriceRate[m-1]),fc(fpShare)]);
       if(m%12===0||m===36){
-        listBody.push(['YEAR '+Math.ceil(m/12)+' TOTAL','','','','']);
+        listBody.push(['YEAR '+Math.ceil(m/12)+' TOTAL','','','','','','']);
       }
     }
-    table(['Month','Paid Listings','Avg. Listing Price','New Reg. Price','Revenue to FP'],listBody,{styles:{fontSize:7,cellPadding:2}});
+    table(['Month','Users','Free Listings','Paid Listings','Avg. Listing Price','New Reg. Price','Revenue to FP'],listBody,{styles:{fontSize:6.5,cellPadding:2}});
   }
 
   // ── Month-wise Sponsorship ──
@@ -2172,6 +2107,30 @@ function calculateIncome(){
     return 0;
   }
 
+  // ── Free Listings & Users/Buyers — same ramp-to-plateau mechanic as Paid
+  // Listings, but with fixed targets (not slider-adjustable) benchmarked
+  // against real competitor data (JustDial/IndiaMART/Sulekha): Free reaches
+  // 90% of TAM by Month 36 (low-friction, no sales close needed — reached
+  // faster, 4-month ramp); Users/Buyers reaches 30% of population by Month 36
+  // (marketing/awareness-driven, slower 9-month ramp to build).
+  function rampToPlateauSeries(start,target,rampMonths){
+    const totalAdd=Math.max(0,target-start);
+    const rampWeight=(rampMonths-1)/2, steadyWeight=(36-rampMonths);
+    const steady=(rampWeight+steadyWeight)>0 ? totalAdd/(rampWeight+steadyWeight) : 0;
+    function addFor(m){
+      if(m<=1) return 0;
+      if(m<=rampMonths) return Math.round(steady*(m-1)/rampMonths);
+      return Math.round(steady);
+    }
+    const series=[]; let cum=start;
+    for(let m=1;m<=36;m++){ if(m>1) cum+=addFor(m); series.push(cum); }
+    return series;
+  }
+  const freeTarget=Math.round(total*0.90);
+  const usersTarget=Math.round(s.pop*0.30);
+  _freeListings=rampToPlateauSeries(300,freeTarget,4);
+  _users=rampToPlateauSeries(500,usersTarget,9);
+
   // ── Adoption curve — Ramp-to-Plateau (sales capacity model), forward-
   // computed from the Weekly Signups slider (a real input now, not a target
   // to backward-solve toward). Months 1–6 are the FP's learning ramp: new
@@ -2180,7 +2139,7 @@ function calculateIncome(){
   // the 3 years — wherever it happens to land relative to the Paid Listing
   // Target is just a reference comparison, shown below, not a constraint.
   const RAMP_MONTHS=6;
-  const steadyRate=s.weeklySignups*4.33; // convert weekly input to a monthly rate
+  const steadyRate=s.startPaid*4.33; // convert weekly input to a monthly rate (same "Paid Listings /Week" slider drives both the ramp and the steady plateau now)
   function monthlyAddFor(m){
     if(m<=1) return 0; // Month 1 is the starting base itself, not an "addition"
     if(m<=RAMP_MONTHS) return Math.round(steadyRate*(m-1)/RAMP_MONTHS);
@@ -2194,7 +2153,7 @@ function calculateIncome(){
   let prevPaid=0, listingRevRunning=0;
   for(let m=1;m<=36;m++){
     const delta=m===1?0:monthlyAddFor(m);
-    const paid=(m===1?s.startPaid:prevPaid+delta);
+    const paid=(m===1?Math.round(s.startPaid*4.33):prevPaid+delta);
     const rate=newSignupPrice(m), setupRate=setupCharge(m);
     const addOn=delta*rate;
     listingRevRunning += addOn;
@@ -2219,18 +2178,6 @@ function calculateIncome(){
     _spCatFeatured.push(spC);
     _spArr.push(sponsorTotal);
     _gross.push(listingRevRunning + setupRevThisMonth + sponsorTotal);
-  }
-
-  // Feedback on where this weekly pace actually lands, vs. the Paid Listing
-  // Target — comparison only now, doesn't constrain the curve above.
-  const outcomeEl=document.getElementById('adoption-curve-outcome');
-  if(outcomeEl){
-    const month36Count=_subs[35];
-    const pctOfTarget=paidTarget>0?Math.round(month36Count/paidTarget*100):0;
-    const short=paidTarget-month36Count;
-    outcomeEl.innerHTML = `<div style="background:${pctOfTarget>=100?'#F0FDF4':'#FFF8E1'};border:1px solid ${pctOfTarget>=100?'#86EFAC':'#F5D100'};border-radius:8px;padding:8px 10px;font-size:10.5px;color:${pctOfTarget>=100?'#166534':'#92400E'}">
-      ${pctOfTarget>=100?'✅':'⚠️'} At ${s.weeklySignups}/week, you'll reach <strong>${month36Count.toLocaleString('en-IN')} paid listings</strong> by Month 36 — <strong>${pctOfTarget}%</strong> of the ${paidTarget.toLocaleString('en-IN')}-listing target${pctOfTarget<100?' ('+short.toLocaleString('en-IN')+' short)':''}.
-    </div>`;
   }
 
   renderMonthlyBreakdown();
@@ -2346,45 +2293,6 @@ function calculateIncome(){
   }
 
   renderSummaryTable(ym);
-  calculateIncomeGoal();
-}
-
-// Income Goal Calculator — "option 2". Works backward from a target FP net
-// monthly income (after marketing spend) and a target month, to estimate the
-// paid-listing count needed — using this month's actual sponsorship revenue
-// and blended listing price from the CURRENT growth curve as the basis —
-// then compares that against what the curve actually projects for that month.
-function calculateIncomeGoal(){
-  const resultEl=document.getElementById('goal-result');
-  if(!resultEl || !_gross.length) return;
-  const incomeSel=document.getElementById('goal-income'), monthSel=document.getElementById('goal-month');
-  if(!incomeSel || !monthSel) return;
-  const targetGross=parseFloat(incomeSel.value);
-  const M=parseInt(monthSel.value,10);
-  const t=TIERS.find(tt=>tt.key===_inc.selectedTier)||TIERS[1];
-  const hemPct=_inc.hemadriPct/100;
-
-  // Back-solve required FP gross share directly — marketing expense removed
-  // from this calculation by request; focus is purely on gross revenue.
-  const grossNeeded=targetGross/((1-hemPct)*t.share);
-
-  const sponsorAtM=_spArr[M-1]||0;
-  const listingRevNeeded=Math.max(0,grossNeeded-sponsorAtM);
-  const avgPriceAtM=_subs[M-1]>0 ? (_listingRevCum[M-1]/_subs[M-1]) : _listingPriceRate[M-1];
-  const requiredPaid=avgPriceAtM>0 ? Math.ceil(listingRevNeeded/avgPriceAtM) : 0;
-  const projectedPaid=_subs[M-1]||0;
-  const achievable=projectedPaid>=requiredPaid;
-
-  resultEl.innerHTML=`
-    <div style="background:${achievable?'#F0FDF4':'#FFF8E1'};border:1px solid ${achievable?'#86EFAC':'#F5D100'};border-radius:8px;padding:12px">
-      <div style="font-size:12px;font-weight:700;color:${achievable?'#166534':'#92400E'};margin-bottom:6px">
-        ${achievable?'✅ Achievable with current assumptions':'⚠️ Needs faster growth than currently modeled'}
-      </div>
-      <div style="font-size:11px;color:var(--t2);line-height:1.8">
-        To gross ${fc(targetGross)}/mo as ${t.name} by Month ${M}, you'd need roughly <strong>${requiredPaid.toLocaleString('en-IN')} paid listings</strong> at that point (≈${fc(Math.round(avgPriceAtM))}/listing blended, plus ${fc(sponsorAtM)} sponsorship that month).<br>
-        Your current growth assumptions above project <strong>${projectedPaid.toLocaleString('en-IN')} paid listings</strong> by Month ${M}${achievable?' — already ahead of the goal.':' — '+(requiredPaid-projectedPaid).toLocaleString('en-IN')+' short of target. Try increasing the Paid Listing Target % or Month-1 Paid Listings above.'}
-      </div>
-    </div>`;
 }
 
 function selectTier(key){ _inc.selectedTier=key; calculateIncome(); }
@@ -3092,29 +3000,18 @@ function incPinChange(){
   const popLbl=document.getElementById('sv-pop');
   if(popLbl) popLbl.textContent=pop.toLocaleString('en-IN');
 
-  // Month-1 Paid Listings auto-follows this pin's real population (0.1% of
-  // pop, or 100, whichever is higher) — same rule as the manual Population
-  // slider, but this is the path that actually fires most often, since
-  // selecting a real pin is how population normally gets set.
+  // Paid Listings/Week (Month-1 starting pace) auto-follows this pin's real
+  // population (0.1% of pop, or 100, whichever higher — converted to a
+  // weekly rate) — same rule as the manual Population slider, but this is
+  // the path that actually fires most often, since selecting a real pin is
+  // how population normally gets set.
   if(!_startPaidTouched){
-    const newStartPaid=Math.max(100,Math.round(pop*0.001));
+    const newStartPaid=Math.max(1,Math.round(Math.max(100,Math.round(pop*0.001))/4.33));
     _inc.startPaid=newStartPaid;
     const spInput=document.getElementById('sl-startPaid');
     const spLabel=document.getElementById('sv-startPaid');
     if(spInput) spInput.value=newStartPaid;
-    if(spLabel) spLabel.textContent=newStartPaid.toLocaleString('en-IN');
-  }
-
-  // Weekly Signups defaults to the 36-month average that would reach the
-  // Paid Listing Target for THIS pin's real population — recalculated fresh
-  // every time a pin is selected, unless manually overridden already.
-  if(!_weeklySignupsTouched){
-    const newWeekly=computeDefaultWeeklySignups(pop,_inc.retailPct,_inc.homeBase,_inc.capture,_inc.startPaid);
-    _inc.weeklySignups=newWeekly;
-    const wsInput=document.getElementById('sl-weeklySignups');
-    const wsLabel=document.getElementById('sv-weeklySignups');
-    if(wsInput) wsInput.value=newWeekly;
-    if(wsLabel) wsLabel.textContent=newWeekly+'/week';
+    if(spLabel) spLabel.textContent=newStartPaid+'/week';
   }
 
   // Show pin summary chip
