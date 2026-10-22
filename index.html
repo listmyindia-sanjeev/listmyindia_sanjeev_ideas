@@ -2532,7 +2532,13 @@ function shareResource(btn, path, title){
   const url = new URL(path, location.href).href;
   const origLabel = btn.textContent;
   const flash = (msg)=>{ btn.textContent = msg; setTimeout(()=>{ btn.textContent = origLabel; }, 1800); };
-  if (navigator.share){
+  // Native share sheets (navigator.share) are reliable on phones, but on
+  // several desktop browsers (notably Windows Edge/Chrome) the OS-level
+  // share flyout can render blank and get stuck open with no way to close
+  // it from the page. So on desktop-width screens we always copy the link
+  // instead — it's instant and never opens a native overlay we don't control.
+  const useNativeShare = navigator.share && !isDesktop();
+  if (useNativeShare){
     navigator.share({ title, text: title + ' — List My India\u2122', url }).catch(()=>{});
   } else if (navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(url).then(()=>flash('Link copied \u2713')).catch(()=>{ window.prompt('Copy this link:', url); });
