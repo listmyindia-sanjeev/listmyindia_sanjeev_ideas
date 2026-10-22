@@ -168,6 +168,7 @@ body{
 .tier-row:last-child{border-bottom:none}
 .t-label{color:var(--t2)}.t-val{font-weight:600;color:var(--navy)}
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.pin-status-pill{display:inline-block;padding:3px 9px;border-radius:10px;font-size:10.5px;font-weight:700;white-space:nowrap}
 .badge-opt{background:#F0FDF4;color:#166534}
 .badge-req{background:#FEF2F2;color:#991B1B}
 .badge-na{background:#F1F5F9;color:#64748B}
@@ -508,6 +509,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
       <button class="dnav-btn" data-screen="income" onclick="navScreen('income')">Income</button>
       <button class="dnav-btn" data-screen="qr" onclick="navScreen('qr')">QR Tool</button>
       <button class="dnav-btn" data-screen="resources" onclick="navScreen('resources')">Resources</button>
+      <button class="dnav-btn" data-screen="pincodes" onclick="navScreen('pincodes')">Pin Codes</button>
     </div>
   </div>
 
@@ -613,6 +615,14 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
           <div class="tile-text">
             <div class="tile-title">Resources &amp; Documents <span class="badge" style="background:var(--yellow);color:var(--navy-deep);vertical-align:middle">NEW</span></div>
             <div class="tile-desc">Agreements · Pitch deck · Download or share — your one-point reference</div>
+          </div>
+          <div class="tile-chevron">›</div>
+        </div>
+        <div class="nav-tile" onclick="navScreen('pincodes')">
+          <div class="tile-icon">📍</div>
+          <div class="tile-text">
+            <div class="tile-title">Pin Code Directory <span class="badge" style="background:var(--yellow);color:var(--navy-deep);vertical-align:middle">NEW</span></div>
+            <div class="tile-desc">All 19,300+ India pincodes — status, filters &amp; summary, same as the master sheet</div>
           </div>
           <div class="tile-chevron">›</div>
         </div>
@@ -2123,6 +2133,13 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     </div>
   </div>
 
+<!-- ─── PIN CODE DIRECTORY SCREEN ─────────────────────────────────────── -->
+  <div class="screen" id="screen-pincodes">
+    <div class="screen-inner">
+      <div id="pincodes-panel"></div>
+    </div>
+  </div>
+
 <!-- ═══ PAC BOOKING MODAL ════════════════════════════════════════════════ -->
 <div class="pac-modal-overlay" id="pac-modal">
   <div class="pac-modal"><div id="pac-modal-body" style="width:100%;overflow:hidden;box-sizing:border-box"></div></div>
@@ -2132,12 +2149,14 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
 // ═══ LMI CONFIG — fill in your credentials ═══════════════════════════
 const LMI_RZP_KEY   = 'rzp_live_XXXXXXXXXXXXXXXX'; // Razorpay Live Key ID
 const LMI_GAS_URL   = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'; // Apps Script URL
+const LMI_PINCODE_GAS_URL = 'https://script.google.com/macros/s/AKfycbz70trG59V6lHo1rYJLuAQHatdMHX8bXTvlCKi6nbFvM2NtuZEzzOLbNID605Jnsuk2/exec'; // Apps Script URL for the live Pin Code status backend (see Code.gs)
+const PIN_AREA_URL = 'resources/pin-areas.json'; // static area/locality lookup, all 19,300 pincodes
 // ═════════════════════════════════════════════════════════════════════
 
 
 
 // ═══ MOBILE-FIRST NAVIGATION ════════════════════════════════════════════
-const SCREENS = ['home','growth','sgp','franchise','income','qr','resources'];
+const SCREENS = ['home','growth','sgp','franchise','income','qr','resources','pincodes'];
 let currentScreen = 'home';
 
 function navScreen(name){
@@ -2166,6 +2185,7 @@ function navScreen(name){
   if(name==='growth') renderGpCard('gp');
   if(name==='sgp') renderGpCard('sgp');
   if(name==='income'){ buildIncomePanel(); }
+  if(name==='pincodes'){ renderPincodesScreen(); }
 }
 function navHome(){ navScreen('home'); }
 
@@ -2576,6 +2596,264 @@ function renderResources(){
     </div>`).join('') + `
     <div class="info-note" style="margin-top:4px">More files will be added here over time — check back for updates.</div>
   `;
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// PIN CODE DIRECTORY — all 19,300+ India pincodes, live status + filters
+// Geography (state/district/pincode/population) comes from PINCODE_DATA,
+// already embedded on the page. Area/locality text is fetched lazily from
+// a static JSON file (rarely changes). Partner status/name — the part that
+// actually changes week to week — is fetched live from a small Google
+// Apps Script backend (see Code.gs) every time this tab is opened, so
+// updates made there show up here with no file re-upload needed.
+// ════════════════════════════════════════════════════════════════════════
+let PIN_FLAT = null;           // [{pin,pop,district,state}, ...] — built once from PINCODE_DATA
+let PIN_AREA_MAP = null;       // {pin: "area text"} — lazy, static
+let PIN_OVERRIDES_RAW = null;  // raw response from the Apps Script backend
+let PIN_OVERRIDE_MAP = null;   // {pin: {fp,fpName,gp,gpName,sgp,sgpName}}
+let _pinLoading = false;
+const _pinFilters = { state:'', district:'', fp:'', gp:'', sgp:'', q:'', page:1 };
+const PIN_PAGE_SIZE = 50;
+
+function pinFlat(){
+  if(PIN_FLAT) return PIN_FLAT;
+  const out=[];
+  Object.keys(PINCODE_DATA).forEach(state=>{
+    Object.keys(PINCODE_DATA[state]).forEach(dist=>{
+      const entry = PINCODE_DATA[state][dist];
+      const pins = entry[2] || [];
+      pins.forEach(([pin,pop])=>out.push({pin:String(pin),pop:pop||0,district:dist,state}));
+    });
+  });
+  PIN_FLAT = out;
+  return out;
+}
+
+async function pinLoadAreas(){
+  if(PIN_AREA_MAP) return PIN_AREA_MAP;
+  try{
+    const res = await fetch(PIN_AREA_URL);
+    PIN_AREA_MAP = await res.json();
+  }catch(err){ PIN_AREA_MAP = {}; }
+  return PIN_AREA_MAP;
+}
+
+async function pinLoadOverrides(force){
+  if(PIN_OVERRIDES_RAW && !force) return PIN_OVERRIDES_RAW;
+  if(!LMI_PINCODE_GAS_URL || LMI_PINCODE_GAS_URL.includes('PASTE_YOUR')){
+    PIN_OVERRIDES_RAW = {ok:false, notConfigured:true, rows:[], summary:{fp:{},gp:{},sgp:{}}, overrideCount:0};
+  }else{
+    try{
+      const res = await fetch(LMI_PINCODE_GAS_URL+'?action=list_pincodes');
+      PIN_OVERRIDES_RAW = await res.json();
+    }catch(err){
+      PIN_OVERRIDES_RAW = {ok:false, error:String(err), rows:[], summary:{fp:{},gp:{},sgp:{}}, overrideCount:0};
+    }
+  }
+  PIN_OVERRIDE_MAP = {};
+  (PIN_OVERRIDES_RAW.rows||[]).forEach(r=>{
+    const pin = String(r[0]);
+    PIN_OVERRIDE_MAP[pin] = {
+      fp:  r[3]||'Available', fpName:  r[4]||'',
+      gp:  r[5]||'Available', gpName:  r[6]||'',
+      sgp: r[7]||'Available', sgpName: r[8]||''
+    };
+  });
+  return PIN_OVERRIDES_RAW;
+}
+
+function pinStatusOf(pin){
+  return (PIN_OVERRIDE_MAP && PIN_OVERRIDE_MAP[String(pin)]) ||
+    {fp:'Available',fpName:'',gp:'Available',gpName:'',sgp:'Available',sgpName:''};
+}
+
+function pinBadgeStyle(status){
+  const s=(status||'Available').toLowerCase();
+  if(s==='available') return 'background:#D1FAE5;color:#065F46';
+  if(s==='appointed'||s==='booked') return 'background:var(--soft-blue);color:var(--blue)';
+  if(s==='hold'||s==='conditional availability') return 'background:#FEF3C7;color:var(--amber)';
+  if(s==='not available') return 'background:#FEE2E2;color:#991B1B';
+  return 'background:#F1F5F9;color:#64748B';
+}
+
+function pinBadge(status,name){
+  const label = name ? `${status} · ${name}` : status;
+  return `<span class="pin-status-pill" style="${pinBadgeStyle(status)}">${label}</span>`;
+}
+
+// Roll up: for each type, "Available" count = total pincodes minus every
+// override row whose status for that type isn't Available, plus the
+// breakdown of whatever non-Available statuses actually appear.
+function pinSummary(){
+  const total = pinFlat().length || 19300;
+  const summary = (PIN_OVERRIDES_RAW && PIN_OVERRIDES_RAW.summary) || {fp:{},gp:{},sgp:{}};
+  ['fp','gp','sgp'].forEach(t=>{
+    const nonAvail = Object.entries(summary[t]||{}).filter(([k])=>k!=='Available').reduce((a,[,v])=>a+v,0);
+    summary[t] = { ...summary[t] };
+    delete summary[t]['Available'];
+    summary[t]['Available'] = total - nonAvail;
+  });
+  return { total, summary };
+}
+
+function pinDistinctStatuses(type){
+  // Always include the baseline + whatever's actually in the live data.
+  const base = ['Available'];
+  const seen = new Set(base);
+  Object.values(PIN_OVERRIDE_MAP||{}).forEach(o=>{ if(o[type]) seen.add(o[type]); });
+  return Array.from(seen);
+}
+
+function pinStateOpts(){
+  return Object.keys(PINCODE_DATA).sort().map(s=>`<option value="${s}" ${s===_pinFilters.state?'selected':''}>${s}</option>`).join('');
+}
+function pinDistrictOpts(){
+  if(!_pinFilters.state||!PINCODE_DATA[_pinFilters.state]) return '';
+  return Object.keys(PINCODE_DATA[_pinFilters.state]).sort().map(d=>`<option value="${d}" ${d===_pinFilters.district?'selected':''}>${d}</option>`).join('');
+}
+function pinStatusFilterOpts(type){
+  return pinDistinctStatuses(type).map(s=>`<option value="${s}" ${s===_pinFilters[type]?'selected':''}>${s}</option>`).join('');
+}
+
+function pinMatchesFilters(row){
+  const f=_pinFilters;
+  if(f.state && row.state!==f.state) return false;
+  if(f.district && row.district!==f.district) return false;
+  if(f.q){
+    const q=f.q.trim().toLowerCase();
+    const area=(PIN_AREA_MAP&&PIN_AREA_MAP[row.pin])||'';
+    if(!row.pin.includes(q) && !row.district.toLowerCase().includes(q) && !area.toLowerCase().includes(q)) return false;
+  }
+  const st=pinStatusOf(row.pin);
+  if(f.fp && st.fp!==f.fp) return false;
+  if(f.gp && st.gp!==f.gp) return false;
+  if(f.sgp && st.sgp!==f.sgp) return false;
+  return true;
+}
+
+function pinOnFilterChange(){
+  _pinFilters.state = document.getElementById('pin-f-state').value;
+  _pinFilters.district = ''; // reset on state change, re-read below if present
+  const distEl = document.getElementById('pin-f-district');
+  if(distEl && distEl.dataset.keep!=='1') _pinFilters.district = distEl.value;
+  _pinFilters.fp = document.getElementById('pin-f-fp').value;
+  _pinFilters.gp = document.getElementById('pin-f-gp').value;
+  _pinFilters.sgp = document.getElementById('pin-f-sgp').value;
+  _pinFilters.q = document.getElementById('pin-f-q').value;
+  _pinFilters.page = 1;
+  pinRenderResults();
+}
+function pinOnStateChange(){
+  _pinFilters.state = document.getElementById('pin-f-state').value;
+  _pinFilters.district = '';
+  _pinFilters.page = 1;
+  pinRenderResults(true); // rebuild district dropdown too
+}
+function pinOnDistrictChange(){
+  _pinFilters.district = document.getElementById('pin-f-district').value;
+  _pinFilters.page = 1;
+  pinRenderResults();
+}
+function pinGoPage(delta){
+  _pinFilters.page = Math.max(1, _pinFilters.page + delta);
+  pinRenderResults();
+}
+async function pinRefreshLive(){
+  const btn = document.getElementById('pin-refresh-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Refreshing…'; }
+  await pinLoadOverrides(true);
+  if(btn){ btn.disabled=false; btn.textContent='↻ Refresh live data'; }
+  pinRenderResults(true);
+}
+
+function pinRenderResults(rebuildFilters){
+  const body = document.getElementById('pin-body');
+  if(!body) return;
+  const all = pinFlat().filter(pinMatchesFilters);
+  const totalPages = Math.max(1, Math.ceil(all.length / PIN_PAGE_SIZE));
+  _pinFilters.page = Math.min(_pinFilters.page, totalPages);
+  const start = (_pinFilters.page-1)*PIN_PAGE_SIZE;
+  const pageRows = all.slice(start, start+PIN_PAGE_SIZE);
+
+  if(rebuildFilters){
+    const distWrap = document.getElementById('pin-f-district-wrap');
+    if(distWrap) distWrap.innerHTML = `<select class="pac-select" id="pin-f-district" onchange="pinOnDistrictChange()"><option value="">District (all)</option>${pinDistrictOpts()}</select>`;
+  }
+
+  const { total, summary } = pinSummary();
+  const cardHtml = (icon,label,type)=>`
+    <div class="card" style="flex:1;min-width:150px">
+      <div class="card-title" style="font-size:12px">${icon} ${label}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+        ${Object.entries(summary[type]).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="pin-status-pill" style="${pinBadgeStyle(k)}">${k}: ${v.toLocaleString('en-IN')}</span>`).join('')}
+      </div>
+    </div>`;
+
+  body.innerHTML = `
+    <div class="info-note" style="margin-bottom:12px">Total: ${total.toLocaleString('en-IN')} pin codes across ${Object.keys(PINCODE_DATA).length} States &amp; UTs of India. Status below updates live — no file upload needed.${PIN_OVERRIDES_RAW && PIN_OVERRIDES_RAW.notConfigured ? ' <b>(Live backend not connected yet — showing all pincodes as Available until the Apps Script URL is set.)</b>' : ''}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      ${cardHtml('📋','Franchise Partner','fp')}
+      ${cardHtml('🌱','Growth Partner','gp')}
+      ${cardHtml('⭐','Super Growth Partner','sgp')}
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">Filters</div>
+      <div class="pac-row">
+        <select class="pac-select" id="pin-f-state" onchange="pinOnStateChange()"><option value="">State / UT (all)</option>${pinStateOpts()}</select>
+        <span id="pin-f-district-wrap"><select class="pac-select" id="pin-f-district" onchange="pinOnDistrictChange()"><option value="">District (all)</option>${pinDistrictOpts()}</select></span>
+      </div>
+      <div class="pac-row">
+        <select class="pac-select" id="pin-f-fp" onchange="pinOnFilterChange()"><option value="">FP status (all)</option>${pinStatusFilterOpts('fp')}</select>
+        <select class="pac-select" id="pin-f-gp" onchange="pinOnFilterChange()"><option value="">GP status (all)</option>${pinStatusFilterOpts('gp')}</select>
+        <select class="pac-select" id="pin-f-sgp" onchange="pinOnFilterChange()"><option value="">SGP status (all)</option>${pinStatusFilterOpts('sgp')}</select>
+      </div>
+      <div class="pac-row">
+        <input type="text" id="pin-f-q" class="pac-select" placeholder="Search pin code, district or locality…" value="${_pinFilters.q.replace(/"/g,'&quot;')}" oninput="pinOnFilterChange()">
+        <button class="pac-check-btn" id="pin-refresh-btn" onclick="pinRefreshLive()">↻ Refresh live data</button>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Showing ${all.length?(start+1):0}–${Math.min(start+PIN_PAGE_SIZE,all.length)} of ${all.length.toLocaleString('en-IN')} matching pin codes</div>
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--r)">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:720px">
+        <thead><tr style="background:var(--bg)">
+          ${['Pin Code','District','State','Population','FP','GP','SGP'].map(h=>`<th style="text-align:left;padding:8px 10px;white-space:nowrap">${h}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${pageRows.map(r=>{
+            const st=pinStatusOf(r.pin);
+            const area=(PIN_AREA_MAP&&PIN_AREA_MAP[r.pin])||'';
+            return `<tr style="border-top:1px solid var(--border)">
+              <td style="padding:8px 10px;font-weight:700;white-space:nowrap">${r.pin}</td>
+              <td style="padding:8px 10px" title="${area.replace(/"/g,'&quot;')}">${r.district}</td>
+              <td style="padding:8px 10px;white-space:nowrap">${r.state}</td>
+              <td style="padding:8px 10px;white-space:nowrap">${(r.pop||0).toLocaleString('en-IN')}</td>
+              <td style="padding:8px 10px;white-space:nowrap">${pinBadge(st.fp,st.fpName)}</td>
+              <td style="padding:8px 10px;white-space:nowrap">${pinBadge(st.gp,st.gpName)}</td>
+              <td style="padding:8px 10px;white-space:nowrap">${pinBadge(st.sgp,st.sgpName)}</td>
+            </tr>`;
+          }).join('') || `<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--t3)">No pin codes match these filters.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:12px">
+      <button class="pac-cancel-btn" onclick="pinGoPage(-1)" ${_pinFilters.page<=1?'disabled':''}>‹ Prev</button>
+      <span style="font-size:12px;color:var(--t2)">Page ${_pinFilters.page} of ${totalPages}</span>
+      <button class="pac-cancel-btn" onclick="pinGoPage(1)" ${_pinFilters.page>=totalPages?'disabled':''}>Next ›</button>
+    </div>
+  `;
+}
+
+async function renderPincodesScreen(){
+  const el=document.getElementById('pincodes-panel');
+  if(!el || _pinLoading) return;
+  if(!el.dataset.built){
+    el.dataset.built='1';
+    el.innerHTML = `<div id="pin-body" class="info-note">Loading pin code directory…</div>`;
+  }
+  _pinLoading = true;
+  await Promise.all([pinLoadAreas(), pinLoadOverrides(false)]);
+  _pinLoading = false;
+  pinRenderResults(true);
 }
 
 // ────────────────────────────────────────────────────
