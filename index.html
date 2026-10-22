@@ -213,6 +213,14 @@ body{
 .pin-row-loc{font-size:10.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:68%}
 .pin-row-badges{display:flex;gap:5px;flex-wrap:wrap}
 .pin-row-areas{font-size:10.5px;color:var(--navy);background:var(--soft-blue);border-radius:6px;padding:6px 8px;margin-bottom:6px;line-height:1.45}
+/* Each pincode is a SINGLE row: a short tagged chip per tier (FP/GP/SGP +
+   abbreviated status, colored the same as the old full pills) immediately
+   followed by that tier's own action button where one applies — all inline,
+   wrapping only if a narrow screen truly can't fit it on one line. The full
+   status + partner name is still in the chip's title= tooltip. */
+.pin-tier-row-compact{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.pin-tier-chip{display:inline-flex;align-items:center;padding:3px 7px;border-radius:8px;font-size:10px;font-weight:700;white-space:nowrap;line-height:1.4}
+.pin-tier-btn{flex-shrink:0;padding:5px 9px;font-size:10.5px;font-weight:700;border:none;border-radius:7px;color:white;cursor:pointer;white-space:nowrap}
 .badge-opt{background:#F0FDF4;color:#166534}
 .badge-req{background:#FEF2F2;color:#991B1B}
 .badge-na{background:#F1F5F9;color:#64748B}
@@ -2822,7 +2830,7 @@ function pinBadge(status,name,type){
   const infoIcon = (type==='gp' && (status||'').toLowerCase()==='conditional availability')
     ? ` <button onclick="pinExplainGpConditional()" title="Why is this Conditional Availability?" style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;border:none;background:rgba(0,0,0,.18);color:inherit;font-size:9px;font-weight:700;line-height:1;cursor:pointer;vertical-align:middle;padding:0">i</button>`
     : '';
-  return `<span class="pin-status-pill" style="${pinBadgeStyle(status)}">${label}${infoIcon}</span>`;
+  return `<span class="pin-status-pill" style="${pinBadgeStyle(status)}" title="${label.replace(/"/g,'&quot;')}">${label}${infoIcon}</span>`;
 }
 
 // Explains, in plain terms, when a Growth Partner can be appointed at a
@@ -2949,6 +2957,66 @@ function pinToggleArea(pin){
   else _pinExpandedAreas.add(pin);
   pinRenderResults();
 }
+
+// Eligibility / WhatsApp enquiry actions. Tied directly to each tier's own
+// status line (Franchise/Growth/Super GP) rather than shown once per pincode
+// — a combined pair was ambiguous about which tier's "Available" it meant,
+// so each tier now carries its own labeled status and its own action.
+const LMI_ELIGIBILITY_FORM_URL = 'https://forms.gle/fjAf92veVQX4TWkt8';
+// The short link resolves to this full Google Forms URL; Forms supports a
+// dedicated embedded view (?embedded=true) with no X-Frame-Options/CSP
+// frame-ancestors restriction, so it can be shown inline in our own modal
+// instead of bouncing the user out to a new tab.
+const LMI_ELIGIBILITY_FORM_EMBED_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfFkWd_6NzF8NBxxS5EVwOupoMhFbADg4oo-ns46nynpBybZA/viewform?embedded=true';
+const LMI_WHATSAPP_NUMBER = '919555614476'; // +91 9555614476, wa.me format: country code, no '+', no leading 0
+function pinOpenEligibilityForm(){
+  document.getElementById('pac-modal-body').innerHTML = `
+    <div class="pac-modal-title">Check Eligibility</div>
+    <div class="info-note" style="margin-bottom:10px">Fill this out right here — no need to leave the app.</div>
+    <iframe src="${LMI_ELIGIBILITY_FORM_EMBED_URL}" style="width:100%;height:62vh;border:none;border-radius:10px;display:block" loading="lazy">Loading…</iframe>
+    <div style="text-align:center;margin-top:8px">
+      <a href="${LMI_ELIGIBILITY_FORM_URL}" target="_blank" rel="noopener" style="font-size:11px;color:var(--t3)">Trouble viewing it here? Open in a new tab →</a>
+    </div>
+    <button class="pac-cancel-btn" onclick="pacCloseModal()" style="width:100%;margin-top:10px">Close</button>`;
+  document.getElementById('pac-modal').classList.add('open');
+}
+function pinShortStatus(status){
+  // Short label for the compact single-row chip — full status + partner
+  // name is still available via the chip's title= tooltip on hover/long-press.
+  const s=(status||'').toLowerCase();
+  if(s==='available') return 'Avail';
+  if(s==='conditional availability') return 'Cond.';
+  if(s==='booked') return 'Booked';
+  if(s==='not available') return 'N/A';
+  return status||'—';
+}
+function pinStatusQualifiesEligibility(status){
+  // "Check Eligibility" — only when THIS tier's own status is exactly Available.
+  return (status||'').toLowerCase()==='available';
+}
+function pinStatusQualifiesEnquiry(status){
+  // WhatsApp enquiry — Available OR Conditional Availability on THIS tier.
+  const s=(status||'').toLowerCase();
+  return s==='available' || s==='conditional availability';
+}
+function pinWhatsAppEnquiry(pin, tier){
+  const row = pinFlat().find(r=>r.pin===pin);
+  if(!row) return;
+  const st = pinStatusOf(pin);
+  const area = (PIN_AREA_MAP && PIN_AREA_MAP[pin]) || '';
+  const tierLabel = tier==='sgp' ? 'Super Growth Partner' : 'Growth Partner';
+  const tierStatus = tier==='sgp' ? st.sgp : st.gp;
+  const lines = [
+    `Hi List My India, I'm interested in becoming a *${tierLabel}* for Pincode ${pin} (${row.district}, ${row.state}).`,
+    `Interested as: ${tierLabel} (current status: ${tierStatus||'—'})`,
+    area ? `Areas/Post offices: ${area}` : null,
+    `Population: ${(row.pop||0).toLocaleString('en-IN')}`,
+    `Full status — Franchise Partner: ${st.fp||'—'}, Growth Partner: ${st.gp||'—'}, Super Growth Partner: ${st.sgp||'—'}`,
+    `Please share more details.`
+  ].filter(Boolean).join('\n');
+  const url = `https://wa.me/${LMI_WHATSAPP_NUMBER}?text=${encodeURIComponent(lines)}`;
+  window.open(url, '_blank', 'noopener');
+}
 // The search box re-renders the whole results panel (table + filter card),
 // which would normally destroy and recreate the <input> on every keystroke
 // and kick focus out of it. Debounce so we don't rebuild on every single
@@ -3053,16 +3121,27 @@ function pinRenderResults(rebuildFilters){
         const area=(PIN_AREA_MAP&&PIN_AREA_MAP[r.pin])||'';
         const locTitle=(area?area+' · ':'')+`${r.district}, ${r.state} · Pop ${(r.pop||0).toLocaleString('en-IN')}`;
         const isExpanded=_pinExpandedAreas.has(r.pin);
+        const fpElig=pinStatusQualifiesEligibility(st.fp);
+        const gpWa=pinStatusQualifiesEnquiry(st.gp);
+        // Super Growth Partner is deliberately hidden unless one is actually
+        // booked for this pincode — no "Available"/badge shown by default,
+        // so it stays a scarce, ask-about-it tier rather than something
+        // visibly open to everyone on every row. No action button on it
+        // either way (Check Eligibility is Franchise-only, WhatsApp
+        // Enquiry is Growth-only).
+        const sgpBooked=(st.sgp||'').toLowerCase()==='booked';
         return `<div class="pin-row-card">
           <div class="pin-row-top">
             <button class="pin-row-pin" onclick="pinToggleArea('${r.pin}')" title="${area.replace(/"/g,'&quot;')}">${r.pin} ${area?(isExpanded?'▲':'▾'):''}</button>
             <span class="pin-row-loc" title="${locTitle.replace(/"/g,'&quot;')}">${r.district}, ${r.state} · Pop ${(r.pop||0).toLocaleString('en-IN')}</span>
           </div>
           ${isExpanded&&area?`<div class="pin-row-areas">📍 <strong>Areas/Post offices:</strong> ${area}</div>`:''}
-          <div class="pin-row-badges">
-            ${pinBadge(st.fp,st.fpName,'fp')}
-            ${pinBadge(st.gp,st.gpName,'gp')}
-            ${pinBadge(st.sgp,st.sgpName,'sgp')}
+          <div class="pin-tier-row-compact">
+            <span class="pin-tier-chip" style="${pinBadgeStyle(st.fp)}" title="Franchise Partner: ${(st.fp||'—').replace(/"/g,'&quot;')}">FP ${pinShortStatus(st.fp)}</span>
+            ${fpElig?`<button class="pin-tier-btn" style="background:var(--navy)" onclick="pinOpenEligibilityForm()">Eligibility</button>`:''}
+            <span class="pin-tier-chip" style="${pinBadgeStyle(st.gp)}" title="Growth Partner: ${(st.gp||'—').replace(/"/g,'&quot;')}">GP ${pinShortStatus(st.gp)}</span>
+            ${gpWa?`<button class="pin-tier-btn" style="background:#25D366" onclick="pinWhatsAppEnquiry('${r.pin}','gp')">💬 WhatsApp</button>`:''}
+            ${sgpBooked?`<span class="pin-tier-chip" style="${pinBadgeStyle(st.sgp)}" title="Super Growth Partner: Booked${st.sgpName?' · '+st.sgpName.replace(/"/g,'&quot;'):''}">SGP Booked</span>`:''}
           </div>
         </div>`;
       }).join('') || `<div style="padding:20px 0;text-align:center;color:var(--t3);font-size:12px">No pin codes match these filters.</div>`}
