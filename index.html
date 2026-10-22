@@ -192,6 +192,27 @@ body{
    results past it, so it's always one tap away while paging through table
    rows — same idea as a sticky table header, but for the input itself. */
 .pin-search-sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;margin-bottom:10px;border-bottom:1px solid var(--border)}
+/* Icon-only button for the search row — the filter toggle and Refresh,
+   sized to sit snugly right next to the search input rather than taking a
+   full text-label's width. */
+.pac-icon-btn{display:flex;align-items:center;justify-content:center;position:relative;width:38px;height:38px;flex-shrink:0;background:white;border:1.5px solid #CBD5E1;border-radius:8px;cursor:pointer;color:var(--t2)}
+.pac-icon-btn.active{background:var(--navy);border-color:var(--navy);color:white}
+.pac-icon-btn .pac-filter-dot{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#DC2626;border:1.5px solid var(--bg)}
+/* Pin Code Directory results — one stacked card per pincode instead of a
+   wide multi-column table, so everything fits the phone's width with no
+   horizontal scrolling: pin code + location on one line, FP/GP/SGP status
+   pills wrapping below as needed. */
+.pin-row-card{padding:9px 2px;border-bottom:1px solid var(--border)}
+.pin-row-card:last-child{border-bottom:none}
+.pin-row-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px}
+/* Tap/hover the pin code to reveal its area/post-office names — a real
+   <button> (not just a title tooltip) since title-on-hover doesn't work on
+   touch. Dotted underline hints it's interactive; title= is kept too as a
+   bonus for an actual mouse hover on desktop. */
+.pin-row-pin{font-weight:700;font-size:13.5px;color:var(--navy);flex-shrink:0;background:none;border:none;padding:0;cursor:pointer;border-bottom:1.5px dotted var(--blue);font-family:inherit}
+.pin-row-loc{font-size:10.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:68%}
+.pin-row-badges{display:flex;gap:5px;flex-wrap:wrap}
+.pin-row-areas{font-size:10.5px;color:var(--navy);background:var(--soft-blue);border-radius:6px;padding:6px 8px;margin-bottom:6px;line-height:1.45}
 .badge-opt{background:#F0FDF4;color:#166534}
 .badge-req{background:#FEF2F2;color:#991B1B}
 .badge-na{background:#F1F5F9;color:#64748B}
@@ -2386,8 +2407,50 @@ function showFpTab(tab){
 // HELPERS
 // ────────────────────────────────────────────────────
 function fc(v){return '₹'+Math.round(v).toLocaleString('en-IN');}
+// Active-pin count for the commission slab table. Sourced from the LIVE
+// Pin Code Directory (same backend that powers the Pincode Availability
+// tab, polled every few seconds) — any pincode whose status for this
+// partner type isn't the default "Available" counts as active, mirroring
+// pinSummary()'s own non-Available rollup. Falls back to the static
+// booking list (PAC_DB) only until the live data has loaded for the
+// first time, or if the live backend isn't reachable, so the slab table
+// is never blank on first paint. Kept for other callers (e.g. the
+// per-type status dashboards); the slab table itself uses the COMBINED
+// count below, per Sanjeev's explicit instruction.
+function liveActiveCount(type){
+  if(PIN_OVERRIDES_RAW && PIN_OVERRIDES_RAW.summary && PIN_OVERRIDES_RAW.summary[type]){
+    return Object.entries(PIN_OVERRIDES_RAW.summary[type])
+      .filter(([status])=>status!=='Available')
+      .reduce((sum,[,count])=>sum+count, 0);
+  }
+  return Object.values(PAC_DB).filter(d=>d[type]&&d[type]!='null').length;
+}
+// GP and SGP share ONE commission slab ladder, not two independent ones.
+// Per Sanjeev: if a pincode is booked as Super Growth Partner, that
+// booking ALSO counts toward the "growth partner" tally used to pick the
+// current slab — i.e. a pincode active under either GP or SGP occupies
+// one shared slot. So this is a UNION of active pincodes (deduped by
+// pincode), not GP-count + SGP-count (which would double-count any
+// pincode that happens to carry a non-Available status under both
+// columns). Both the Growth Partner and Super Growth Partner cards call
+// currentSlab() and therefore always show the same "NOW" row.
+function combinedGpSgpActiveCount(){
+  if(PIN_OVERRIDE_MAP){
+    let n=0;
+    Object.values(PIN_OVERRIDE_MAP).forEach(o=>{
+      const gpActive = o.gp && o.gp!=='Available';
+      const sgpActive = o.sgp && o.sgp!=='Available';
+      if(gpActive || sgpActive) n++;
+    });
+    return n;
+  }
+  // Fallback while live data hasn't loaded yet, or backend unreachable.
+  return Object.entries(PAC_DB).filter(([,d])=>
+    (d.gp&&d.gp!='null') || (d.sgp&&d.sgp!='null')
+  ).length;
+}
 function currentSlab(type){
-  const total=Object.values(PAC_DB).filter(d=>d[type]&&d[type]!='null').length;
+  const total=combinedGpSgpActiveCount();
   return {slab:SLABS.find(s=>total>=s.min&&total<=s.max)||SLABS[0], total};
 }
 function gpRate(type,qty){
@@ -2516,7 +2579,7 @@ function renderTierCards(){
           ${t.waiver?`<div style="font-size:9.5px;color:#991B1B;margin-top:2px">Special Needs Waiver: ₹76,700 (fee waived)</div>`:''}
         </div>
         <div class="highlight-box" style="margin:8px 0;font-size:10px">🎁 <strong>Referral bonus:</strong> Earn 1 month's plan value for every business you personally refer — paid on first subscription.</div>
-        <button class="submit-btn" style="width:100%;font-size:11.5px" onclick="openBookingModal('${t.key}')">Apply for ${t.name} →</button>
+        <button class="submit-btn" style="width:100%;font-size:11.5px" onclick="navScreen('pincodes')">Check Pincode Availability →</button>
       </div>
     </div>
   </div>
@@ -2536,26 +2599,6 @@ function renderTierCards(){
     <div style="font-size:10px;color:#7F1D1D;margin-top:4px">Covers: Autism, Down syndrome, Dyslexia, Cerebral Palsy, Muscular Dystrophy, visual/hearing impairment, ADHD, anxiety. Valid medical documentation required.</div>
   </div>
 
-  <div class="card" style="margin-top:16px">
-    <div class="card-title">📍 Already Booked Pincodes — Franchise Partner</div>
-    ${(()=>{
-      const bookedEntries=Object.entries(PAC_DB)
-        .filter(([pin,d])=>d.fp)
-        .sort((a,b)=>(a[1].state||'').localeCompare(b[1].state||'')||(a[1].district||'').localeCompare(b[1].district||''));
-      if(bookedEntries.length===0){
-        return `<div class="info-note" style="margin:0">No pincodes booked yet for this role — everything's open.</div>`;
-      }
-      return `<div class="info-note" style="margin-bottom:10px">So new applicants can quickly see what's already taken before picking a pincode. ${bookedEntries.length} booked so far.</div>
-      <div class="month-breakdown-scroll">
-        <table class="month-breakdown-table">
-          <thead><tr><th>Pin Code</th><th>District</th><th>State</th><th>Franchise Partner</th></tr></thead>
-          <tbody>
-            ${bookedEntries.map(([pin,d])=>`<tr><td>${pin}</td><td>${d.district||'—'}</td><td>${d.state||'—'}</td><td style="font-weight:600;color:var(--lmi-blue)">${d.fp}</td></tr>`).join('')}
-          </tbody>
-        </table>
-      </div>`;
-    })()}
-  </div>
 `;
   initStickyWrap(el.querySelector('.tier-sticky-wrap'));
 }
@@ -2691,6 +2734,9 @@ let _pinLoading = false;
 let _pinPollTimer = null;
 let _pinSearchDebounce = null;
 const _pinFilters = { state:'', district:'', fp:'', gp:'', sgp:'', q:'', page:1 };
+let _pinSummaryTab = 'fp';        // which of fp/gp/sgp the single status breakdown shows
+let _pinFiltersExpanded = false;  // "More filters" card — collapsed by default, toggled by the funnel icon
+const _pinExpandedAreas = new Set(); // pincodes whose area/post-office names are currently expanded (tap-to-reveal)
 const PIN_PAGE_SIZE = 50;
 
 function pinFlat(){
@@ -2740,6 +2786,18 @@ async function pinLoadOverrides(force){
   return PIN_OVERRIDES_RAW;
 }
 
+// Shared on-demand loader so the Growth/SGP slab tables (which may render
+// before the Pincode Availability tab has ever been opened) can pull the
+// same live data without duplicate in-flight fetches.
+let _pinOverridesPromise = null;
+function ensurePinOverridesLoaded(){
+  if(PIN_OVERRIDES_RAW) return Promise.resolve(PIN_OVERRIDES_RAW);
+  if(!_pinOverridesPromise){
+    _pinOverridesPromise = pinLoadOverrides(false).finally(()=>{ _pinOverridesPromise = null; });
+  }
+  return _pinOverridesPromise;
+}
+
 function pinStatusOf(pin){
   return (PIN_OVERRIDE_MAP && PIN_OVERRIDE_MAP[String(pin)]) ||
     {fp:'Available',fpName:'',gp:'Available',gpName:'',sgp:'Available',sgpName:''};
@@ -2754,9 +2812,42 @@ function pinBadgeStyle(status){
   return 'background:#F1F5F9;color:#64748B';
 }
 
-function pinBadge(status,name){
+function pinBadge(status,name,type){
   const label = name ? `${status} · ${name}` : status;
-  return `<span class="pin-status-pill" style="${pinBadgeStyle(status)}">${label}</span>`;
+  // GP pincodes sitting at "Conditional Availability" are almost always
+  // ones where a Super Growth Partner already holds the pincode — a GP
+  // can still be appointed there, but only under specific conditions
+  // (see pinExplainGpConditional). Surface a small tap-to-explain icon
+  // right on the badge so it's clear this isn't a dead end.
+  const infoIcon = (type==='gp' && (status||'').toLowerCase()==='conditional availability')
+    ? ` <button onclick="pinExplainGpConditional()" title="Why is this Conditional Availability?" style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;border:none;background:rgba(0,0,0,.18);color:inherit;font-size:9px;font-weight:700;line-height:1;cursor:pointer;vertical-align:middle;padding:0">i</button>`
+    : '';
+  return `<span class="pin-status-pill" style="${pinBadgeStyle(status)}">${label}${infoIcon}</span>`;
+}
+
+// Explains, in plain terms, when a Growth Partner can be appointed at a
+// pincode that already has a Super Growth Partner — the specific rule
+// Sanjeev gave: a confirmed lead, the Franchise Partner's 10% non-refundable
+// deposit within 30 days, and a 7-day no-objection window for the SGP.
+function pinExplainGpConditional(){
+  document.getElementById('pac-modal-body').innerHTML = `
+    <div class="pac-modal-title">What does "Conditional Availability" mean?</div>
+    <div class="info-note" style="margin-bottom:10px">This pincode already has a Super Growth Partner appointed — but a Growth Partner can still be appointed here, once all three conditions below are met.</div>
+    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px">
+      <div style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--navy);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">1</div>
+      <div style="font-size:12px;line-height:1.5"><strong>Confirmed lead.</strong> The Growth Partner has a Franchise Partner lead ready to come on board for this pincode.</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px">
+      <div style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--navy);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">2</div>
+      <div style="font-size:12px;line-height:1.5"><strong>10% franchise fee deposited.</strong> The Franchise Partner pays 10% of the franchise fee to book the pincode. This deposit is <strong>non-refundable</strong> if the remaining paperwork and balance payment aren't completed within <strong>30 days</strong> of booking.</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px">
+      <div style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--navy);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">3</div>
+      <div style="font-size:12px;line-height:1.5"><strong>7-day SGP no-objection window.</strong> The existing Super Growth Partner for this pincode gets 7 days to raise an objection. If none is raised, the Growth Partner appointment goes ahead.</div>
+    </div>
+    <div class="highlight-box" style="margin-bottom:10px">Until all three are met, the pincode stays marked Conditional Availability rather than Available or Booked for Growth Partner.</div>
+    <button class="pac-cancel-btn" onclick="pacCloseModal()">Close</button>`;
+  document.getElementById('pac-modal').classList.add('open');
 }
 
 // Roll up: for each type, "Available" count = total pincodes minus every
@@ -2829,6 +2920,22 @@ function pinOnFilterChange(){
   _pinFilters.page = 1;
   pinRenderResults();
 }
+function pinSetSummaryTab(type){
+  _pinSummaryTab = type;
+  pinRenderResults();
+}
+function pinToggleFilters(){
+  _pinFiltersExpanded = !_pinFiltersExpanded;
+  pinRenderResults(_pinFiltersExpanded); // rebuild the district dropdown's options when it (re)appears
+}
+// Tap/click a pincode in the results list to reveal (or hide again) the
+// post-office / area names under it — a real tap target rather than relying
+// on a hover-only title tooltip, which doesn't work on touchscreens.
+function pinToggleArea(pin){
+  if(_pinExpandedAreas.has(pin)) _pinExpandedAreas.delete(pin);
+  else _pinExpandedAreas.add(pin);
+  pinRenderResults();
+}
 // The search box re-renders the whole results panel (table + filter card),
 // which would normally destroy and recreate the <input> on every keystroke
 // and kick focus out of it. Debounce so we don't rebuild on every single
@@ -2881,59 +2988,63 @@ function pinRenderResults(rebuildFilters){
   }
 
   const { total, summary } = pinSummary();
-  const cardHtml = (icon,label,type)=>`
-    <div class="pin-sum-card">
-      <div class="card-title">${icon} ${label}</div>
-      ${Object.entries(summary[type]).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="pin-status-pill-sm" style="${pinBadgeStyle(k)}">${k}: ${v.toLocaleString('en-IN')}</span>`).join('')}
-    </div>`;
+  const tabLabels = {fp:['📋','Franchise'], gp:['🌱','Growth'], sgp:['⭐','Super GP']};
+  const anyFilterActive = !!(_pinFilters.state||_pinFilters.district||_pinFilters.fp||_pinFilters.gp||_pinFilters.sgp);
 
   body.innerHTML = `
-    <div class="info-note" style="margin-bottom:10px">Total: ${total.toLocaleString('en-IN')} pin codes across ${Object.keys(PINCODE_DATA).length} States &amp; UTs of India. Status syncs automatically with the master Google Sheet — no file upload needed, and no need to click Refresh (it re-checks every few seconds while this tab is open, and instantly whenever you come back to it).${PIN_OVERRIDES_RAW && PIN_OVERRIDES_RAW.notConfigured ? ' <b>(Live backend not connected yet — showing all pincodes as Available until the Apps Script URL is set.)</b>' : ''}</div>
-    <div class="pin-sum-row">
-      ${cardHtml('📋','Franchise Partner','fp')}
-      ${cardHtml('🌱','Growth Partner','gp')}
-      ${cardHtml('⭐','Super Growth Partner','sgp')}
+    <div class="pill-tabs">
+      ${Object.entries(tabLabels).map(([type,[icon,label]])=>`<button class="pill-tab ${_pinSummaryTab===type?'active':''}" onclick="pinSetSummaryTab('${type}')">${icon} ${label}</button>`).join('')}
+    </div>
+    <div class="card" style="margin-bottom:10px;padding:10px">
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${Object.entries(summary[_pinSummaryTab]).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="pin-status-pill-sm" style="${pinBadgeStyle(k)};display:inline-flex;align-items:center;gap:4px">${k}: ${v.toLocaleString('en-IN')}${(_pinSummaryTab==='gp'&&k==='Conditional Availability')?` <button onclick="pinExplainGpConditional()" title="Why is this Conditional Availability?" style="display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;border:none;background:rgba(0,0,0,.18);color:inherit;font-size:8px;font-weight:700;line-height:1;cursor:pointer;padding:0">i</button>`:''}</span>`).join('')}
+      </div>
     </div>
     <div class="pin-search-sticky">
-      <div class="pac-row" style="margin-bottom:0">
+      <div class="pac-row" style="margin-bottom:0;flex-wrap:nowrap">
         <input type="text" id="pin-f-q" class="pac-select" placeholder="Search pin code, state, district, locality or partner name…" value="${_pinFilters.q.replace(/"/g,'&quot;')}" oninput="pinOnSearchInput()">
-        <button class="pac-check-btn" id="pin-refresh-btn" onclick="pinRefreshLive()">↻ Refresh</button>
+        <button class="pac-icon-btn ${_pinFiltersExpanded?'active':''}" onclick="pinToggleFilters()" title="More filters" aria-label="More filters">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 4 21 4 14 12.5 14 19 10 21 10 12.5 3 4"/></svg>
+          ${anyFilterActive?'<span class="pac-filter-dot"></span>':''}
+        </button>
+        <button class="pac-icon-btn" id="pin-refresh-btn" onclick="pinRefreshLive()" title="Refresh live data" aria-label="Refresh live data">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
       </div>
-    </div>
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-title">More filters</div>
-      <div class="pac-row">
-        <select class="pac-select" id="pin-f-state" onchange="pinOnStateChange()"><option value="">State / UT (all)</option>${pinStateOpts()}</select>
-        <span id="pin-f-district-wrap"><select class="pac-select" id="pin-f-district" onchange="pinOnDistrictChange()"><option value="">District (all)</option>${pinDistrictOpts()}</select></span>
-      </div>
-      <div class="pac-row">
-        <select class="pac-select" id="pin-f-fp" onchange="pinOnFilterChange()"><option value="">FP status (all)</option>${pinStatusFilterOpts('fp')}</select>
-        <select class="pac-select" id="pin-f-gp" onchange="pinOnFilterChange()"><option value="">GP status (all)</option>${pinStatusFilterOpts('gp')}</select>
-        <select class="pac-select" id="pin-f-sgp" onchange="pinOnFilterChange()"><option value="">SGP status (all)</option>${pinStatusFilterOpts('sgp')}</select>
-      </div>
+      ${_pinFiltersExpanded?`
+      <div class="card" style="margin:8px 0 0">
+        <div class="card-title">More filters</div>
+        <div class="pac-row">
+          <select class="pac-select" id="pin-f-state" onchange="pinOnStateChange()"><option value="">State / UT (all)</option>${pinStateOpts()}</select>
+          <span id="pin-f-district-wrap"><select class="pac-select" id="pin-f-district" onchange="pinOnDistrictChange()"><option value="">District (all)</option>${pinDistrictOpts()}</select></span>
+        </div>
+        <div class="pac-row" style="margin-bottom:0">
+          <select class="pac-select" id="pin-f-fp" onchange="pinOnFilterChange()"><option value="">FP status (all)</option>${pinStatusFilterOpts('fp')}</select>
+          <select class="pac-select" id="pin-f-gp" onchange="pinOnFilterChange()"><option value="">GP status (all)</option>${pinStatusFilterOpts('gp')}</select>
+          <select class="pac-select" id="pin-f-sgp" onchange="pinOnFilterChange()"><option value="">SGP status (all)</option>${pinStatusFilterOpts('sgp')}</select>
+        </div>
+      </div>`:''}
     </div>
     <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Showing ${all.length?(start+1):0}–${Math.min(start+PIN_PAGE_SIZE,all.length)} of ${all.length.toLocaleString('en-IN')} matching pin codes</div>
-    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:var(--r)">
-      <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:720px">
-        <thead><tr style="background:var(--bg)">
-          ${['Pin Code','District','State','Population','FP','GP','SGP'].map(h=>`<th style="text-align:left;padding:8px 10px;white-space:nowrap">${h}</th>`).join('')}
-        </tr></thead>
-        <tbody>
-          ${pageRows.map(r=>{
-            const st=pinStatusOf(r.pin);
-            const area=(PIN_AREA_MAP&&PIN_AREA_MAP[r.pin])||'';
-            return `<tr style="border-top:1px solid var(--border)">
-              <td style="padding:8px 10px;font-weight:700;white-space:nowrap">${r.pin}</td>
-              <td style="padding:8px 10px" title="${area.replace(/"/g,'&quot;')}">${r.district}</td>
-              <td style="padding:8px 10px;white-space:nowrap">${r.state}</td>
-              <td style="padding:8px 10px;white-space:nowrap">${(r.pop||0).toLocaleString('en-IN')}</td>
-              <td style="padding:8px 10px;white-space:nowrap">${pinBadge(st.fp,st.fpName)}</td>
-              <td style="padding:8px 10px;white-space:nowrap">${pinBadge(st.gp,st.gpName)}</td>
-              <td style="padding:8px 10px;white-space:nowrap">${pinBadge(st.sgp,st.sgpName)}</td>
-            </tr>`;
-          }).join('') || `<tr><td colspan="7" style="padding:16px;text-align:center;color:var(--t3)">No pin codes match these filters.</td></tr>`}
-        </tbody>
-      </table>
+    <div class="card" style="padding:0 10px">
+      ${pageRows.map(r=>{
+        const st=pinStatusOf(r.pin);
+        const area=(PIN_AREA_MAP&&PIN_AREA_MAP[r.pin])||'';
+        const locTitle=(area?area+' · ':'')+`${r.district}, ${r.state} · Pop ${(r.pop||0).toLocaleString('en-IN')}`;
+        const isExpanded=_pinExpandedAreas.has(r.pin);
+        return `<div class="pin-row-card">
+          <div class="pin-row-top">
+            <button class="pin-row-pin" onclick="pinToggleArea('${r.pin}')" title="${area.replace(/"/g,'&quot;')}">${r.pin} ${area?(isExpanded?'▲':'▾'):''}</button>
+            <span class="pin-row-loc" title="${locTitle.replace(/"/g,'&quot;')}">${r.district}, ${r.state} · Pop ${(r.pop||0).toLocaleString('en-IN')}</span>
+          </div>
+          ${isExpanded&&area?`<div class="pin-row-areas">📍 <strong>Areas/Post offices:</strong> ${area}</div>`:''}
+          <div class="pin-row-badges">
+            ${pinBadge(st.fp,st.fpName,'fp')}
+            ${pinBadge(st.gp,st.gpName,'gp')}
+            ${pinBadge(st.sgp,st.sgpName,'sgp')}
+          </div>
+        </div>`;
+      }).join('') || `<div style="padding:20px 0;text-align:center;color:var(--t3);font-size:12px">No pin codes match these filters.</div>`}
     </div>
     <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:12px">
       <button class="pac-cancel-btn" onclick="pinGoPage(-1)" ${_pinFilters.page<=1?'disabled':''}>‹ Prev</button>
@@ -3008,10 +3119,13 @@ function renderGpCard(type){
   const current=slab;
   const next=SLABS.find(s=>s.min>current.min)||null;
 
-  container.innerHTML=`
-  <div class="card">
-    <div class="card-title">${type==='gp'?'🌱 Growth Partner':'⭐ Super Growth Partner'} Programme</div>
-
+  // Per Sanjeev's request, Growth Partner (type==='gp') no longer shows its
+  // own pin picker/token-investment widget or the "Already Booked Pincodes"
+  // table here — Super Growth Partner (type==='sgp') still gets both, since
+  // only the Growth Partner view was asked to have them removed. Pulled out
+  // into their own variables (instead of an inline ternary inside the big
+  // template below) purely to keep the nesting of backticks/${} manageable.
+  const pinSelectorHTML = type==='gp' ? '' : `
     <!-- Pin selector & basket -->
     <div style="background:var(--bg);border-radius:12px;padding:14px;margin-bottom:14px">
 
@@ -3062,10 +3176,39 @@ function renderGpCard(type){
 
       <div id="gp-ms-results-${type}"></div>
     </div>
+`;
+
+  const bookedTableHTML = type==='gp' ? '' : `
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">📍 Already Booked Pincodes — ${type==='gp'?'Growth Partner':'Super Growth Partner'}</div>
+    ${(()=>{
+      const bookedEntries=Object.entries(PAC_DB)
+        .filter(([pin,d])=>d[type])
+        .sort((a,b)=>(a[1].state||'').localeCompare(b[1].state||'')||(a[1].district||'').localeCompare(b[1].district||''));
+      if(bookedEntries.length===0){
+        return `<div class="info-note" style="margin:0">No pincodes booked yet for this role — everything's open.</div>`;
+      }
+      return `<div class="info-note" style="margin-bottom:10px">So new applicants can quickly see what's already taken before picking a pincode. ${bookedEntries.length} booked so far.</div>
+      <div class="month-breakdown-scroll">
+        <table class="month-breakdown-table">
+          <thead><tr><th>Pin Code</th><th>District</th><th>State</th><th>${type==='gp'?'Growth Partner':'Super Growth Partner'}</th></tr></thead>
+          <tbody>
+            ${bookedEntries.map(([pin,d])=>`<tr><td>${pin}</td><td>${d.district||'—'}</td><td>${d.state||'—'}</td><td style="font-weight:600;color:var(--lmi-blue)">${d[type]}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    })()}
+  </div>`;
+
+  container.innerHTML=`
+  <div class="card">
+    <div class="card-title">${type==='gp'?'🌱 Growth Partner':'⭐ Super Growth Partner'} Programme</div>
+
+    ${pinSelectorHTML}
 
     <div style="font-size:12px;font-weight:700;color:var(--lmi-dark-blue);margin-bottom:6px">📊 Current Slab & Commission</div>
     <div style="background:var(--lmi-soft-blue);border-radius:6px;padding:7px 10px;font-size:11px;margin-bottom:8px">
-      Active ${type==='gp'?'GP':'SGP'} pins in system: <strong>${total}</strong> → Slab: <strong>${current.label}</strong>
+      Active Growth Partner pincodes (GP + SGP combined): <strong>${total}</strong> → Slab: <strong>${current.label}</strong>
       ${next?`<span style="color:#166534;margin-left:6px">Next slab at ${next.min} pins</span>`:''}
     </div>
     <table class="slab-table">
@@ -3094,28 +3237,11 @@ function renderGpCard(type){
     <div class="highlight-box" style="margin-top:8px">
       🎁 <strong>Referral bonus:</strong> Earn 1 month's plan value for every business you personally refer — paid once on first subscription.
   </div>
+
+  ${type==='gp' ? `<button class="submit-btn" style="width:100%;font-size:11.5px;margin-top:10px" onclick="navScreen('pincodes')">Check Pincode Availability →</button>` : ''}
   </div>
 
-  <div class="card" style="margin-top:16px">
-    <div class="card-title">📍 Already Booked Pincodes — ${type==='gp'?'Growth Partner':'Super Growth Partner'}</div>
-    ${(()=>{
-      const bookedEntries=Object.entries(PAC_DB)
-        .filter(([pin,d])=>d[type])
-        .sort((a,b)=>(a[1].state||'').localeCompare(b[1].state||'')||(a[1].district||'').localeCompare(b[1].district||''));
-      if(bookedEntries.length===0){
-        return `<div class="info-note" style="margin:0">No pincodes booked yet for this role — everything's open.</div>`;
-      }
-      return `<div class="info-note" style="margin-bottom:10px">So new applicants can quickly see what's already taken before picking a pincode. ${bookedEntries.length} booked so far.</div>
-      <div class="month-breakdown-scroll">
-        <table class="month-breakdown-table">
-          <thead><tr><th>Pin Code</th><th>District</th><th>State</th><th>${type==='gp'?'Growth Partner':'Super Growth Partner'}</th></tr></thead>
-          <tbody>
-            ${bookedEntries.map(([pin,d])=>`<tr><td>${pin}</td><td>${d.district||'—'}</td><td>${d.state||'—'}</td><td style="font-weight:600;color:var(--lmi-blue)">${d[type]}</td></tr>`).join('')}
-          </tbody>
-        </table>
-      </div>`;
-    })()}
-  </div>`;
+  ${bookedTableHTML}`;
 
   setTimeout(()=>{
     pacInitStateDropdowns(type);
@@ -3126,6 +3252,18 @@ function renderGpCard(type){
       msSel.onchange = function(){ gpMsState(this, type); };
     }
   }, 50);
+
+  // The slab/commission table above is sourced from the live Pin Code
+  // Directory (liveActiveCount). If that hasn't loaded yet — e.g. the
+  // visitor opened Growth/Super Growth Partner before ever opening the
+  // Pincode Availability tab — kick off a load now and silently
+  // re-render this card once it's in, so the "NOW" slab reflects the
+  // real live count rather than the static fallback.
+  if(!PIN_OVERRIDES_RAW){
+    ensurePinOverridesLoaded().then(()=>{
+      if(currentScreen === (type==='gp'?'growth':'sgp')) renderGpCard(type);
+    });
+  }
 }
 
 function updateGpTotal(type){
