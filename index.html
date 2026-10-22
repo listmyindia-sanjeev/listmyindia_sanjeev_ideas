@@ -2520,11 +2520,12 @@ function renderPlans(){
 // ────────────────────────────────────────────────────
 const RESOURCES = [
   {category:'Franchise Partner', icon:'\ud83c\udfe2', items:[
-    {title:'Franchise Partner Agreement — Sample (Executed)', desc:'Real signed agreement for reference — all personal/financial details redacted for privacy', file:'resources/LMI-Franchise-Partner-Agreement.pdf', type:'PDF', updated:'Oct 2026'},
-    {title:'Franchise Partner Snapshot', desc:'Pitch deck — tiers, payback, onboarding at a glance', file:'resources/LMI-Franchise-Partner-Snapshot.pdf', type:'PDF', updated:'Oct 2026'},
+    {title:'Franchise Partner Snapshot', desc:'4-page opportunity snapshot — problem, platform, tiers & returns at a glance', file:'resources/LMI-Franchise-Partner-Snapshot.pdf', thumb:'resources/thumbs/LMI-Franchise-Partner-Snapshot.jpg', type:'PDF', pages:4, sizeMB:1.8, updated:'Oct 2026'},
+    {title:'Franchise Partner Presentation', desc:'Full pitch deck — problem, platform, earnings and onboarding in detail', file:'resources/LMI-Franchise-Partner-Presentation.pdf', thumb:'resources/thumbs/LMI-Franchise-Partner-Presentation.jpg', type:'PDF', pages:28, sizeMB:1.5, updated:'Oct 2026'},
+    {title:'Franchise Partner Agreement — Sample (Executed)', desc:'Real signed agreement for reference — all personal/financial details redacted for privacy', file:'resources/LMI-Franchise-Partner-Agreement.pdf', thumb:'resources/thumbs/LMI-Franchise-Partner-Agreement.jpg', type:'PDF', pages:29, sizeMB:2.7, updated:'Oct 2026'},
   ]},
   {category:'Growth Partner / Super Growth Partner', icon:'\ud83c\udf31', items:[
-    {title:'Growth Partner & Super Growth Partner Agreement', desc:'Master copy — commission slabs, territory, terms & conditions', file:'resources/LMI-Growth-Partner-SuperGrowthPartner-Agreement.pdf', type:'PDF', updated:'Oct 2026'},
+    {title:'Growth Partner & Super Growth Partner Agreement', desc:'Master copy — commission slabs, territory, terms & conditions', file:'resources/LMI-Growth-Partner-SuperGrowthPartner-Agreement.pdf', thumb:'resources/thumbs/LMI-Growth-Partner-SuperGrowthPartner-Agreement.jpg', type:'PDF', pages:23, sizeMB:0.6, updated:'Oct 2026'},
   ]},
 ];
 
@@ -2557,11 +2558,14 @@ function renderResources(){
     <div class="card">
       <div class="card-title">${cat.icon} ${cat.category}</div>
       ${cat.items.map((item,i)=>`
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 0;${i<cat.items.length-1?'border-bottom:1px solid var(--border)':''}">
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;${i<cat.items.length-1?'border-bottom:1px solid var(--border)':''}">
+        <a href="${item.file}" target="_blank" rel="noopener" style="flex-shrink:0;display:block;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:#f3f4f6">
+          <img src="${item.thumb}" alt="${item.title} thumbnail" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block">
+        </a>
         <div style="flex:1;min-width:0">
           <div style="font-weight:700;font-size:13px;color:var(--t1)">${item.title}</div>
           <div style="font-size:11px;color:var(--t2);margin-top:2px">${item.desc}</div>
-          <div style="font-size:10px;color:var(--t3);margin-top:3px">${item.type} \u00b7 Updated ${item.updated}</div>
+          <div style="font-size:10px;color:var(--t3);margin-top:3px">${item.type} \u00b7 ${item.pages} pages \u00b7 ${item.sizeMB} MB \u00b7 Updated ${item.updated}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
           <a href="${item.file}" target="_blank" rel="noopener" style="padding:6px 12px;background:var(--yellow);color:var(--navy-deep);border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;text-align:center;white-space:nowrap">\ud83d\udc41 View</a>
