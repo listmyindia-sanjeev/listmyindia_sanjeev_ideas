@@ -48,16 +48,21 @@ body{
   -webkit-overflow-scrolling:touch;
 }
 
-/* bottom tab bar */
+/* bottom tab bar — scrolls horizontally rather than squeezing every item
+   into a fixed grid, so it can carry the same full set of destinations as
+   the top nav (incl. Resources / Pin Codes) without crowding. */
 #tab-bar{
   flex-shrink:0;height:var(--tab-h);
   background:var(--surface);border-top:1px solid var(--border);
-  display:grid;grid-template-columns:repeat(6,1fr);
+  display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
   position:sticky;bottom:0;z-index:100;
 }
+#tab-bar::-webkit-scrollbar{display:none}
 .tab-btn{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:2px;cursor:pointer;border:none;background:none;
+  flex:1 0 12.5%;min-width:60px;
   padding:4px 1px;color:var(--t3);font-size:8.6px;font-weight:500;
   transition:color .15s;
 }
@@ -416,18 +421,27 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   justify-content:center;
   padding:8px 10px;
 }
+/* A horizontally-scrolling row of individually-bordered chips, not a fixed
+   row of equal-width pills — with 8 destinations now, forcing them all into
+   one non-scrolling row meant every label got shrunk and ellipsis-truncated
+   on phones ("Grow…", "Fran…", "Reso…"). Each chip keeps its full label and
+   natural width; the row scrolls sideways when there isn't room, same idea
+   as the bottom tab bar below. */
 .dnav-track{
-  display:flex;gap:2px;background:var(--bg);
-  border-radius:999px;padding:3px;
-  width:100%;max-width:640px;
+  display:flex;gap:6px;
+  width:100%;max-width:660px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  padding:2px;
 }
+.dnav-track::-webkit-scrollbar{display:none}
 .dnav-btn{
   -webkit-appearance:none;appearance:none;
-  flex:1;min-width:0;
-  padding:7px 4px;font-size:11px;font-weight:600;
-  color:var(--t2);border:1.5px solid var(--border);background:transparent;outline:none;
+  flex:0 0 auto;
+  padding:7px 14px;font-size:12px;font-weight:600;
+  color:var(--t2);border:1.5px solid var(--border);background:var(--surface);outline:none;
   border-radius:999px;cursor:pointer;font-family:inherit;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;
   text-align:center;position:relative;
   transition:background .18s,color .18s,box-shadow .18s,transform .12s,border-color .18s;
 }
@@ -505,6 +519,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     <div class="dnav-track">
       <button class="dnav-btn active" data-screen="home" onclick="navScreen('home')">Home</button>
       <button class="dnav-btn" data-screen="growth" onclick="navScreen('growth')">Growth</button>
+      <button class="dnav-btn" data-screen="sgp" onclick="navScreen('sgp')">Super GP</button>
       <button class="dnav-btn" data-screen="franchise" onclick="navScreen('franchise')">Franchise</button>
       <button class="dnav-btn" data-screen="income" onclick="navScreen('income')">Income</button>
       <button class="dnav-btn" data-screen="qr" onclick="navScreen('qr')">QR Tool</button>
@@ -2124,6 +2139,14 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="17.5" y1="14" x2="17.5" y2="17.5"/><line x1="14" y1="17.5" x2="17.5" y2="17.5"/><line x1="17.5" y1="21" x2="21" y2="21"/><line x1="21" y1="17.5" x2="21" y2="21"/></svg>
     QR Tool
   </button>
+  <button class="tab-btn" id="tab-resources" onclick="navScreen('resources')">
+    <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    Resources
+  </button>
+  <button class="tab-btn" id="tab-pincodes" onclick="navScreen('pincodes')">
+    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    Pin Codes
+  </button>
 </div>
 
 <!-- ─── RESOURCES SCREEN ──────────────────────────────────────────────── -->
@@ -2612,6 +2635,7 @@ let PIN_AREA_MAP = null;       // {pin: "area text"} — lazy, static
 let PIN_OVERRIDES_RAW = null;  // raw response from the Apps Script backend
 let PIN_OVERRIDE_MAP = null;   // {pin: {fp,fpName,gp,gpName,sgp,sgpName}}
 let _pinLoading = false;
+let _pinSearchDebounce = null;
 const _pinFilters = { state:'', district:'', fp:'', gp:'', sgp:'', q:'', page:1 };
 const PIN_PAGE_SIZE = 50;
 
@@ -2743,6 +2767,14 @@ function pinOnFilterChange(){
   _pinFilters.page = 1;
   pinRenderResults();
 }
+// The search box re-renders the whole results panel (table + filter card),
+// which would normally destroy and recreate the <input> on every keystroke
+// and kick focus out of it. Debounce so we don't rebuild on every single
+// character, and pinRenderResults() itself restores focus/caret afterwards.
+function pinOnSearchInput(){
+  clearTimeout(_pinSearchDebounce);
+  _pinSearchDebounce = setTimeout(pinOnFilterChange, 220);
+}
 function pinOnStateChange(){
   _pinFilters.state = document.getElementById('pin-f-state').value;
   _pinFilters.district = '';
@@ -2769,6 +2801,12 @@ async function pinRefreshLive(){
 function pinRenderResults(rebuildFilters){
   const body = document.getElementById('pin-body');
   if(!body) return;
+  // Preserve focus + caret on the search box across the innerHTML rebuild below
+  // (otherwise typing a character re-renders the input out from under you and
+  // you have to click back in to type the next one).
+  const _focusEl = document.activeElement;
+  const _hadSearchFocus = !!(_focusEl && _focusEl.id==='pin-f-q');
+  const _caret = _hadSearchFocus ? [_focusEl.selectionStart, _focusEl.selectionEnd] : null;
   const all = pinFlat().filter(pinMatchesFilters);
   const totalPages = Math.max(1, Math.ceil(all.length / PIN_PAGE_SIZE));
   _pinFilters.page = Math.min(_pinFilters.page, totalPages);
@@ -2808,7 +2846,7 @@ function pinRenderResults(rebuildFilters){
         <select class="pac-select" id="pin-f-sgp" onchange="pinOnFilterChange()"><option value="">SGP status (all)</option>${pinStatusFilterOpts('sgp')}</select>
       </div>
       <div class="pac-row">
-        <input type="text" id="pin-f-q" class="pac-select" placeholder="Search pin code, district or locality…" value="${_pinFilters.q.replace(/"/g,'&quot;')}" oninput="pinOnFilterChange()">
+        <input type="text" id="pin-f-q" class="pac-select" placeholder="Search pin code, district or locality…" value="${_pinFilters.q.replace(/"/g,'&quot;')}" oninput="pinOnSearchInput()">
         <button class="pac-check-btn" id="pin-refresh-btn" onclick="pinRefreshLive()">↻ Refresh live data</button>
       </div>
     </div>
@@ -2841,6 +2879,14 @@ function pinRenderResults(rebuildFilters){
       <button class="pac-cancel-btn" onclick="pinGoPage(1)" ${_pinFilters.page>=totalPages?'disabled':''}>Next ›</button>
     </div>
   `;
+
+  if(_hadSearchFocus){
+    const newQEl = document.getElementById('pin-f-q');
+    if(newQEl){
+      newQEl.focus();
+      try{ newQEl.setSelectionRange(_caret[0], _caret[1]); }catch(e){}
+    }
+  }
 }
 
 async function renderPincodesScreen(){
@@ -5083,4 +5129,3 @@ window.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
-
