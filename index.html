@@ -509,6 +509,12 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   .screen{display:none}
   .screen.active{display:block}
   .screen-inner{padding:20px;max-width:900px;margin:0 auto}
+  /* Home has no .screen-inner wrapper (its Watch & Learn row needs full-
+     bleed centering, see comment at #screen-home) so it gets its own
+     matching max-width here — keeps its cards/sections the same width as
+     every other screen's centered column (e.g. the Growth Partner slab
+     table) instead of stretching edge-to-edge on wide desktop windows. */
+  .home-inner{max-width:900px;margin:0 auto}
 
   /* section-hdr: non-sticky */
 
@@ -582,6 +588,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     <div class="hero">
       <div class="hero-tagline">🇮🇳 India's hyperlocal PIN-code business directory · <strong style="color:rgba(255,255,255,.95)">Vocal for Local</strong></div>
     </div>
+    <div class="home-inner">
     <!-- Watch & Learn — two YouTube Shorts from the official List My India™
          channel, side by side in one row. Lazy-loaded iframes so they don't
          cost anything until the user actually scrolls to them. -->
@@ -590,8 +597,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
          sensible Shorts-sized thumbnail on desktop instead of ballooning to
          half the browser window's width — aspect-ratio:9/16 means a wide
          flex:1 box turns into a very tall one. justify-content:center keeps
-         the pair centered since the Home screen isn't width-capped like the
-         other screens (.screen-inner doesn't wrap it — see CSS comment there). -->
+         the pair centered within .home-inner's own 900px cap (see CSS). -->
     <div style="display:flex;gap:16px;padding:0 14px 4px;justify-content:center">
       <div style="width:100%;max-width:200px">
         <div style="position:relative;width:100%;aspect-ratio:9/16;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);box-shadow:var(--sh);background:#000">
@@ -709,6 +715,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     </div>
 
         <div class="app-footer">ListMyIndia Growthworks Pvt Ltd · CIN U63119UP2025PTC234761 · Internal use only</div>
+    </div>
   </div>
 
   <!-- ─── FRANCHISE SCREEN ──────────────────────────────────────────────── -->
