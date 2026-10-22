@@ -2546,7 +2546,7 @@ function renderResources(){
   if(!el||el.dataset.built) return;
   el.dataset.built='1';
   el.innerHTML = `
-    <div class="info-note" style="margin-bottom:12px">All agreements and decks below are the current master copies — this hub always reflects the latest versions. Download for offline use, or share a direct link.</div>
+    <div class="info-note" style="margin-bottom:12px">All agreements and decks below are the current master copies — this hub always reflects the latest versions. View in the browser, download for offline use, or share a direct link.</div>
     ` + RESOURCES.map(cat=>`
     <div class="card">
       <div class="card-title">${cat.icon} ${cat.category}</div>
@@ -2558,6 +2558,7 @@ function renderResources(){
           <div style="font-size:10px;color:var(--t3);margin-top:3px">${item.type} \u00b7 Updated ${item.updated}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          <a href="${item.file}" target="_blank" rel="noopener" style="padding:6px 12px;background:var(--yellow);color:var(--navy-deep);border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;text-align:center;white-space:nowrap">\ud83d\udc41 View</a>
           <a href="${item.file}" download style="padding:6px 12px;background:var(--lmi-blue);color:#fff;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;text-align:center;white-space:nowrap">\u2b07 Download</a>
           <button onclick="shareResource(this,'${item.file}','${item.title.replace(/'/g,"\\'")}')" style="padding:6px 12px;background:var(--lmi-soft-blue);color:var(--lmi-blue);border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">\u2197 Share</button>
         </div>
