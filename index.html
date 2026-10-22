@@ -507,6 +507,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
       <button class="dnav-btn" data-screen="franchise" onclick="navScreen('franchise')">Franchise</button>
       <button class="dnav-btn" data-screen="income" onclick="navScreen('income')">Income</button>
       <button class="dnav-btn" data-screen="qr" onclick="navScreen('qr')">QR Tool</button>
+      <button class="dnav-btn" data-screen="resources" onclick="navScreen('resources')">Resources</button>
     </div>
   </div>
 
@@ -575,7 +576,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
           <div class="tile-icon" style="background:#FFF8E1">🎯</div>
           <div class="tile-text">
             <div class="tile-title">Sponsorship Plans</div>
-            <div class="tile-desc">Homepage · Search · Category Featured · from ₹1,499/mo</div>
+            <div class="tile-desc" id="sponsor-tile-desc">Homepage · Search · Category Featured · quarterly step-up pricing</div>
           </div>
           <div class="tile-chevron">›</div>
         </div>
@@ -598,6 +599,20 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
           <div class="tile-text">
             <div class="tile-title">Super Growth Partner</div>
             <div class="tile-desc">District-level reach · Higher revenue share</div>
+          </div>
+          <div class="tile-chevron">›</div>
+        </div>
+      </div>
+    </div>
+    <!-- Resources -->
+    <div style="padding:0 14px">
+      <div class="home-section-hd" style="margin:18px 0 10px">Resources</div>
+      <div class="nav-tiles" style="padding:0">
+        <div class="nav-tile primary-tile" onclick="navScreen('resources')">
+          <div class="tile-icon" style="background:rgba(255,255,255,.18)">📁</div>
+          <div class="tile-text">
+            <div class="tile-title">Resources &amp; Documents <span class="badge" style="background:var(--yellow);color:var(--navy-deep);vertical-align:middle">NEW</span></div>
+            <div class="tile-desc">Agreements · Pitch deck · Download or share — your one-point reference</div>
           </div>
           <div class="tile-chevron">›</div>
         </div>
@@ -2101,6 +2116,13 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   </button>
 </div>
 
+<!-- ─── RESOURCES SCREEN ──────────────────────────────────────────────── -->
+  <div class="screen" id="screen-resources">
+    <div class="screen-inner">
+      <div id="resources-panel"></div>
+    </div>
+  </div>
+
 <!-- ═══ PAC BOOKING MODAL ════════════════════════════════════════════════ -->
 <div class="pac-modal-overlay" id="pac-modal">
   <div class="pac-modal"><div id="pac-modal-body" style="width:100%;overflow:hidden;box-sizing:border-box"></div></div>
@@ -2115,7 +2137,7 @@ const LMI_GAS_URL   = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'; 
 
 
 // ═══ MOBILE-FIRST NAVIGATION ════════════════════════════════════════════
-const SCREENS = ['home','growth','sgp','franchise','income','qr'];
+const SCREENS = ['home','growth','sgp','franchise','income','qr','resources'];
 let currentScreen = 'home';
 
 function navScreen(name){
@@ -2178,15 +2200,15 @@ const PAC_DB = {"400058":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"M
 const TIERS = [
   {key:'bronze',name:'LMI Bronze',cls:'bronze',mrp:100000,fee:50000,youngFee:25000,womenFee:25000,
     share:0.30,kitFee:65000,marketing:5000,officeSetup:'Optional',bestFor:'First-time, solo starters',
-    youngOk:true,womenOk:true,waiver:true,
+    youngOk:true,womenOk:true,waiver:true,launchAd:0,launchAdOptional:40000,
     totalStart:135700,totalStartYoung:106200,totalStartWaiver:76700},
   {key:'silver',name:'LMI Silver',cls:'silver',mrp:200000,fee:100000,youngFee:50000,womenFee:50000,
     share:0.40,kitFee:65000,marketing:9000,officeSetup:'Optional',bestFor:'Serious, full-time operators',
-    youngOk:true,womenOk:true,waiver:false,
+    youngOk:true,womenOk:true,waiver:false,launchAd:40000,
     totalStart:234700,totalStartYoung:175700},
   {key:'gold',name:'LMI Gold',cls:'gold',mrp:600000,fee:300000,youngFee:null,womenFee:null,
     share:0.55,kitFee:65000,marketing:10000,officeSetup:'Mandatory · Min. 200 sq.ft',bestFor:'Building a small team-led office',
-    youngOk:false,womenOk:false,waiver:false,
+    youngOk:false,womenOk:false,waiver:false,launchAd:40000,
     totalStart:470700},
 ];
 
@@ -2205,12 +2227,27 @@ let gpPinCount = {gp:1,sgp:50};
 // Income Calculator defaults both GP and SGP to 1 pin code, per its own spec.
 let incGpPinCount = {gp:1,sgp:1};
 
+// Current-quarter sponsorship anchor prices (Annexure B ladder: Homepage
+// Banner ₹9,999 Sep'26, +₹10,000/quarter, MRP ₹99,999; Search & Category
+// Banner ₹7,499 Sep'26, +₹7,500/quarter, MRP ₹74,999; Category Featured
+// ₹999/slot Sep'26, +₹1,000/quarter, MRP ₹9,999/slot). Recomputed from
+// today's real date against the Sep'26 launch quarter every time the page
+// loads, so these never go stale with the calendar the way a hardcoded
+// number would.
+const _SPONSOR_LAUNCH_Y=2026, _SPONSOR_LAUNCH_M=9;
+function _fyQIdx(y,m){ const fy=m>=4?y:y-1; return fy*4+Math.floor(((m-4+12)%12)/3); }
+const _sponsorNow=new Date();
+const _SPONSOR_Q_ELAPSED=Math.max(0,_fyQIdx(_sponsorNow.getFullYear(),_sponsorNow.getMonth()+1)-_fyQIdx(_SPONSOR_LAUNCH_Y,_SPONSOR_LAUNCH_M));
+const CUR_SPONSOR_HOMEPAGE=Math.min(99999,9999+10000*_SPONSOR_Q_ELAPSED);
+const CUR_SPONSOR_SEARCHCAT=Math.min(74999,7499+7500*_SPONSOR_Q_ELAPSED);
+const CUR_SPONSOR_CATFEAT=Math.min(9999,999+1000*_SPONSOR_Q_ELAPSED);
+
 let _inc = {
   pop:100000,retailPct:1.25,homeBase:5,
   capture:25, // Paid Listing Target % — reference/comparison only, doesn't drive the curve. 25% is the Franchise Minimum bar used elsewhere.
   startPaid:Math.max(1,Math.round(Math.max(100,Math.round(100000*0.001))/4.33)), // weekly rate — derived from the old "0.1% of pop, or 100, whichever higher" absolute default, converted to a weekly pace. Drives both the ramp and the steady plateau.
   startPrice:99,stepAmount:50,
-  sponsorHomepage:9999,sponsorSearchCat:7499,catFeatSlots:4,
+  sponsorHomepage:CUR_SPONSOR_HOMEPAGE,sponsorSearchCat:CUR_SPONSOR_SEARCHCAT,catFeatSlots:4,
   hemadriPct:25,selectedTier:'silver',selectedYear:1,selectedGpType:'gp',
 };
 // Tracks whether the person has manually touched the Paid Listings /Week
@@ -2372,12 +2409,13 @@ function renderTierCards(){
         <div class="tier-row"><span class="t-label">Women (&lt;50 yrs)</span><span>${t.womenOk?'<span class="t-val" style="color:#166534">'+fc(t.womenFee)+'</span>':'<span class="badge badge-na">N/A</span>'}</span></div>
         <div class="tier-row"><span class="t-label">Franchise Kit</span><span>₹65,000 <span class="badge badge-opt">Incl.</span></span></div>
         <div class="tier-row"><span class="t-label">Marketing min./mo</span><span class="t-val">${fc(t.marketing)} <span style="font-size:9px;font-weight:400;color:var(--text-tertiary)">(or 5% of gross, whichever higher)</span></span></div>
-        <div class="tier-row"><span class="t-label">Billboard at launch</span><span class="badge ${t.key==='bronze'?'badge-opt':'badge-req'}">${t.key==='bronze'?'Optional':'Mandatory'}</span></div>
+        <div class="tier-row"><span class="t-label">Launch Advertising</span><span class="badge ${t.key==='bronze'?'badge-opt':'badge-req'}">${t.key==='bronze'?'Optional · ₹40,000 if opted':'Mandatory · min ₹40,000'}</span></div>
         <div class="tier-row"><span class="t-label">Office</span><span style="font-size:10px">${t.key==='gold'?'<span class="badge badge-req">Mandatory ≥200 sq.ft</span>':'<span class="badge badge-opt">Optional</span>'}</span></div>
         <div class="total-invest">
           <div style="font-size:9.5px;color:var(--text-tertiary);margin-bottom:2px">TOTAL TO START (INCL. GST)</div>
           <div class="amount">${fc(t.totalStart)}</div>
-          <div style="font-size:9.5px;color:var(--text-tertiary);margin-top:2px">Fee ${fc(t.fee)} + Kit ₹65,000 + GST${t.key!=='bronze'?' + Billboard ₹40,000':''}</div>
+          <div style="font-size:9.5px;color:var(--text-tertiary);margin-top:2px">Fee ${fc(t.fee)} + Kit ₹65,000 + GST${t.launchAd?` + Launch Advertising ₹${t.launchAd.toLocaleString('en-IN')}`:''}</div>
+          <div style="font-size:9.5px;color:var(--text-tertiary);margin-top:1px">${t.launchAd?`Includes Launch Advertising (min. ₹${t.launchAd.toLocaleString('en-IN')}) — you spend this directly on your own local ads, it isn't collected by the Company, but it's still part of the funds you need to arrange upfront.`:`Launch Advertising is optional here (₹${t.launchAdOptional.toLocaleString('en-IN')} if opted) — spent directly by you, not included above, not paid to the Company.`}</div>
           ${t.youngOk?`<div style="font-size:9.5px;color:#166534;margin-top:3px">Young/Women: ${fc(t.totalStartYoung||0)} (discounted)</div>`:''}
           ${t.waiver?`<div style="font-size:9.5px;color:#991B1B;margin-top:2px">Special Needs Waiver: ₹76,700 (fee waived)</div>`:''}
         </div>
@@ -2460,20 +2498,73 @@ function renderPlans(){
     </div>
   </div>
   <div class="card">
-    <div class="card-title">🎯 Sponsorship Plan — Quarterly Step-Up from Month 2</div>
-    <div class="info-note" style="margin-bottom:10px">Month 1: steep launch teaser. Month 2 onwards: settles and steps up quarterly. Slots sold locally by FP.</div>
+    <div class="card-title">🎯 Sponsorship Plan — Quarterly Step-Up</div>
+    <div class="info-note" style="margin-bottom:10px">Unlike LMI Star, sponsorship slots are <strong>not</strong> cohort-locked — every slot is priced at the current quarter's rate, whoever holds it. Prices below update automatically each quarter. Slots sold locally by the FP.</div>
     <div style="overflow-x:auto">
       <table class="slab-table" style="width:100%">
-        <thead><tr><th style="text-align:left;padding:6px 10px">Product</th><th>MRP</th><th>M1 Launch</th><th>M2 Onwards</th><th>Step-Up / Qtr</th></tr></thead>
+        <thead><tr><th style="text-align:left;padding:6px 10px">Product</th><th>MRP</th><th>Current Qtr</th><th>Next Qtr</th><th>Step-Up / Qtr</th></tr></thead>
         <tbody>
-          <tr><td style="padding:6px 10px">🖼️ Homepage Banner (1 slot)</td><td>₹99,999/mo</td><td style="color:var(--lmi-blue);font-weight:700">₹7,499</td><td>₹9,999</td><td>+₹10,000</td></tr>
-          <tr><td style="padding:6px 10px">🔍 Search & Category Banner (1 slot)</td><td>₹74,999/mo</td><td style="color:var(--lmi-blue);font-weight:700">₹4,999</td><td>₹7,499</td><td>+₹5,000</td></tr>
-          <tr><td style="padding:6px 10px">📂 Category Featured (up to 4 slots/category)</td><td>₹24,999/mo</td><td style="color:var(--lmi-blue);font-weight:700">₹1,499</td><td>₹2,499</td><td>+₹2,500</td></tr>
+          <tr><td style="padding:6px 10px">🖼️ Homepage Banner (1 slot)</td><td>₹99,999/mo</td><td style="color:var(--lmi-blue);font-weight:700">₹${CUR_SPONSOR_HOMEPAGE.toLocaleString('en-IN')}</td><td>₹${Math.min(99999,CUR_SPONSOR_HOMEPAGE+10000).toLocaleString('en-IN')}</td><td>+₹10,000</td></tr>
+          <tr><td style="padding:6px 10px">🔍 Search & Category Banner (1 slot)</td><td>₹74,999/mo</td><td style="color:var(--lmi-blue);font-weight:700">₹${CUR_SPONSOR_SEARCHCAT.toLocaleString('en-IN')}</td><td>₹${Math.min(74999,CUR_SPONSOR_SEARCHCAT+7500).toLocaleString('en-IN')}</td><td>+₹7,500</td></tr>
+          <tr><td style="padding:6px 10px">📂 Category Featured (per slot, up to 4 slots/category)</td><td>₹9,999/mo</td><td style="color:var(--lmi-blue);font-weight:700">₹${CUR_SPONSOR_CATFEAT.toLocaleString('en-IN')}</td><td>₹${Math.min(9999,CUR_SPONSOR_CATFEAT+1000).toLocaleString('en-IN')}</td><td>+₹1,000</td></tr>
         </tbody>
       </table>
     </div>
-    <div class="info-note" style="margin-top:8px">Revenue model: top 10 monetisable categories × 2 slots = 20 Category Featured slots sold per PIN code. Default sponsorship income = ₹9,999 (Homepage) + ₹7,499 (Search/Category) + 5 × ₹2,499 (Category Featured) = <strong>₹29,993/mo</strong>.</div>
+    <div class="info-note" style="margin-top:8px">Revenue model: top 10 monetisable categories × 2 slots = 20 Category Featured slots sold per PIN code. Default sponsorship income (current quarter) = ₹${CUR_SPONSOR_HOMEPAGE.toLocaleString('en-IN')} (Homepage) + ₹${CUR_SPONSOR_SEARCHCAT.toLocaleString('en-IN')} (Search/Category) + 5 × ₹${CUR_SPONSOR_CATFEAT.toLocaleString('en-IN')} (Category Featured) = <strong>₹${(CUR_SPONSOR_HOMEPAGE+CUR_SPONSOR_SEARCHCAT+5*CUR_SPONSOR_CATFEAT).toLocaleString('en-IN')}/mo</strong>.</div>
   </div>`;
+}
+
+// ────────────────────────────────────────────────────
+// RESOURCES & DOCUMENTS — one-point reference hub
+// Add future files here: {title, desc, file (relative path under resources/), type, updated}
+// ────────────────────────────────────────────────────
+const RESOURCES = [
+  {category:'Franchise Partner', icon:'\ud83c\udfe2', items:[
+    {title:'Franchise Partner Agreement', desc:'Master copy — fees, territory rights, terms & conditions', file:'resources/LMI-Franchise-Partner-Agreement.pdf', type:'PDF', updated:'Oct 2026'},
+    {title:'Franchise Partner Snapshot', desc:'Pitch deck — tiers, payback, onboarding at a glance', file:'resources/LMI-Franchise-Partner-Snapshot.pdf', type:'PDF', updated:'Oct 2026'},
+  ]},
+  {category:'Growth Partner / Super Growth Partner', icon:'\ud83c\udf31', items:[
+    {title:'Growth Partner & Super Growth Partner Agreement', desc:'Master copy — commission slabs, territory, terms & conditions', file:'resources/LMI-Growth-Partner-SuperGrowthPartner-Agreement.pdf', type:'PDF', updated:'Oct 2026'},
+  ]},
+];
+
+function shareResource(btn, path, title){
+  const url = new URL(path, location.href).href;
+  const origLabel = btn.textContent;
+  const flash = (msg)=>{ btn.textContent = msg; setTimeout(()=>{ btn.textContent = origLabel; }, 1800); };
+  if (navigator.share){
+    navigator.share({ title, text: title + ' — List My India\u2122', url }).catch(()=>{});
+  } else if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>flash('Link copied \u2713')).catch(()=>{ window.prompt('Copy this link:', url); });
+  } else {
+    window.prompt('Copy this link:', url);
+  }
+}
+
+function renderResources(){
+  const el=document.getElementById('resources-panel');
+  if(!el||el.dataset.built) return;
+  el.dataset.built='1';
+  el.innerHTML = `
+    <div class="info-note" style="margin-bottom:12px">All agreements and decks below are the current master copies — this hub always reflects the latest versions. Download for offline use, or share a direct link.</div>
+    ` + RESOURCES.map(cat=>`
+    <div class="card">
+      <div class="card-title">${cat.icon} ${cat.category}</div>
+      ${cat.items.map((item,i)=>`
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 0;${i<cat.items.length-1?'border-bottom:1px solid var(--border)':''}">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:13px;color:var(--t1)">${item.title}</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:2px">${item.desc}</div>
+          <div style="font-size:10px;color:var(--t3);margin-top:3px">${item.type} \u00b7 Updated ${item.updated}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          <a href="${item.file}" download style="padding:6px 12px;background:var(--lmi-blue);color:#fff;border-radius:7px;font-size:11px;font-weight:700;text-decoration:none;text-align:center;white-space:nowrap">\u2b07 Download</a>
+          <button onclick="shareResource(this,'${item.file}','${item.title.replace(/'/g,"\\'")}')" style="padding:6px 12px;background:var(--lmi-soft-blue);color:var(--lmi-blue);border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">\u2197 Share</button>
+        </div>
+      </div>`).join('')}
+    </div>`).join('') + `
+    <div class="info-note" style="margin-top:4px">More files will be added here over time — check back for updates.</div>
+  `;
 }
 
 // ────────────────────────────────────────────────────
@@ -2771,8 +2862,8 @@ function buildIncomePanel(){
       <div class="card-title">🎯 Sponsorship Revenue — Quarterly Step-Up</div>
       <div class="info-note" style="margin-bottom:8px">Priced at the start value for the current fiscal quarter (Apr–Jun / Jul–Sep / Oct–Dec / Jan–Mar), stepping up at the start of each subsequent quarter until it reaches MRP. Applies to whoever holds the slot each month (not cohort-locked, unlike listings). Homepage Banner and Search & Category Banner are 1 slot per pin code; Category Featured allows 4 slots per available category — adjust the slider below for how many slots (across however many categories) you expect to sell.</div>
       <div class="slider-grid-3">
-        ${mkSlider('sponsorHomepage','Homepage Banner',0,99999,500,9999,fc2)}
-        ${mkSlider('sponsorSearchCat','Search & Category Banner',0,74999,500,7499,fc2)}
+        ${mkSlider('sponsorHomepage','Homepage Banner',0,99999,500,CUR_SPONSOR_HOMEPAGE,fc2)}
+        ${mkSlider('sponsorSearchCat','Search & Category Banner',0,74999,500,CUR_SPONSOR_SEARCHCAT,fc2)}
         ${mkSlider('catFeatSlots','Category Featured — Slots',0,40,1,4,v=>parseInt(v)+' slot'+(v==1?'':'s'))}
       </div>
     </div>
@@ -3233,7 +3324,7 @@ function renderPriceLadderReference(){
     if(prodKey==='homepage')  return Math.round(Math.min(99999, s.sponsorHomepage+10000*q));
     if(prodKey==='searchCat') return Math.round(Math.min(74999, s.sponsorSearchCat+7500*q));
     if(prodKey==='catFeat'){
-      const perSlot=Math.round(Math.min(9999, 999+1000*q));
+      const perSlot=Math.round(Math.min(9999, CUR_SPONSOR_CATFEAT+1000*q));
       return perSlot*s.catFeatSlots;
     }
     return 0;
@@ -3605,7 +3696,7 @@ function calculateIncome(){
     if(prodKey==='homepage')  return Math.round(Math.min(99999, s.sponsorHomepage+10000*q));
     if(prodKey==='searchCat') return Math.round(Math.min(74999, s.sponsorSearchCat+7500*q));
     if(prodKey==='catFeat'){
-      const perSlot=Math.round(Math.min(9999, 999+1000*q));
+      const perSlot=Math.round(Math.min(9999, CUR_SPONSOR_CATFEAT+1000*q));
       return perSlot*s.catFeatSlots;
     }
     return 0;
@@ -4552,7 +4643,7 @@ const FS=[
     {id:'q6',text:'Comfort with digital tools (WhatsApp Business, Sheets, email)',hint:'All LMI operations are cloud-based — onboarding, listing management, settlements are digital',type:'radio',options:[{t:'Very comfortable — use daily',s:3},{t:'Comfortable with basics',s:2},{t:'Learning — can pick up with training',s:1},{t:'Not comfortable',s:0,warn:true,flag:'Low digital comfort — may need additional support'}]},
   ]},
   {label:'Financial Readiness',bg:'bg-amber',icon:'💰',questions:[
-    {id:'q7',text:'Investment capital available immediately',hint:'Bronze: ~₹1.36L · Silver: ~₹2.35L · Gold: ~₹4.71L (all incl. Kit + GST + billboard where mandatory)',type:'radio',options:[
+    {id:'q7',text:'Investment capital available immediately',hint:'Bronze: ~₹1.36L · Silver: ~₹2.35L · Gold: ~₹4.71L (all incl. Kit + GST + Launch Advertising where mandatory)',type:'radio',options:[
       {t:'₹5L and above — LMI Gold ready',s:3},
       {t:'₹2L – ₹5L — LMI Silver tier',s:2},
       {t:'₹1L – ₹2L — LMI Bronze tier',s:1},
@@ -4693,9 +4784,12 @@ window.addEventListener('DOMContentLoaded',()=>{
     renderGpCard('gp');
     renderGpCard('sgp');
     buildIncomePanel();
+    renderResources();
     loadLiveBookings(); // fetch live booking status from GAS
   }, 60);
   setTimeout(pacPopulateStateDropdowns, 300);
+  const sponsorTileDesc=document.getElementById('sponsor-tile-desc');
+  if(sponsorTileDesc) sponsorTileDesc.textContent=`Homepage · Search · Category Featured · from ₹${CUR_SPONSOR_CATFEAT.toLocaleString('en-IN')}/mo`;
 });
 </script>
 </body>
