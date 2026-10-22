@@ -2909,14 +2909,27 @@ function pinMatchesFilters(row){
 }
 
 function pinOnFilterChange(){
-  _pinFilters.state = document.getElementById('pin-f-state').value;
-  _pinFilters.district = ''; // reset on state change, re-read below if present
-  const distEl = document.getElementById('pin-f-district');
-  if(distEl && distEl.dataset.keep!=='1') _pinFilters.district = distEl.value;
-  _pinFilters.fp = document.getElementById('pin-f-fp').value;
-  _pinFilters.gp = document.getElementById('pin-f-gp').value;
-  _pinFilters.sgp = document.getElementById('pin-f-sgp').value;
-  _pinFilters.q = document.getElementById('pin-f-q').value;
+  // The "More filters" card (state/district/FP/GP/SGP dropdowns) is only in
+  // the DOM when expanded — guard each lookup so this still works (and the
+  // search box's own value still gets read) while it's collapsed, which is
+  // the default state. Previously this crashed on the very first line
+  // whenever filters were collapsed, which silently broke the search box
+  // entirely (the query value was read on the last line, never reached).
+  const stateEl = document.getElementById('pin-f-state');
+  if(stateEl){
+    _pinFilters.state = stateEl.value;
+    _pinFilters.district = ''; // reset on state change, re-read below if present
+    const distEl = document.getElementById('pin-f-district');
+    if(distEl && distEl.dataset.keep!=='1') _pinFilters.district = distEl.value;
+  }
+  const fpEl = document.getElementById('pin-f-fp');
+  if(fpEl) _pinFilters.fp = fpEl.value;
+  const gpEl = document.getElementById('pin-f-gp');
+  if(gpEl) _pinFilters.gp = gpEl.value;
+  const sgpEl = document.getElementById('pin-f-sgp');
+  if(sgpEl) _pinFilters.sgp = sgpEl.value;
+  const qEl = document.getElementById('pin-f-q');
+  if(qEl) _pinFilters.q = qEl.value;
   _pinFilters.page = 1;
   pinRenderResults();
 }
@@ -2976,6 +2989,14 @@ function pinRenderResults(rebuildFilters){
   const _focusEl = document.activeElement;
   const _hadSearchFocus = !!(_focusEl && _focusEl.id==='pin-f-q');
   const _caret = _hadSearchFocus ? [_focusEl.selectionStart, _focusEl.selectionEnd] : null;
+  // If a re-render is forced by something other than the user's own typing —
+  // the 5s live auto-refresh poll, the manual refresh button, switching the
+  // summary tab, etc. — always pull the search box's CURRENT on-screen text
+  // into _pinFilters.q first, not whatever the 220ms debounce last committed.
+  // Without this, a poll landing mid-keystroke rebuilds the box from a stale,
+  // lagging value and visibly deletes whatever was typed since the last
+  // commit — this is what fixes that.
+  if(_hadSearchFocus) _pinFilters.q = _focusEl.value;
   const all = pinFlat().filter(pinMatchesFilters);
   const totalPages = Math.max(1, Math.ceil(all.length / PIN_PAGE_SIZE));
   _pinFilters.page = Math.min(_pinFilters.page, totalPages);
