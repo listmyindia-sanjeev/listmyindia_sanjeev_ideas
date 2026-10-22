@@ -174,6 +174,16 @@ body{
 .t-label{color:var(--t2)}.t-val{font-weight:600;color:var(--navy)}
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
 .pin-status-pill{display:inline-block;padding:3px 9px;border-radius:10px;font-size:10.5px;font-weight:700;white-space:nowrap}
+/* Compact variant for the 3 summary cards, which now sit side by side in one
+   row even on a phone — the table-cell pill above stays as-is. */
+.pin-sum-row{display:flex;gap:6px;margin-bottom:10px}
+.pin-sum-card{flex:1;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:9px 7px;box-shadow:var(--sh)}
+.pin-sum-card .card-title{font-size:10px;line-height:1.3;margin-bottom:5px}
+.pin-status-pill-sm{display:block;width:fit-content;max-width:100%;padding:2px 6px;border-radius:7px;font-size:9px;font-weight:700;line-height:1.5;white-space:normal;margin-bottom:3px}
+/* Search bar sticks to the top of the scrollable area once you scroll the
+   results past it, so it's always one tap away while paging through table
+   rows — same idea as a sticky table header, but for the input itself. */
+.pin-search-sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;margin-bottom:10px;border-bottom:1px solid var(--border)}
 .badge-opt{background:#F0FDF4;color:#166534}
 .badge-req{background:#FEF2F2;color:#991B1B}
 .badge-na{background:#F1F5F9;color:#64748B}
@@ -517,14 +527,16 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
        independent sticky behavior (see initStickyWrap) once you scroll to it. -->
   <div id="desktop-nav">
     <div class="dnav-track">
+      <!-- Super GP intentionally has no top-nav button — reachable only from
+           its Home screen tile, per Sanjeev's instruction to keep it off the
+           header/footer nav entirely. -->
       <button class="dnav-btn active" data-screen="home" onclick="navScreen('home')">Home</button>
-      <button class="dnav-btn" data-screen="growth" onclick="navScreen('growth')">Growth</button>
-      <button class="dnav-btn" data-screen="sgp" onclick="navScreen('sgp')">Super GP</button>
-      <button class="dnav-btn" data-screen="franchise" onclick="navScreen('franchise')">Franchise</button>
-      <button class="dnav-btn" data-screen="income" onclick="navScreen('income')">Income</button>
-      <button class="dnav-btn" data-screen="qr" onclick="navScreen('qr')">QR Tool</button>
+      <button class="dnav-btn" data-screen="franchise" onclick="navScreen('franchise')">Franchise Partner</button>
+      <button class="dnav-btn" data-screen="growth" onclick="navScreen('growth')">Growth Partner</button>
+      <button class="dnav-btn" data-screen="pincodes" onclick="navScreen('pincodes')">Pincode Availability</button>
+      <button class="dnav-btn" data-screen="income" onclick="navScreen('income')">Income Potential</button>
       <button class="dnav-btn" data-screen="resources" onclick="navScreen('resources')">Resources</button>
-      <button class="dnav-btn" data-screen="pincodes" onclick="navScreen('pincodes')">Pin Codes</button>
+      <button class="dnav-btn" data-screen="qr" onclick="navScreen('qr')">QR Tool</button>
     </div>
   </div>
 
@@ -537,6 +549,24 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
       <div class="stat-chip stat-blue"><div class="num">73+</div><div class="lbl">Pins Booked</div></div>
       <div class="stat-chip stat-green"><div class="num">36</div><div class="lbl">States / UTs</div></div>
       <div class="stat-chip stat-amber"><div class="num">19,300</div><div class="lbl">Pin Codes</div></div>
+    </div>
+    <!-- Watch & Learn — two YouTube Shorts from the official List My India™
+         channel, side by side in one row. Lazy-loaded iframes so they don't
+         cost anything until the user actually scrolls to them. -->
+    <div class="home-section-hd" style="margin:18px 0 10px">Watch &amp; Learn</div>
+    <div style="display:flex;gap:10px;padding:0 14px 4px">
+      <div style="flex:1;min-width:0">
+        <div style="position:relative;width:100%;aspect-ratio:9/16;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);box-shadow:var(--sh);background:#000">
+          <iframe src="https://www.youtube.com/embed/8p--4A18YM4" title="Mohalle Ka Har Business Ab Online! ₹99 Mein Listed ho jao | List My India™" style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        <div style="font-size:10.5px;color:var(--t2);margin-top:6px;line-height:1.3">Mohalle Ka Har Business Ab Online! ₹99 Mein Listed ho jao</div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="position:relative;width:100%;aspect-ratio:9/16;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);box-shadow:var(--sh);background:#000">
+          <iframe src="https://www.youtube.com/embed/cyoqNw6K7h8" title="Lakhon Ka Risk Liya, Leads Nahi Aaye? Ab Ek ₹99 Ka Bada Risk Leke Dekho! | List My India™" style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        <div style="font-size:10.5px;color:var(--t2);margin-top:6px;line-height:1.3">Lakhon Ka Risk Liya, Leads Nahi Aaye? Ab Ek ₹99 Ka Bada Risk Leke Dekho!</div>
+      </div>
     </div>
     <div class="home-section-hd">Partner Programmes</div>
     <div class="nav-tiles">
@@ -2111,44 +2141,6 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     </div>
   </div>
 
-</div><!-- /scroll-body -->
-
-<!-- ═══ BOTTOM TAB BAR (mobile) ══════════════════════════════════════════ -->
-<div id="tab-bar">
-  <button class="tab-btn active" id="tab-home" onclick="navScreen('home')">
-    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    Home
-  </button>
-  <button class="tab-btn" id="tab-growth" onclick="navScreen('growth')">
-    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    Growth
-  </button>
-  <button class="tab-btn" id="tab-sgp" onclick="navScreen('sgp')">
-    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-    Super GP
-  </button>
-  <button class="tab-btn" id="tab-franchise" onclick="navScreen('franchise')">
-    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7"/><rect x="2" y="9" width="20" height="13" rx="2"/><path d="M9 22V12h6v10"/></svg>
-    Franchise
-  </button>
-  <button class="tab-btn" id="tab-income" onclick="navScreen('income')">
-    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-    Income
-  </button>
-  <button class="tab-btn" id="tab-qr" onclick="navScreen('qr')">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="17.5" y1="14" x2="17.5" y2="17.5"/><line x1="14" y1="17.5" x2="17.5" y2="17.5"/><line x1="17.5" y1="21" x2="21" y2="21"/><line x1="21" y1="17.5" x2="21" y2="21"/></svg>
-    QR Tool
-  </button>
-  <button class="tab-btn" id="tab-resources" onclick="navScreen('resources')">
-    <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-    Resources
-  </button>
-  <button class="tab-btn" id="tab-pincodes" onclick="navScreen('pincodes')">
-    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-    Pin Codes
-  </button>
-</div>
-
 <!-- ─── RESOURCES SCREEN ──────────────────────────────────────────────── -->
   <div class="screen" id="screen-resources">
     <div class="screen-inner">
@@ -2162,6 +2154,43 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
       <div id="pincodes-panel"></div>
     </div>
   </div>
+
+</div><!-- /scroll-body -->
+
+<!-- ═══ BOTTOM TAB BAR (mobile) ══════════════════════════════════════════ -->
+<div id="tab-bar">
+  <!-- Super GP intentionally has no bottom-tab button — reachable only from
+       its Home screen tile, per Sanjeev's instruction to keep it off the
+       header/footer nav entirely. -->
+  <button class="tab-btn active" id="tab-home" onclick="navScreen('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </button>
+  <button class="tab-btn" id="tab-franchise" onclick="navScreen('franchise')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7"/><rect x="2" y="9" width="20" height="13" rx="2"/><path d="M9 22V12h6v10"/></svg>
+    Franchise Partner
+  </button>
+  <button class="tab-btn" id="tab-growth" onclick="navScreen('growth')">
+    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Growth Partner
+  </button>
+  <button class="tab-btn" id="tab-pincodes" onclick="navScreen('pincodes')">
+    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    Pincode Availability
+  </button>
+  <button class="tab-btn" id="tab-income" onclick="navScreen('income')">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    Income Potential
+  </button>
+  <button class="tab-btn" id="tab-resources" onclick="navScreen('resources')">
+    <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    Resources
+  </button>
+  <button class="tab-btn" id="tab-qr" onclick="navScreen('qr')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="17.5" y1="14" x2="17.5" y2="17.5"/><line x1="14" y1="17.5" x2="17.5" y2="17.5"/><line x1="17.5" y1="21" x2="21" y2="21"/><line x1="21" y1="17.5" x2="21" y2="21"/></svg>
+    QR Tool
+  </button>
+</div>
 
 <!-- ═══ PAC BOOKING MODAL ════════════════════════════════════════════════ -->
 <div class="pac-modal-overlay" id="pac-modal">
@@ -2635,6 +2664,7 @@ let PIN_AREA_MAP = null;       // {pin: "area text"} — lazy, static
 let PIN_OVERRIDES_RAW = null;  // raw response from the Apps Script backend
 let PIN_OVERRIDE_MAP = null;   // {pin: {fp,fpName,gp,gpName,sgp,sgpName}}
 let _pinLoading = false;
+let _pinPollTimer = null;
 let _pinSearchDebounce = null;
 const _pinFilters = { state:'', district:'', fp:'', gp:'', sgp:'', q:'', page:1 };
 const PIN_PAGE_SIZE = 50;
@@ -2743,12 +2773,20 @@ function pinMatchesFilters(row){
   const f=_pinFilters;
   if(f.state && row.state!==f.state) return false;
   if(f.district && row.district!==f.district) return false;
+  const st=pinStatusOf(row.pin);
   if(f.q){
     const q=f.q.trim().toLowerCase();
     const area=(PIN_AREA_MAP&&PIN_AREA_MAP[row.pin])||'';
-    if(!row.pin.includes(q) && !row.district.toLowerCase().includes(q) && !area.toLowerCase().includes(q)) return false;
+    // Free-text search now spans every field shown in the table, not just
+    // pin/district/area: state, and each partner's name (FP/GP/SGP), so
+    // typing e.g. a franchisee's name or a state finds their pincodes too.
+    const haystacks = [
+      row.pin, row.district, row.state, area,
+      st.fpName||'', st.gpName||'', st.sgpName||''
+    ];
+    const hit = haystacks.some(h=>h.toLowerCase().includes(q));
+    if(!hit) return false;
   }
-  const st=pinStatusOf(row.pin);
   if(f.fp && st.fp!==f.fp) return false;
   if(f.gp && st.gp!==f.gp) return false;
   if(f.sgp && st.sgp!==f.sgp) return false;
@@ -2820,22 +2858,26 @@ function pinRenderResults(rebuildFilters){
 
   const { total, summary } = pinSummary();
   const cardHtml = (icon,label,type)=>`
-    <div class="card" style="flex:1;min-width:150px">
-      <div class="card-title" style="font-size:12px">${icon} ${label}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
-        ${Object.entries(summary[type]).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="pin-status-pill" style="${pinBadgeStyle(k)}">${k}: ${v.toLocaleString('en-IN')}</span>`).join('')}
-      </div>
+    <div class="pin-sum-card">
+      <div class="card-title">${icon} ${label}</div>
+      ${Object.entries(summary[type]).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="pin-status-pill-sm" style="${pinBadgeStyle(k)}">${k}: ${v.toLocaleString('en-IN')}</span>`).join('')}
     </div>`;
 
   body.innerHTML = `
-    <div class="info-note" style="margin-bottom:12px">Total: ${total.toLocaleString('en-IN')} pin codes across ${Object.keys(PINCODE_DATA).length} States &amp; UTs of India. Status below updates live — no file upload needed.${PIN_OVERRIDES_RAW && PIN_OVERRIDES_RAW.notConfigured ? ' <b>(Live backend not connected yet — showing all pincodes as Available until the Apps Script URL is set.)</b>' : ''}</div>
-    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+    <div class="info-note" style="margin-bottom:10px">Total: ${total.toLocaleString('en-IN')} pin codes across ${Object.keys(PINCODE_DATA).length} States &amp; UTs of India. Status syncs automatically with the master Google Sheet — no file upload needed, and no need to click Refresh (it re-checks every few seconds while this tab is open, and instantly whenever you come back to it).${PIN_OVERRIDES_RAW && PIN_OVERRIDES_RAW.notConfigured ? ' <b>(Live backend not connected yet — showing all pincodes as Available until the Apps Script URL is set.)</b>' : ''}</div>
+    <div class="pin-sum-row">
       ${cardHtml('📋','Franchise Partner','fp')}
       ${cardHtml('🌱','Growth Partner','gp')}
       ${cardHtml('⭐','Super Growth Partner','sgp')}
     </div>
+    <div class="pin-search-sticky">
+      <div class="pac-row" style="margin-bottom:0">
+        <input type="text" id="pin-f-q" class="pac-select" placeholder="Search pin code, state, district, locality or partner name…" value="${_pinFilters.q.replace(/"/g,'&quot;')}" oninput="pinOnSearchInput()">
+        <button class="pac-check-btn" id="pin-refresh-btn" onclick="pinRefreshLive()">↻ Refresh</button>
+      </div>
+    </div>
     <div class="card" style="margin-bottom:14px">
-      <div class="card-title">Filters</div>
+      <div class="card-title">More filters</div>
       <div class="pac-row">
         <select class="pac-select" id="pin-f-state" onchange="pinOnStateChange()"><option value="">State / UT (all)</option>${pinStateOpts()}</select>
         <span id="pin-f-district-wrap"><select class="pac-select" id="pin-f-district" onchange="pinOnDistrictChange()"><option value="">District (all)</option>${pinDistrictOpts()}</select></span>
@@ -2844,10 +2886,6 @@ function pinRenderResults(rebuildFilters){
         <select class="pac-select" id="pin-f-fp" onchange="pinOnFilterChange()"><option value="">FP status (all)</option>${pinStatusFilterOpts('fp')}</select>
         <select class="pac-select" id="pin-f-gp" onchange="pinOnFilterChange()"><option value="">GP status (all)</option>${pinStatusFilterOpts('gp')}</select>
         <select class="pac-select" id="pin-f-sgp" onchange="pinOnFilterChange()"><option value="">SGP status (all)</option>${pinStatusFilterOpts('sgp')}</select>
-      </div>
-      <div class="pac-row">
-        <input type="text" id="pin-f-q" class="pac-select" placeholder="Search pin code, district or locality…" value="${_pinFilters.q.replace(/"/g,'&quot;')}" oninput="pinOnSearchInput()">
-        <button class="pac-check-btn" id="pin-refresh-btn" onclick="pinRefreshLive()">↻ Refresh live data</button>
       </div>
     </div>
     <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Showing ${all.length?(start+1):0}–${Math.min(start+PIN_PAGE_SIZE,all.length)} of ${all.length.toLocaleString('en-IN')} matching pin codes</div>
@@ -2892,14 +2930,46 @@ function pinRenderResults(rebuildFilters){
 async function renderPincodesScreen(){
   const el=document.getElementById('pincodes-panel');
   if(!el || _pinLoading) return;
-  if(!el.dataset.built){
+  const firstOpen = !el.dataset.built;
+  if(firstOpen){
     el.dataset.built='1';
     el.innerHTML = `<div id="pin-body" class="info-note">Loading pin code directory…</div>`;
   }
   _pinLoading = true;
-  await Promise.all([pinLoadAreas(), pinLoadOverrides(false)]);
+  // Re-pull the live sheet every time this tab is (re)opened, not just the
+  // very first time — so an edit made directly in Google Sheets shows up as
+  // soon as you come back to this tab, without needing "Refresh live data".
+  // (The sheet is the source of truth either direction: chat-driven updates
+  // write to it via update_pincode, this reads whatever is in it now.)
+  await Promise.all([pinLoadAreas(), pinLoadOverrides(!firstOpen)]);
   _pinLoading = false;
   pinRenderResults(true);
+  pinStartAutoRefresh();
+}
+
+// While the Pin Codes tab stays on screen, quietly re-pull the live sheet
+// every few seconds so changes made directly in Google Sheets appear here
+// almost immediately, with no click needed. Every dropdown (State/District/
+// FP/GP/SGP status) is rebuilt from whatever data comes back on each
+// render, so a brand-new status word typed straight into the sheet shows
+// up as a filter option automatically too — nothing here is hardcoded to
+// today's values. Self-stops the moment you navigate to a different tab,
+// and skips a tick while the browser tab itself isn't visible, or while a
+// fetch is still in flight (avoids piling up overlapping requests).
+const PIN_POLL_MS = 5000; // fastest practical interval for a plain HTTP poll — see note below
+function pinStartAutoRefresh(){
+  pinStopAutoRefresh();
+  _pinPollTimer = setInterval(async ()=>{
+    if(currentScreen!=='pincodes'){ pinStopAutoRefresh(); return; }
+    if(document.hidden || _pinLoading) return;
+    _pinLoading = true;
+    await pinLoadOverrides(true);
+    _pinLoading = false;
+    pinRenderResults();
+  }, PIN_POLL_MS);
+}
+function pinStopAutoRefresh(){
+  if(_pinPollTimer){ clearInterval(_pinPollTimer); _pinPollTimer=null; }
 }
 
 // ────────────────────────────────────────────────────
