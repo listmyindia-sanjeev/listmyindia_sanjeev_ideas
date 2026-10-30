@@ -1339,7 +1339,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
            duplicating it, which is what ate up space on phones. --&gt;
       &lt;div class=&quot;mbhl-artifact-pin&quot; id=&quot;mbhlArtifactPin&quot;&gt;
         &lt;div class=&quot;canvas-frame&quot; id=&quot;mbhlCanvasFrame&quot;&gt;
-          &lt;canvas id=&quot;mbhlCanvas&quot; width=&quot;1080&quot; height=&quot;1080&quot; aria-label=&quot;मैं भी हूँ Listed badge preview — drag the photo to reposition it&quot;&gt;&lt;/canvas&gt;
+          &lt;canvas id=&quot;mbhlCanvas&quot; width=&quot;1260&quot; height=&quot;1260&quot; aria-label=&quot;मैं भी हूँ Listed badge preview — drag the photo to reposition it&quot;&gt;&lt;/canvas&gt;
         &lt;/div&gt;
         &lt;p class=&quot;preview-caption&quot;&gt;Drag the photo above to reposition it&lt;/p&gt;
       &lt;/div&gt;
@@ -1436,7 +1436,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
 
     &lt;div class=&quot;panel preview-panel mbhl-download-panel&quot;&gt;
       &lt;p class=&quot;section-title&quot;&gt;Download&lt;/p&gt;
-      &lt;p class=&quot;preview-caption&quot;&gt;Share-ready badge &amp;middot; 1080&amp;times;1080px &amp;mdash; see the live preview pinned above as you fill in your details.&lt;/p&gt;
+      &lt;p class=&quot;preview-caption&quot;&gt;Share-ready badge &amp;middot; 1260&amp;times;1260px &amp;mdash; see the live preview pinned above as you fill in your details.&lt;/p&gt;
       &lt;div class=&quot;dl-row&quot;&gt;
         &lt;button class=&quot;btn-primary&quot; id=&quot;mbhlDownloadBtn&quot; type=&quot;button&quot; disabled&gt;Download PNG&lt;/button&gt;
         &lt;button class=&quot;btn-ghost&quot; id=&quot;mbhlShareBtn&quot; type=&quot;button&quot; disabled&gt;Share&lt;/button&gt;
@@ -2943,23 +2943,19 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
 
     var part1 = &#x27;मैं भी हूँ, &#x27;;
     var part2 = &#x27;Listed!&#x27;;
-    var size = h * 0.5;
+    var size = h * 0.75;
     pctx.font = &#x27;800 &#x27; + size + &#x27;px &quot;Noto Sans Devanagari&quot;, sans-serif&#x27;;
     var textW = pctx.measureText(part1 + part2).width;
 
-    // breathing room and curl size — asymmetric on purpose. The corner
-    // this sash crosses sits close to the canvas&#x27;s own top edge, so the
-    // upper-right end has only a little real estate before it runs off
-    // the page; the lower-left end, toward the card&#x27;s own corner, has
-    // plenty. One shared size either starves the roomy side or clips the
-    // tight side clean off, so each end gets its own gap and its own
-    // curl reach, sized to what that side can actually hold.
-    var endGapL = h * 1.0;    // lower-left end — plenty of room
-    var endGapR = 0;          // upper-right end — flush against the text,
-                               // no extra room to spare
-    var flapWL = h * 0.95;    // lower-left curl — full, chunky roll
-    var flapWR = h * 0.36;    // upper-right curl — smaller so it stays
-                               // completely on-canvas instead of clipping
+    // breathing room and curl size — now even on both ends. The canvas
+    // carries dedicated transparent margin around the card (see
+    // mbhlDraw) specifically so both rolled ends can be this size
+    // without either one clipping against an edge.
+    var endGapL = h * 0.67;
+    var endGapR = h * 0.67;
+    var flapWL = h * 0.62;    // tighter roll, proportioned like the
+    var flapWR = h * 0.62;    // reference&#x27;s rolled paper tip — not a wide
+                               // pill cap — both ends alike
     var bandX0 = cx - textW / 2 - endGapL;
     var bandX1 = cx + textW / 2 + endGapR;
     var bandW = bandX1 - bandX0;
@@ -2981,70 +2977,66 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.fillRect(x0, y0 + h * 0.18, totalW, h);
     pctx.restore();
 
-    // 2. rolled/curled end caps — the ribbon material visibly scrolls
-    // back on itself at each end: a rounded bulge (not a pointed flag
-    // tail) shaded like a small cylinder — a highlight where its curve
-    // catches the light, easing back to the base red, then a dark
-    // crescent at the very tip where the roll tucks into its own shadow
+    // 2. rolled/curled end caps — a true stadium/capsule shape (a short
+    // straight run off the band, then a full half-ellipse cap), not a
+    // shape that tapers to a point. That&#x27;s what reads as an actual paper
+    // roll viewed from the side rather than a decorative pointed flag
+    // tail: a highlight sweeping across the curve where it catches the
+    // light, and a dark crescent along the far rim where the roll tucks
+    // back into its own shadow.
     function drawCurl(atLeft){
       var dir = atLeft ? -1 : 1;
       var baseX = atLeft ? bandX0 : bandX1;
       var flapW = atLeft ? flapWL : flapWR;
+      var straightLen = flapW * 0.1;
+      var capCx = baseX + dir * straightLen;
+      var rx = flapW - straightLen;
+      var ry = h / 2;
       var tipX = baseX + dir * flapW;
+      var startAngle = -Math.PI / 2, endAngle = Math.PI / 2;
 
       pctx.save();
       pctx.beginPath();
       pctx.moveTo(baseX, y0);
-      pctx.bezierCurveTo(
-        baseX + dir * flapW * 0.58, y0 + h * 0.03,
-        tipX, y0 + h * 0.2,
-        tipX, cy
-      );
-      pctx.bezierCurveTo(
-        tipX, y1 - h * 0.2,
-        baseX + dir * flapW * 0.58, y1 - h * 0.03,
-        baseX, y1
-      );
+      pctx.lineTo(capCx, y0);
+      pctx.ellipse(capCx, cy, rx, ry, 0, startAngle, endAngle, dir &lt; 0);
+      pctx.lineTo(baseX, y1);
       pctx.closePath();
 
       var curlGrad = pctx.createLinearGradient(baseX, 0, tipX, 0);
       curlGrad.addColorStop(0, RED_BASE);
-      curlGrad.addColorStop(0.42, RED_LIGHT);
-      curlGrad.addColorStop(0.74, RED_BASE);
+      curlGrad.addColorStop(0.5, RED_LIGHT);
+      curlGrad.addColorStop(0.8, RED_BASE);
       curlGrad.addColorStop(1, RED_DARK);
       pctx.fillStyle = curlGrad;
       pctx.fill();
 
-      // thin dark crescent right at the tip — the rolled-open edge,
-      // where the scroll curls fully back and falls into shadow
-      pctx.beginPath();
-      pctx.moveTo(tipX - dir * h * 0.06, cy - h * 0.17);
-      pctx.bezierCurveTo(
-        tipX, cy - h * 0.09,
-        tipX, cy + h * 0.09,
-        tipX - dir * h * 0.06, cy + h * 0.17
-      );
-      pctx.bezierCurveTo(
-        tipX - dir * h * 0.2, cy + h * 0.07,
-        tipX - dir * h * 0.2, cy - h * 0.07,
-        tipX - dir * h * 0.06, cy - h * 0.17
-      );
-      pctx.closePath();
-      pctx.fillStyle = RED_DARK;
-      pctx.globalAlpha = 0.82;
-      pctx.fill();
-      pctx.globalAlpha = 1;
-
-      // soft highlight tracing the curl&#x27;s outer edge
+      // dark crescent along the far rim of the roll (the side away from
+      // the band) — the shadowed underside where the scroll curls back
+      // on itself
+      var farAngle = dir &gt; 0 ? 0 : Math.PI;
+      pctx.save();
       pctx.beginPath();
       pctx.moveTo(baseX, y0);
-      pctx.bezierCurveTo(
-        baseX + dir * flapW * 0.58, y0 + h * 0.03,
-        tipX, y0 + h * 0.2,
-        tipX, cy
-      );
-      pctx.strokeStyle = &#x27;rgba(255,255,255,0.5)&#x27;;
-      pctx.lineWidth = Math.max(1, h * 0.02);
+      pctx.lineTo(capCx, y0);
+      pctx.ellipse(capCx, cy, rx, ry, 0, startAngle, endAngle, dir &lt; 0);
+      pctx.lineTo(baseX, y1);
+      pctx.closePath();
+      pctx.clip();
+      pctx.beginPath();
+      pctx.ellipse(capCx, cy, rx * 0.8, ry * 0.8, 0, farAngle - 0.75, farAngle + 0.75, false);
+      pctx.strokeStyle = &#x27;#3F0706&#x27;;
+      pctx.globalAlpha = 0.75;
+      pctx.lineWidth = h * 0.16;
+      pctx.stroke();
+      pctx.restore();
+
+      // soft highlight along the curl&#x27;s top rim, where its curve
+      // catches the light from above
+      pctx.beginPath();
+      pctx.ellipse(capCx, cy, rx, ry, 0, startAngle - 0.1, startAngle + 1.15, false);
+      pctx.strokeStyle = &#x27;rgba(255,255,255,0.65)&#x27;;
+      pctx.lineWidth = Math.max(1, h * 0.03);
       pctx.stroke();
       pctx.restore();
     }
@@ -3082,14 +3074,26 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.restore();
 
     // 6. two-tone headline, centred in the flat band — the Devanagari
-    // part stays white, &quot;Listed!&quot; picked out in gold for contrast
+    // part stays white with a hairline dark outline for crisp definition
+    // against the red, &quot;Listed!&quot; in solid black with no outline or
+    // shadow at all: a single clean fill, not the soft offset-duplicate
+    // &quot;emboss&quot; used before (that doubled-up copy is what read as hazy).
     var w1 = pctx.measureText(part1).width;
     var startX = cx - textW / 2;
     var textY = cy + h * 0.03;
     pctx.textAlign = &#x27;left&#x27;;
     pctx.textBaseline = &#x27;middle&#x27;;
-    mbhlDrawEmbossedText(pctx, part1, startX, textY, &#x27;#FFFFFF&#x27;);
-    mbhlDrawEmbossedText(pctx, part2, startX + w1, textY, &#x27;#FFC933&#x27;);
+
+    pctx.lineJoin = &#x27;round&#x27;;
+    pctx.miterLimit = 2;
+    pctx.lineWidth = Math.max(1, h * 0.02);
+    pctx.strokeStyle = RED_DARK;
+    pctx.strokeText(part1, startX, textY);
+    pctx.fillStyle = &#x27;#FFFFFF&#x27;;
+    pctx.fillText(part1, startX, textY);
+
+    pctx.fillStyle = &#x27;#1A1A1A&#x27;;
+    pctx.fillText(part2, startX + w1, textY);
 
     pctx.restore();
   }
@@ -3429,14 +3433,34 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   // ---- main draw ----
   function mbhlDraw(){
     if (!mbhlReady()){ return; } // re-invoked once fonts/ring image resolve
-    var W = mbhlCanvas.width, H = mbhlCanvas.height; // kept square
+
+    // The card itself (background/ring/photo/logo/info panel) is always
+    // laid out at a fixed 1080×1080, exactly as before — every fraction
+    // below still means what it always meant. The canvas element itself
+    // is bigger than that: marginLeft/marginTop is the extra room we&#x27;ve
+    // carved out at the TOP and LEFT specifically so the ribbon&#x27;s rolled
+    // ends have somewhere to go without being clipped by the card&#x27;s own
+    // edge. Everything is shifted into the bottom-right of the canvas by
+    // that margin, and the margin area itself is left fully transparent
+    // (nothing else ever draws there) — the ribbon is the only thing
+    // allowed to paint into it, once the card&#x27;s own clip is lifted below.
+    var canvasW = mbhlCanvas.width, canvasH = mbhlCanvas.height;
+    var W = 1080, H = 1080; // fixed card size — unchanged from before
+    var marginLeft = canvasW - W;
+    var marginTop = canvasH - H;
     var cx = W / 2;
 
-    mbhlCtx.clearRect(0, 0, W, H);
+    mbhlCtx.clearRect(0, 0, canvasW, canvasH);
 
-    // round the whole square canvas&#x27;s corners — clip everything that
-    // follows to a rounded-rect path, so the corners simply stay
-    // transparent (the canvas starts transparent via clearRect above)
+    mbhlCtx.save();
+    mbhlCtx.translate(marginLeft, marginTop);
+
+    // round the card&#x27;s own corners — clip everything that follows (the
+    // card&#x27;s background/ring/photo/logo/info panel) to a rounded-rect
+    // path, so the card&#x27;s own corners stay transparent. This clip is
+    // lifted again further down, before the ribbon is drawn, so the
+    // ribbon&#x27;s rolled ends are free to extend past the card&#x27;s edge into
+    // the margin carved out above instead of being cut off by it.
     mbhlCtx.save();
     roundRect(mbhlCtx, 0, 0, W, H, W * 0.0667);
     mbhlCtx.clip();
@@ -3475,9 +3499,13 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     var ringBottom = holeCy + ringOuterR;
     var photoR = ringOuterR - ringBandW - W * MBHL_RING_PHOTO_GAP_FRAC;
     // Published for the drag handlers on mbhlCanvas (below) to hit-test
-    // against and to convert pointer movement into pan fractions.
-    mbhlLastHoleCx = holeCx;
-    mbhlLastHoleCy = holeCy;
+    // against and to convert pointer movement into pan fractions. The
+    // drag handler works in the canvas element&#x27;s own raw pixel space
+    // (getBoundingClientRect-scaled), which now includes the margin, so
+    // these need the same marginLeft/marginTop offset added back in —
+    // holeCx/holeCy above are card-local (pre-margin) coordinates.
+    mbhlLastHoleCx = holeCx + marginLeft;
+    mbhlLastHoleCy = holeCy + marginTop;
     mbhlLastPhotoR = photoR;
 
     // soft white halo and a drop shadow, both sized to stay fully
@@ -3568,20 +3596,6 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
       mbhlCtx.restore();
     }
 
-    // diagonal sash: starts a little above the photo&#x27;s vertical
-    // midpoint on the left and rises toward the upper-middle, like the
-    // crossing lines drawn across a cheque, rather than sitting flat as
-    // a horizontal strip at the bottom
-    // diagonal corner sash: crosses the top-left corner of the ring at
-    // 45 degrees, so it makes an equal angle with the top and the left
-    // side of the circle, instead of running parallel to either
-    mbhlCtx.save();
-    var cornerDist = ringOuterR - ringBandW * 0.2;
-    mbhlCtx.translate(holeCx - cornerDist * 0.7071, holeCy - cornerDist * 0.7071);
-    mbhlCtx.rotate(-45 * Math.PI / 180);
-    mbhlDrawRibbonBanner(mbhlCtx, 0, 0, W * 0.0833);
-    mbhlCtx.restore();
-
     // optional business logo, in its own round white plate on the
     // ring&#x27;s upper-right shoulder
     if (mbhlBizLogoImg){
@@ -3656,7 +3670,38 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
       mbhlDrawInfoPanel(mbhlCtx, cx, panelY, panelW, infoRows);
     }
 
-    mbhlCtx.restore(); // matches the rounded-square clip at the top
+    mbhlCtx.restore(); // matches the rounded-square clip at the top — the
+                        // card&#x27;s own clip is lifted here, so everything
+                        // from this point on can paint anywhere in the
+                        // margin carved out at the top of this function,
+                        // not just within the card&#x27;s own rounded-rect
+
+    // diagonal corner sash: crosses the top-left corner of the ring at
+    // 45 degrees, so it makes an equal angle with the top and the left
+    // side of the circle, instead of running parallel to either. Drawn
+    // AFTER the card&#x27;s own clip is lifted (immediately above) so its
+    // rolled ends can extend past the card&#x27;s edge into the transparent
+    // margin around it, instead of being cut off at the card&#x27;s border.
+    mbhlCtx.save();
+    var cornerDist = ringOuterR - ringBandW * 0.2;
+    // holeCx is simply the canvas half-width, but holeCy is pulled up by
+    // MBHL_RING_HOLE_CY_FRAC to leave room for the info panel below — so
+    // the ring&#x27;s own centre isn&#x27;t on a true 45° diagonal from this corner.
+    // Left uncorrected, that mismatch lands the two rolled ends at very
+    // different distances from their own nearest edge (the right-hand end
+    // reaching much further past the top border than the left-hand end
+    // reaches past the left border). Sliding the whole ribbon along its
+    // own length by this amount evens the two overshoots out, without
+    // touching either end&#x27;s size or shape — confirmed by measuring the
+    // rendered canvas (95px vs 24px of overshoot before this slide, ~60px
+    // each after).
+    var ribbonSlide = -(holeCx - holeCy) * 0.70710678;
+    mbhlCtx.translate(holeCx - cornerDist * 0.7071, holeCy - cornerDist * 0.7071);
+    mbhlCtx.rotate(-45 * Math.PI / 180);
+    mbhlDrawRibbonBanner(mbhlCtx, ribbonSlide, 0, W * 0.0833);
+    mbhlCtx.restore();
+
+    mbhlCtx.restore(); // matches the outer margin translate at the very top
   }
   window.mbhlDraw = mbhlDraw; // exposed so a forced re-render (e.g. after flipping window.MBHL_LED_EDGE_ON) can be triggered from outside this closure
 
