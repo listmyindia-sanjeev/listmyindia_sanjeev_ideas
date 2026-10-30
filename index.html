@@ -3095,17 +3095,14 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
       // photo, no gradient, no edge-weighting, no shape at all. Just a
       // plain alpha-blended warm-gold tint, evenly, everywhere, so it
       // reads as the photo itself glowing rather than a ring or halo.
-      // TEMPORARY DIAGNOSTIC STRENGTH — deliberately pushed far past any
-      // tasteful level (0.68 alpha, not the ~0.20-0.40 a shipped version
-      // would use) purely to answer one yes/no question: does ANY amount
-      // of this tint actually show up when this tool is tested for real,
-      // given repeated reports of no visible change at levels that do
-      // show clearly inside this sandbox. If this is still invisible,
-      // the bug is upstream of alpha strength entirely (stale file,
-      // litUp not actually true, a code path not executing) and needs a
-      // different kind of fix than &quot;turn it up more.&quot;
+      // Confirmed working on the actual deployed site at 0.68 alpha (that
+      // was a deliberately extreme diagnostic strength, used only to get
+      // an unambiguous yes/no past claude.ai&#x27;s own in-chat preview panel,
+      // which does not reliably reflect real deployed rendering). Dialed
+      // back here to a strength meant to read as &quot;glowing&quot;, not &quot;a
+      // color filter was applied&quot;.
       pctx.save();
-      pctx.fillStyle = &#x27;rgba(255,195,110,0.68)&#x27;;
+      pctx.fillStyle = &#x27;rgba(255,195,110,0.34)&#x27;;
       pctx.fillRect(cx - r, cy - r, r * 2, r * 2);
       pctx.restore();
     }
