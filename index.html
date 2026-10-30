@@ -2947,21 +2947,24 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.font = &#x27;800 &#x27; + size + &#x27;px &quot;Noto Sans Devanagari&quot;, sans-serif&#x27;;
     var textW = pctx.measureText(part1 + part2).width;
 
-    // breathing room between the text and each curl — asymmetric, because
-    // the corner this sash crosses has more clearance toward the lower-left
-    // (card corner) than toward the upper-right (canvas top edge): a single
-    // symmetric gap either sits too short on the roomy side or clips the
-    // curl clean off on the tight side, so each end gets its own reach.
-    var endGapL = h * 1.3;    // lower-left end — plenty of room, extend well
-                               // past the ring into the corner
-    var endGapR = h * 0.86;   // upper-right end — stays just short of the
-                               // canvas edge so its curl stays fully visible
-    var flapW = h * 0.46;     // reach of each rolled end curl
+    // breathing room and curl size — asymmetric on purpose. The corner
+    // this sash crosses sits close to the canvas&#x27;s own top edge, so the
+    // upper-right end has only a little real estate before it runs off
+    // the page; the lower-left end, toward the card&#x27;s own corner, has
+    // plenty. One shared size either starves the roomy side or clips the
+    // tight side clean off, so each end gets its own gap and its own
+    // curl reach, sized to what that side can actually hold.
+    var endGapL = h * 1.0;    // lower-left end — plenty of room
+    var endGapR = 0;          // upper-right end — flush against the text,
+                               // no extra room to spare
+    var flapWL = h * 0.95;    // lower-left curl — full, chunky roll
+    var flapWR = h * 0.36;    // upper-right curl — smaller so it stays
+                               // completely on-canvas instead of clipping
     var bandX0 = cx - textW / 2 - endGapL;
     var bandX1 = cx + textW / 2 + endGapR;
     var bandW = bandX1 - bandX0;
-    var x0 = bandX0 - flapW;
-    var totalW = (bandX1 + flapW) - x0;
+    var x0 = bandX0 - flapWL;
+    var totalW = (bandX1 + flapWR) - x0;
     var y0 = cy - h / 2, y1 = cy + h / 2;
 
     // exact palette lifted from the reference ribbon graphic
@@ -2986,6 +2989,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     function drawCurl(atLeft){
       var dir = atLeft ? -1 : 1;
       var baseX = atLeft ? bandX0 : bandX1;
+      var flapW = atLeft ? flapWL : flapWR;
       var tipX = baseX + dir * flapW;
 
       pctx.save();
@@ -3053,9 +3057,9 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.beginPath();
     pctx.rect(bandX0, y0, bandW, h);
     var bandGrad = pctx.createLinearGradient(0, y0, 0, y1);
-    bandGrad.addColorStop(0, &#x27;#F2484B&#x27;);
-    bandGrad.addColorStop(0.45, RED_BASE);
-    bandGrad.addColorStop(1, &#x27;#C81419&#x27;);
+    bandGrad.addColorStop(0, &#x27;#F0383B&#x27;);
+    bandGrad.addColorStop(0.5, RED_BASE);
+    bandGrad.addColorStop(1, &#x27;#D31B1F&#x27;);
     pctx.fillStyle = bandGrad;
     pctx.fill();
 
@@ -3575,7 +3579,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     var cornerDist = ringOuterR - ringBandW * 0.2;
     mbhlCtx.translate(holeCx - cornerDist * 0.7071, holeCy - cornerDist * 0.7071);
     mbhlCtx.rotate(-45 * Math.PI / 180);
-    mbhlDrawRibbonBanner(mbhlCtx, 0, 0, W * 0.09);
+    mbhlDrawRibbonBanner(mbhlCtx, 0, 0, W * 0.0833);
     mbhlCtx.restore();
 
     // optional business logo, in its own round white plate on the
