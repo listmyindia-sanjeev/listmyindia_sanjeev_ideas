@@ -3453,41 +3453,24 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     // ring accent is wanted back later.)
 
     if (logoBlackImg){
-      // Black/monochrome wordmark on a transparent background (no navy
-      // card baked in, unlike logoLightImg) — per feedback, swapped out
-      // the colour logo for a plain black one here. A soft white backing
-      // plate still sits behind it so it stays legible over the
-      // orange/green gradient in this corner, just white/neutral now
-      // instead of navy-coloured.
+      // Black/monochrome wordmark on a transparent background, drawn
+      // directly over whatever&#x27;s behind it — no backing plate any more
+      // (the white rounded-rect plate this used to sit on has been
+      // removed per feedback). Just a soft drop-shadow for definition
+      // against the orange/green gradient corner.
       // left edge is placed entirely to the right of the ring&#x27;s own
-      // centre, and the card is lifted comfortably above the ring&#x27;s
-      // topmost point, so the rectangle never intersects the ring&#x27;s
-      // circle at any corner — no touching, whatever size/shift these
-      // constants are tuned to.
+      // centre, and the logo is lifted comfortably above the ring&#x27;s
+      // topmost point, so it never overlaps the ring&#x27;s circle at any
+      // corner — no touching, whatever size/shift these constants are
+      // tuned to.
       var logoCardW = W * MBHL_LOGO_CARD_W_FRAC;
       var logoCardH = logoCardW * (logoBlackImg.height / logoBlackImg.width);
       var logoCardX = W * MBHL_LOGO_CARD_X_FRAC;
       var logoCardY = H * MBHL_LOGO_CARD_Y_FRAC;
-      var logoPad = logoCardH * 0.16;
       mbhlCtx.save();
-      try { mbhlCtx.filter = &#x27;drop-shadow(0 &#x27; + Math.round(W * 0.004) + &#x27;px &#x27; + Math.round(W * 0.01) + &#x27;px rgba(10,10,25,0.35))&#x27;; } catch (e){ /* unsupported — fine without it */ }
-      mbhlCtx.beginPath();
-      var rrX = logoCardX - logoPad, rrY = logoCardY - logoPad, rrW = logoCardW + logoPad * 2, rrH = logoCardH + logoPad * 2, rrR = logoCardH * 0.22;
-      if (typeof mbhlCtx.roundRect === &#x27;function&#x27;){
-        mbhlCtx.roundRect(rrX, rrY, rrW, rrH, rrR);
-      } else {
-        // manual rounded-rect path for browsers without native roundRect
-        mbhlCtx.moveTo(rrX + rrR, rrY);
-        mbhlCtx.arcTo(rrX + rrW, rrY, rrX + rrW, rrY + rrH, rrR);
-        mbhlCtx.arcTo(rrX + rrW, rrY + rrH, rrX, rrY + rrH, rrR);
-        mbhlCtx.arcTo(rrX, rrY + rrH, rrX, rrY, rrR);
-        mbhlCtx.arcTo(rrX, rrY, rrX + rrW, rrY, rrR);
-        mbhlCtx.closePath();
-      }
-      mbhlCtx.fillStyle = &#x27;#FFFFFF&#x27;;
-      mbhlCtx.fill();
-      mbhlCtx.restore();
+      try { mbhlCtx.filter = &#x27;drop-shadow(0 &#x27; + Math.round(W * 0.003) + &#x27;px &#x27; + Math.round(W * 0.008) + &#x27;px rgba(10,10,25,0.45))&#x27;; } catch (e){ /* unsupported — fine without it */ }
       mbhlCtx.drawImage(logoBlackImg, logoCardX, logoCardY, logoCardW, logoCardH);
+      mbhlCtx.restore();
     }
 
     // diagonal sash: starts a little above the photo&#x27;s vertical
