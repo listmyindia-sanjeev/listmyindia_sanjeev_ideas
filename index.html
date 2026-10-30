@@ -3060,19 +3060,23 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   }
 
   function mbhlDrawPhotoInto(pctx, img, cx, cy, r, zoom, offFracX, offFracY, litUp){
-    // plain photo by default. When litUp is true, the photo gets a
-    // brightness lift using ONLY a plain, flat-colour, alpha-blended
-    // fillRect under the browser&#x27;s default compositing mode (confirmed,
-    // by a diagnostic build, to render correctly everywhere this tool
-    // gets previewed — including inside this chat&#x27;s own sandboxed HTML
-    // preview). Earlier attempts relied on ctx.filter, getImageData
-    // pixel edits, and non-default blend modes (&#x27;overlay&#x27;/&#x27;soft-light&#x27;)
-    // — all of which turned out to be unreliable or invisible in that
-    // sandboxed preview even though they worked in a normal browser tab.
-    // A plain low-alpha fillRect is the one thing proven to work
-    // everywhere, so that&#x27;s what this uses, kept deliberately modest so
-    // it brightens without washing out (a heavy version of exactly this
-    // technique is what caused the &quot;hazy/milky&quot; complaints earlier).
+    // A flat alpha-blended colour overlay (what this used for most of
+    // this build) mixes every pixel toward the SAME target colour by the
+    // SAME amount regardless of how bright that pixel already was —
+    // which pulls highlights and shadows toward each other and reduces
+    // local contrast. That&#x27;s exactly why it read as &quot;muddy/flat&quot; rather
+    // than &quot;glowing&quot;: a real glow brightens what&#x27;s already bright more
+    // than it brightens what&#x27;s already dark, i.e. it needs to actually
+    // raise contrast, not flatten it. A flat fillRect overlay structurally
+    // cannot do that; ctx.filter&#x27;s brightness/contrast/saturate can,
+    // because it&#x27;s a per-pixel curve, not a uniform blend — and this
+    // exact technique (brightness(1.05) contrast(1.10) saturate(1.12))
+    // was the one version earlier in this build that got a direct &quot;yes,
+    // on track&quot; before being swapped out, wrongly, over a false &quot;doesn&#x27;t
+    // render&quot; signal from claude.ai&#x27;s own in-chat preview panel — proven
+    // unreliable once this was actually checked on the live deployed
+    // site. mbhlDrawLogoContain just above already relies on ctx.filter
+    // for its drop-shadow, so it&#x27;s already known-good in this codebase.
     var rect = mbhlPhotoRect(img, r, zoom, offFracX, offFracY);
     var dx = cx - rect.dw / 2 + rect.panX;
     var dy = cy - rect.dh / 2 + rect.panY;
@@ -3081,31 +3085,11 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.arc(cx, cy, r, 0, Math.PI * 2);
     pctx.closePath();
     pctx.clip();
-    pctx.drawImage(img, dx, dy, rect.dw, rect.dh);
     if (litUp){
-      // Any RADIAL gradient here — brightening toward the edge, or toward
-      // the centre, doesn&#x27;t matter — reads as a vignette, because that&#x27;s
-      // what a vignette is: an effect whose strength depends on distance
-      // from centre. That was the actual mistake in the last few passes,
-      // not the colour. Fixed by going back to what was confirmed to look
-      // right much earlier in this chat (a flat brightness/contrast/
-      // saturation lift applied evenly with ctx.filter, before switching
-      // to plain fillRect for rendering-compatibility reasons) — a single
-      // flat, uniform fillRect, same strength everywhere across the whole
-      // photo, no gradient, no edge-weighting, no shape at all. Just a
-      // plain alpha-blended warm-gold tint, evenly, everywhere, so it
-      // reads as the photo itself glowing rather than a ring or halo.
-      // Confirmed working on the actual deployed site at 0.68 alpha (that
-      // was a deliberately extreme diagnostic strength, used only to get
-      // an unambiguous yes/no past claude.ai&#x27;s own in-chat preview panel,
-      // which does not reliably reflect real deployed rendering). Dialed
-      // back here to a strength meant to read as &quot;glowing&quot;, not &quot;a
-      // color filter was applied&quot;.
-      pctx.save();
-      pctx.fillStyle = &#x27;rgba(255,195,110,0.34)&#x27;;
-      pctx.fillRect(cx - r, cy - r, r * 2, r * 2);
-      pctx.restore();
+      try { pctx.filter = &#x27;brightness(1.18) contrast(1.16) saturate(1.28)&#x27;; } catch (e){ /* unsupported — falls back to a plain draw below */ }
     }
+    pctx.drawImage(img, dx, dy, rect.dw, rect.dh);
+    pctx.filter = &#x27;none&#x27;;
     pctx.restore();
   }
 
