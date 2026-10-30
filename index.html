@@ -2810,9 +2810,9 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.save();
 
     var bands = [
-      { color: &#x27;#FF9933&#x27;, rFrac: 1 / 6 }, // outer saffron
-      { color: &#x27;#FFFFFF&#x27;, rFrac: 3 / 6 }, // middle white
-      { color: &#x27;#138808&#x27;, rFrac: 5 / 6 }  // inner green
+      { color: &#x27;#F7A34F&#x27;, rFrac: 1 / 6 }, // outer saffron — slightly softened from the flag-pure #FF9933 so the ring doesn&#x27;t out-contrast the (now brighter) photo
+      { color: &#x27;#F5F5F0&#x27;, rFrac: 3 / 6 }, // middle white — a touch off-white for the same reason
+      { color: &#x27;#359531&#x27;, rFrac: 5 / 6 }  // inner green — slightly softened from the flag-pure #138808
     ];
     bands.forEach(function(b){
       pctx.beginPath();
@@ -3086,7 +3086,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.closePath();
     pctx.clip();
     if (litUp){
-      try { pctx.filter = &#x27;brightness(1.27) contrast(1.20) saturate(1.36)&#x27;; } catch (e){ /* unsupported — falls back to a plain draw below */ }
+      try { pctx.filter = &#x27;brightness(1.34) contrast(1.23) saturate(1.44)&#x27;; } catch (e){ /* unsupported — falls back to a plain draw below */ }
     }
     pctx.drawImage(img, dx, dy, rect.dw, rect.dh);
     pctx.filter = &#x27;none&#x27;;
