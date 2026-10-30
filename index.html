@@ -2416,6 +2416,12 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   // bottom — both drawn fresh on every render, strictly on top of the
   // ring and the photo, so nothing can end up rendering behind the
   // photo the way the ribbon border once did.
+  // photo &quot;lit up&quot; enhancement — a direct brightness/contrast/saturation
+  // lift applied to every photo (default or uploaded), see litUp in
+  // mbhlDrawPhotoInto below. Shipped ON by default for every badge;
+  // exposed on window mainly so a before/after can still be forced from
+  // outside this closure for testing, without touching the draw code.
+  if (typeof window.MBHL_LED_EDGE_ON === &#x27;undefined&#x27;) window.MBHL_LED_EDGE_ON = true;
   var MBHL_RING_OUTER_R_FRAC = 0.422;   // outer ring radius, as a fraction of the canvas width — sized to use nearly the full canvas top-to-bottom once the ribbon and info panel below it are accounted for, instead of leaving a wide plain-background margin around it
   var MBHL_RING_BAND_W_FRAC = 0.076;    // tricolour band thickness, as a fraction of the canvas width
   var MBHL_RING_HOLE_CY_FRAC = 0.434;   // ring / photo centre, as a fraction of the canvas height
@@ -3053,37 +3059,132 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.restore();
   }
 
-  function mbhlDrawPhotoInto(pctx, img, cx, cy, r, zoom, offFracX, offFracY){
+  function mbhlDrawPhotoInto(pctx, img, cx, cy, r, zoom, offFracX, offFracY, litUp){
+    // plain photo by default. When litUp is true, the photo gets a
+    // brightness lift using ONLY a plain, flat-colour, alpha-blended
+    // fillRect under the browser&#x27;s default compositing mode (confirmed,
+    // by a diagnostic build, to render correctly everywhere this tool
+    // gets previewed — including inside this chat&#x27;s own sandboxed HTML
+    // preview). Earlier attempts relied on ctx.filter, getImageData
+    // pixel edits, and non-default blend modes (&#x27;overlay&#x27;/&#x27;soft-light&#x27;)
+    // — all of which turned out to be unreliable or invisible in that
+    // sandboxed preview even though they worked in a normal browser tab.
+    // A plain low-alpha fillRect is the one thing proven to work
+    // everywhere, so that&#x27;s what this uses, kept deliberately modest so
+    // it brightens without washing out (a heavy version of exactly this
+    // technique is what caused the &quot;hazy/milky&quot; complaints earlier).
     var rect = mbhlPhotoRect(img, r, zoom, offFracX, offFracY);
+    var dx = cx - rect.dw / 2 + rect.panX;
+    var dy = cy - rect.dh / 2 + rect.panY;
     pctx.save();
     pctx.beginPath();
     pctx.arc(cx, cy, r, 0, Math.PI * 2);
     pctx.closePath();
     pctx.clip();
+    pctx.drawImage(img, dx, dy, rect.dw, rect.dh);
+    if (litUp){
+      // Any RADIAL gradient here — brightening toward the edge, or toward
+      // the centre, doesn&#x27;t matter — reads as a vignette, because that&#x27;s
+      // what a vignette is: an effect whose strength depends on distance
+      // from centre. That was the actual mistake in the last few passes,
+      // not the colour. Fixed by going back to what was confirmed to look
+      // right much earlier in this chat (a flat brightness/contrast/
+      // saturation lift applied evenly with ctx.filter, before switching
+      // to plain fillRect for rendering-compatibility reasons) — a single
+      // flat, uniform fillRect, same strength everywhere across the whole
+      // photo, no gradient, no edge-weighting, no shape at all. Just a
+      // plain alpha-blended warm-gold tint, evenly, everywhere, so it
+      // reads as the photo itself glowing rather than a ring or halo.
+      // TEMPORARY DIAGNOSTIC STRENGTH — deliberately pushed far past any
+      // tasteful level (0.68 alpha, not the ~0.20-0.40 a shipped version
+      // would use) purely to answer one yes/no question: does ANY amount
+      // of this tint actually show up when this tool is tested for real,
+      // given repeated reports of no visible change at levels that do
+      // show clearly inside this sandbox. If this is still invisible,
+      // the bug is upstream of alpha strength entirely (stale file,
+      // litUp not actually true, a code path not executing) and needs a
+      // different kind of fix than &quot;turn it up more.&quot;
+      pctx.save();
+      pctx.fillStyle = &#x27;rgba(255,195,110,0.68)&#x27;;
+      pctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      pctx.restore();
+    }
+    pctx.restore();
+  }
 
-    // a gentle auto-brighten/contrast lift by default — most uploaded
-    // phone photos (and ID-style photos shot under flat indoor light)
-    // come out a little dim, so this lifts every photo automatically
-    // instead of leaving a dark upload looking dark on the badge
-    try { pctx.filter = &#x27;brightness(1.22) contrast(1.04) saturate(1.05)&#x27;; } catch (e){ /* unsupported — still fine without it */ }
-    pctx.drawImage(img, cx - rect.dw / 2 + rect.panX, cy - rect.dh / 2 + rect.panY, rect.dw, rect.dh);
-    try { pctx.filter = &#x27;none&#x27;; } catch (e){ /* ignore */ }
-
-    // soft &quot;spotlight&quot; glow over the upper portion of the photo, like a
-    // studio light from above — blended with &#x27;screen&#x27; so it only ever
-    // lightens, never discolours or washes out the photo; this is what
-    // lifts genuinely dim/underexposed photos the most, since &#x27;screen&#x27;
-    // brightens shadows proportionally more than it does highlights
+  // Soft radiant bloom straddling the photo&#x27;s own true edge (r) — half
+  // inside the photo, half spilling past it into the ring gap — so the
+  // light reads as escaping FROM the lit-up photo rather than sitting
+  // as a separate ring drawn on top of it. Deliberately modest blur and
+  // a short gradient range (only the outer ~20% of the photo&#x27;s radius)
+  // so this stays a glow at the rim, not a vignette across the photo.
+  function mbhlDrawPhotoBloomSpill(pctx, cx, cy, r, W){
     pctx.save();
     pctx.globalCompositeOperation = &#x27;screen&#x27;;
-    var spotGrad = pctx.createRadialGradient(cx, cy - r * 0.35, r * 0.05, cx, cy - r * 0.1, r * 1.3);
-    spotGrad.addColorStop(0, &#x27;rgba(255,255,255,0.26)&#x27;);
-    spotGrad.addColorStop(0.6, &#x27;rgba(255,255,255,0.1)&#x27;);
-    spotGrad.addColorStop(1, &#x27;rgba(255,255,255,0)&#x27;);
-    pctx.fillStyle = spotGrad;
+    pctx.beginPath();
+    pctx.arc(cx, cy, r, 0, Math.PI * 2);
+    pctx.clip();
+    var inner = pctx.createRadialGradient(cx, cy, r * 0.65, cx, cy, r);
+    inner.addColorStop(0, &#x27;rgba(255,255,255,0)&#x27;);
+    inner.addColorStop(1, &#x27;rgba(255,255,255,0.55)&#x27;);
+    pctx.fillStyle = inner;
     pctx.fillRect(cx - r, cy - r, r * 2, r * 2);
     pctx.restore();
 
+    // the actual spill past the photo&#x27;s edge, blurred so it bleeds
+    // outward softly rather than reading as a hard outline
+    pctx.save();
+    pctx.globalCompositeOperation = &#x27;screen&#x27;;
+    try { pctx.filter = &#x27;blur(&#x27; + Math.round(W * 0.016) + &#x27;px)&#x27;; } catch (e){ /* unsupported — spill just a touch crisper, still fine */ }
+    pctx.beginPath();
+    pctx.arc(cx, cy, r + W * 0.006, 0, Math.PI * 2);
+    pctx.strokeStyle = &#x27;rgba(255,255,255,0.9)&#x27;;
+    pctx.lineWidth = W * 0.028;
+    pctx.stroke();
+    pctx.restore();
+  }
+
+  // Crisp white LED-strip edge light, sitting right at the seam where
+  // the photo meets the ring&#x27;s inner bezel — mimicking a real LED
+  // strip glued behind a sign panel&#x27;s edge: a thin, bright, sharply
+  // defined line with only a tight halo around it. This is deliberately
+  // NOT a wide/diffuse glow or vignette — every earlier attempt at a
+  // broad warm wash across the photo was rejected by the user as
+  // looking hazy; the actual reference is sharp and narrow. The photo
+  // itself is left completely untouched (drawn plain in
+  // mbhlDrawPhotoInto above) — this only paints the seam around it.
+  function mbhlDrawPhotoEdgeLight(pctx, cx, cy, seamR, W){
+    // Called AFTER the ring is painted, centred exactly on the ring&#x27;s
+    // own inner seam (where its gold trim sits) — so this glows that
+    // seam toward white, like backlighting shining through the joint,
+    // rather than sitting underneath the ring where it gets painted
+    // over and disappears. Two screen-blended passes (screen is
+    // sub-additive, one coat reads as weak) build up a real glow, then
+    // a crisp opaque core on top keeps it reading as a sharp LED line
+    // rather than a soft haze.
+    pctx.save();
+    pctx.globalCompositeOperation = &#x27;screen&#x27;;
+    pctx.beginPath();
+    pctx.arc(cx, cy, seamR, 0, Math.PI * 2);
+    pctx.strokeStyle = &#x27;rgba(255,255,255,0.95)&#x27;;
+    pctx.lineWidth = W * 0.024;
+    try { pctx.shadowColor = &#x27;#ffffff&#x27;; pctx.shadowBlur = W * 0.018; } catch (e){ /* unsupported — halo just sharper, still fine */ }
+    pctx.stroke();
+    pctx.beginPath();
+    pctx.arc(cx, cy, seamR, 0, Math.PI * 2);
+    pctx.strokeStyle = &#x27;rgba(255,255,255,0.9)&#x27;;
+    pctx.lineWidth = W * 0.013;
+    pctx.stroke();
+    pctx.restore();
+
+    // crisp bright core, no blend trickery — the sharp line that reads
+    // as an actual LED strip rather than a haze
+    pctx.save();
+    pctx.beginPath();
+    pctx.arc(cx, cy, seamR, 0, Math.PI * 2);
+    pctx.strokeStyle = &#x27;#ffffff&#x27;;
+    pctx.lineWidth = W * 0.0065;
+    pctx.stroke();
     pctx.restore();
   }
 
@@ -3294,21 +3395,14 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     // the ring&#x27;s opaque paint masks any overshoot against its
     // hand-painted hole edge
     if (mbhlPhotoImg){
-      mbhlDrawPhotoInto(mbhlCtx, mbhlPhotoImg, holeCx, holeCy, photoR, mbhlPhotoZoom, mbhlPhotoOffFracX, mbhlPhotoOffFracY);
-
-      // subtle inner-edge vignette so the photo reads as recessed inside
-      // the ring rather than floating flat
-      mbhlCtx.save();
-      mbhlCtx.beginPath();
-      mbhlCtx.arc(holeCx, holeCy, photoR, 0, Math.PI * 2);
-      mbhlCtx.closePath();
-      mbhlCtx.clip();
-      var vigGrad = mbhlCtx.createRadialGradient(holeCx, holeCy, photoR * 0.72, holeCx, holeCy, photoR);
-      vigGrad.addColorStop(0, &#x27;rgba(0,0,0,0)&#x27;);
-      vigGrad.addColorStop(1, &#x27;rgba(0,0,0,0.42)&#x27;);
-      mbhlCtx.fillStyle = vigGrad;
-      mbhlCtx.fillRect(holeCx - photoR, holeCy - photoR, photoR * 2, photoR * 2);
-      mbhlCtx.restore();
+      // no inner-edge vignette here on purpose — a dark ring right at
+      // the photo&#x27;s edge fights against the backlit-glow look below,
+      // which wants the edge to read bright, not shadowed. No separate
+      // bloom overlay either (removed — it was reading as a hazy,
+      // washed-out &quot;milky&quot; look rather than a crisp, lit-up photo); the
+      // brightness/contrast/saturation lift inside mbhlDrawPhotoInto
+      // itself is what makes this read as lit up now.
+      mbhlDrawPhotoInto(mbhlCtx, mbhlPhotoImg, holeCx, holeCy, photoR, mbhlPhotoZoom, mbhlPhotoOffFracX, mbhlPhotoOffFracY, window.MBHL_LED_EDGE_ON);
     } else {
       mbhlDrawPlaceholderSilhouette(mbhlCtx, holeCx, holeCy, photoR);
     }
@@ -3337,6 +3431,12 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     mbhlCtx.restore();
 
     mbhlDrawTricolourRing(mbhlCtx, holeCx, holeCy, ringOuterR, ringBandW);
+
+    // (no separate ring-seam LED strip here — per feedback, the glow
+    // should come from the photo itself only: see the brightness lift
+    // and mbhlDrawPhotoBloomSpill call on the photo, above. Keeping
+    // mbhlDrawPhotoEdgeLight defined above, unused, in case a crisp
+    // ring accent is wanted back later.)
 
     if (logoLightImg){
       // left edge is placed entirely to the right of the ring&#x27;s own
@@ -3428,6 +3528,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
 
     mbhlCtx.restore(); // matches the rounded-square clip at the top
   }
+  window.mbhlDraw = mbhlDraw; // exposed so a forced re-render (e.g. after flipping window.MBHL_LED_EDGE_ON) can be triggered from outside this closure
 
   // Default download filename: business name + owner name + &quot;mai bhi hoon
   // listed&quot;, slugified, so saved files are easy to tell apart instead of
