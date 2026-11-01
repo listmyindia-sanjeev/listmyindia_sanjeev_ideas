@@ -1201,7 +1201,12 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     margin-top:10px;
   }
   .btn-ghost.small{padding:6px 14px; font-size:12px;}
+  .btn-ghost.small.active{background:var(--teal); border-color:var(--teal); color:#fff;}
   .mbhl-photo-adjust .hint{text-align:center;}
+  .mbhl-tune-rows{max-width:260px; margin:12px auto 0;}
+  .mbhl-tune-row{display:flex; align-items:center; gap:10px; margin-top:6px;}
+  .mbhl-tune-row label{font-size:12px; color:var(--muted); width:72px; flex:none; text-align:right;}
+  .mbhl-tune-row input[type=range]{flex:1; accent-color:var(--teal);}
 &lt;/style&gt;
 
 &lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&amp;family=IBM+Plex+Sans:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=Poppins:wght@700;800&amp;family=Caveat:wght@600;700&amp;family=Noto+Sans+Devanagari:wght@600;700;800&amp;display=swap&quot;&gt;
@@ -1339,7 +1344,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
            duplicating it, which is what ate up space on phones. --&gt;
       &lt;div class=&quot;mbhl-artifact-pin&quot; id=&quot;mbhlArtifactPin&quot;&gt;
         &lt;div class=&quot;canvas-frame&quot; id=&quot;mbhlCanvasFrame&quot;&gt;
-          &lt;canvas id=&quot;mbhlCanvas&quot; width=&quot;1260&quot; height=&quot;1260&quot; aria-label=&quot;मैं भी हूँ Listed badge preview — drag the photo to reposition it&quot;&gt;&lt;/canvas&gt;
+          &lt;canvas id=&quot;mbhlCanvas&quot; width=&quot;1320&quot; height=&quot;1320&quot; aria-label=&quot;मैं भी हूँ Listed badge preview — drag the photo to reposition it&quot;&gt;&lt;/canvas&gt;
         &lt;/div&gt;
         &lt;p class=&quot;preview-caption&quot;&gt;Drag the photo above to reposition it&lt;/p&gt;
       &lt;/div&gt;
@@ -1362,6 +1367,26 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
             &lt;button class=&quot;btn-ghost small&quot; id=&quot;mbhlCenterBtn&quot; type=&quot;button&quot;&gt;Center &amp;amp; reset zoom&lt;/button&gt;
           &lt;/div&gt;
           &lt;p class=&quot;hint&quot;&gt;Drag directly on the preview above to reposition your photo, and use the slider to zoom.&lt;/p&gt;
+
+          &lt;div class=&quot;mbhl-tune-rows&quot;&gt;
+            &lt;div class=&quot;mbhl-tune-row&quot;&gt;
+              &lt;label for=&quot;mbhlBrightnessSlider&quot;&gt;Brightness&lt;/label&gt;
+              &lt;input type=&quot;range&quot; id=&quot;mbhlBrightnessSlider&quot; min=&quot;50&quot; max=&quot;150&quot; step=&quot;1&quot; value=&quot;100&quot; aria-label=&quot;Brightness&quot;&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;mbhl-tune-row&quot;&gt;
+              &lt;label for=&quot;mbhlContrastSlider&quot;&gt;Contrast&lt;/label&gt;
+              &lt;input type=&quot;range&quot; id=&quot;mbhlContrastSlider&quot; min=&quot;50&quot; max=&quot;150&quot; step=&quot;1&quot; value=&quot;100&quot; aria-label=&quot;Contrast&quot;&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;mbhl-tune-row&quot;&gt;
+              &lt;label for=&quot;mbhlSaturateSlider&quot;&gt;Saturation&lt;/label&gt;
+              &lt;input type=&quot;range&quot; id=&quot;mbhlSaturateSlider&quot; min=&quot;50&quot; max=&quot;150&quot; step=&quot;1&quot; value=&quot;100&quot; aria-label=&quot;Saturation&quot;&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;mbhl-adjust-actions&quot;&gt;
+            &lt;button class=&quot;btn-ghost small&quot; id=&quot;mbhlDynamicBtn&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;&amp;#10024; Dynamic&lt;/button&gt;
+            &lt;button class=&quot;btn-ghost small&quot; id=&quot;mbhlResetLookBtn&quot; type=&quot;button&quot;&gt;Reset look&lt;/button&gt;
+          &lt;/div&gt;
+          &lt;p class=&quot;hint&quot;&gt;Fine-tune how your photo looks, or tap Dynamic for a one-tap brighter/punchier version.&lt;/p&gt;
         &lt;/div&gt;
 
         &lt;div class=&quot;field&quot;&gt;
@@ -2449,12 +2474,16 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   // bottom — both drawn fresh on every render, strictly on top of the
   // ring and the photo, so nothing can end up rendering behind the
   // photo the way the ribbon border once did.
-  // photo &quot;lit up&quot; enhancement — a direct brightness/contrast/saturation
-  // lift applied to every photo (default or uploaded), see litUp in
-  // mbhlDrawPhotoInto below. Shipped ON by default for every badge;
-  // exposed on window mainly so a before/after can still be forced from
-  // outside this closure for testing, without touching the draw code.
-  if (typeof window.MBHL_LED_EDGE_ON === &#x27;undefined&#x27;) window.MBHL_LED_EDGE_ON = true;
+  // Photo brightness/contrast/saturation are now a manual, per-badge
+  // adjustment (sliders below) instead of an automatic always-on lift —
+  // see mbhlPhotoBrightness/Contrast/Saturate, set from
+  // mbhlBrightnessSlider/mbhlContrastSlider/mbhlSaturateSlider, and
+  // applied in mbhlDrawPhotoInto. Defaults to neutral (1/1/1, i.e. the
+  // photo exactly as uploaded) until the person moves a slider or taps
+  // the &quot;Dynamic&quot; one-tap preset button, which dials in the
+  // brightness(1.05) contrast(1.10) saturate(1.12) values this build
+  // used to apply automatically to every photo.
+  var MBHL_DYNAMIC_PRESET = { brightness: 105, contrast: 110, saturate: 112 };
   var MBHL_RING_OUTER_R_FRAC = 0.422;   // outer ring radius, as a fraction of the canvas width — sized to use nearly the full canvas top-to-bottom once the ribbon and info panel below it are accounted for, instead of leaving a wide plain-background margin around it
   var MBHL_RING_BAND_W_FRAC = 0.076;    // tricolour band thickness, as a fraction of the canvas width
   var MBHL_RING_HOLE_CY_FRAC = 0.434;   // ring / photo centre, as a fraction of the canvas height
@@ -2492,6 +2521,11 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   var mbhlCanvasFrame = document.getElementById(&#x27;mbhlCanvasFrame&#x27;);
   var mbhlZoomSlider = document.getElementById(&#x27;mbhlZoomSlider&#x27;);
   var mbhlCenterBtn = document.getElementById(&#x27;mbhlCenterBtn&#x27;);
+  var mbhlBrightnessSlider = document.getElementById(&#x27;mbhlBrightnessSlider&#x27;);
+  var mbhlContrastSlider = document.getElementById(&#x27;mbhlContrastSlider&#x27;);
+  var mbhlSaturateSlider = document.getElementById(&#x27;mbhlSaturateSlider&#x27;);
+  var mbhlDynamicBtn = document.getElementById(&#x27;mbhlDynamicBtn&#x27;);
+  var mbhlResetLookBtn = document.getElementById(&#x27;mbhlResetLookBtn&#x27;);
 
   var mbhlPhotoImg = null;      // set once a real photo/logo is uploaded (or the default stock photo below, until then)
   var mbhlBizLogoImg = null;    // set once an optional business logo is uploaded
@@ -2508,6 +2542,14 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   var mbhlPhotoOffFracX = 0;
   var mbhlPhotoOffFracY = 0;
   var mbhlDragState = null;
+
+  // Manual photo look adjustment — plain multipliers (1 = unchanged),
+  // driven by the Brightness/Contrast/Saturation sliders or the Dynamic
+  // preset button; see MBHL_DYNAMIC_PRESET above.
+  var mbhlPhotoBrightness = 1;
+  var mbhlPhotoContrast = 1;
+  var mbhlPhotoSaturate = 1;
+  var mbhlDynamicOn = false;
 
   // The photo circle&#x27;s center/radius from the most recent mbhlDraw() call,
   // in the big canvas&#x27;s own 1080×1080 coordinate space — the drag handlers
@@ -2696,6 +2738,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     mbhlPhotoOffFracX = 0;
     mbhlPhotoOffFracY = 0;
     mbhlZoomSlider.value = 100;
+    mbhlResetPhotoLook();
     mbhlPhotoAdjustWrap.style.display = &#x27;&#x27;;
     mbhlClearError();
     mbhlSetButtonsEnabled(true);
@@ -2734,6 +2777,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
         mbhlPhotoOffFracX = 0;
         mbhlPhotoOffFracY = 0;
         mbhlZoomSlider.value = 100;
+        mbhlResetPhotoLook();
         mbhlPhotoAdjustWrap.style.display = &#x27;&#x27;;
         mbhlClearError();
         mbhlSetButtonsEnabled(true);
@@ -2823,6 +2867,56 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     mbhlPhotoOffFracX = 0;
     mbhlPhotoOffFracY = 0;
     mbhlZoomSlider.value = 100;
+    mbhlDraw();
+  });
+
+  // ---- photo look: Brightness/Contrast/Saturation sliders + Dynamic
+  // one-tap preset ----
+  function mbhlSetDynamicPressed(on){
+    mbhlDynamicOn = on;
+    mbhlDynamicBtn.setAttribute(&#x27;aria-pressed&#x27;, on ? &#x27;true&#x27; : &#x27;false&#x27;);
+    mbhlDynamicBtn.classList.toggle(&#x27;active&#x27;, on);
+  }
+  function mbhlResetPhotoLook(){
+    mbhlPhotoBrightness = 1;
+    mbhlPhotoContrast = 1;
+    mbhlPhotoSaturate = 1;
+    mbhlBrightnessSlider.value = 100;
+    mbhlContrastSlider.value = 100;
+    mbhlSaturateSlider.value = 100;
+    mbhlSetDynamicPressed(false);
+  }
+  mbhlBrightnessSlider.addEventListener(&#x27;input&#x27;, function(){
+    mbhlPhotoBrightness = Number(mbhlBrightnessSlider.value) / 100;
+    mbhlSetDynamicPressed(false); // manual tweak overrides the preset
+    mbhlDraw();
+  });
+  mbhlContrastSlider.addEventListener(&#x27;input&#x27;, function(){
+    mbhlPhotoContrast = Number(mbhlContrastSlider.value) / 100;
+    mbhlSetDynamicPressed(false);
+    mbhlDraw();
+  });
+  mbhlSaturateSlider.addEventListener(&#x27;input&#x27;, function(){
+    mbhlPhotoSaturate = Number(mbhlSaturateSlider.value) / 100;
+    mbhlSetDynamicPressed(false);
+    mbhlDraw();
+  });
+  mbhlDynamicBtn.addEventListener(&#x27;click&#x27;, function(){
+    if (mbhlDynamicOn){
+      mbhlResetPhotoLook();
+    } else {
+      mbhlPhotoBrightness = MBHL_DYNAMIC_PRESET.brightness / 100;
+      mbhlPhotoContrast = MBHL_DYNAMIC_PRESET.contrast / 100;
+      mbhlPhotoSaturate = MBHL_DYNAMIC_PRESET.saturate / 100;
+      mbhlBrightnessSlider.value = MBHL_DYNAMIC_PRESET.brightness;
+      mbhlContrastSlider.value = MBHL_DYNAMIC_PRESET.contrast;
+      mbhlSaturateSlider.value = MBHL_DYNAMIC_PRESET.saturate;
+      mbhlSetDynamicPressed(true);
+    }
+    mbhlDraw();
+  });
+  mbhlResetLookBtn.addEventListener(&#x27;click&#x27;, function(){
+    mbhlResetPhotoLook();
     mbhlDraw();
   });
 
@@ -2941,11 +3035,12 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
   function mbhlDrawRibbonBanner(pctx, cx, cy, h){
     pctx.save();
 
-    var part1 = &#x27;मैं भी हूँ, &#x27;;
+    var part0 = &#x27;हाँ&#x27;;
+    var part1 = &#x27;, मैं भी हूँ &#x27;;
     var part2 = &#x27;Listed!&#x27;;
     var size = h * 0.75;
     pctx.font = &#x27;800 &#x27; + size + &#x27;px &quot;Noto Sans Devanagari&quot;, sans-serif&#x27;;
-    var textW = pctx.measureText(part1 + part2).width;
+    var textW = pctx.measureText(part0 + part1 + part2).width;
 
     // breathing room and curl size — now even on both ends. The canvas
     // carries dedicated transparent margin around the card (see
@@ -3073,11 +3168,13 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.fill();
     pctx.restore();
 
-    // 6. two-tone headline, centred in the flat band — the Devanagari
-    // part stays white with a hairline dark outline for crisp definition
-    // against the red, &quot;Listed!&quot; in solid black with no outline or
-    // shadow at all: a single clean fill, not the soft offset-duplicate
-    // &quot;emboss&quot; used before (that doubled-up copy is what read as hazy).
+    // 6. headline, centred in the flat band — &quot;हाँ&quot; picked out in a warm
+    // gold (the badge&#x27;s saffron accent, echoing the tricolour this whole
+    // card is built around) so it reads as its own little &quot;yes&quot; stamp,
+    // while the rest of the line — both the Devanagari and &quot;Listed!&quot; —
+    // stays a uniform white. All three segments share the same hairline
+    // dark outline for crisp definition against the red band.
+    var w0 = pctx.measureText(part0).width;
     var w1 = pctx.measureText(part1).width;
     var startX = cx - textW / 2;
     var textY = cy + h * 0.03;
@@ -3088,12 +3185,70 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.miterLimit = 2;
     pctx.lineWidth = Math.max(1, h * 0.02);
     pctx.strokeStyle = RED_DARK;
-    pctx.strokeText(part1, startX, textY);
-    pctx.fillStyle = &#x27;#FFFFFF&#x27;;
-    pctx.fillText(part1, startX, textY);
 
-    pctx.fillStyle = &#x27;#1A1A1A&#x27;;
-    pctx.fillText(part2, startX + w1, textY);
+    pctx.strokeText(part0, startX, textY);
+    pctx.fillStyle = &#x27;#FFC107&#x27;;
+    pctx.fillText(part0, startX, textY);
+
+    pctx.strokeText(part1, startX + w0, textY);
+    pctx.fillStyle = &#x27;#FFFFFF&#x27;;
+    pctx.fillText(part1, startX + w0, textY);
+
+    pctx.strokeText(part2, startX + w0 + w1, textY);
+    pctx.fillStyle = &#x27;#FFFFFF&#x27;;
+    pctx.fillText(part2, startX + w0 + w1, textY);
+
+    pctx.restore();
+  }
+
+  // Matching corner flap — opposite diagonal (bottom-right) from the
+  // &quot;मैं भी हूँ Listed!&quot; ribbon at top-left. Per feedback, this is not a
+  // separate sticker with its own colour/text sitting near the ring —
+  // it&#x27;s the card&#x27;s own bottom-right corner (already green, from the
+  // tricolour background) pulled out into a point, like a folded dog-
+  // ear, so the card&#x27;s own silhouette reads as one big callout/speech-
+  // bubble shape tapering to a point at that corner, rather than a
+  // rectangle with a decorative shape glued onto it. cornerX/cornerY is
+  // the card&#x27;s own bottom-right corner (W,H, in the same card-local
+  // coordinate space everything else in mbhlDraw uses); the flap is
+  // drawn straddling that corner so its base sits on the card&#x27;s own
+  // edges and its tip extends out into the transparent margin exactly
+  // as far as the ribbon&#x27;s rolled end extends on the opposite corner.
+  function mbhlDrawCalloutBubble(pctx, cornerX, cornerY, h){
+    pctx.save();
+
+    var baseAmt = h * 2.4;    // how far up/left of the corner the base sits
+    var tailLen = h * 1.3;    // how far the tip pokes out past the corner
+
+    var p0x = cornerX, p0y = cornerY - baseAmt;        // on the card&#x27;s right edge
+    var p1x = cornerX - baseAmt, p1y = cornerY;         // on the card&#x27;s bottom edge
+    var diag = tailLen * 0.7071;
+    var p2x = cornerX + diag, p2y = cornerY + diag;     // tip, out past the corner
+
+    pctx.beginPath();
+    pctx.moveTo(p0x, p0y);
+    pctx.lineTo(p1x, p1y);
+    pctx.lineTo(p2x, p2y);
+    pctx.closePath();
+
+    // No shadow, no outline, no separate colour of its own — fill with
+    // the exact same vertical gradient (same stops, same 0..cornerY
+    // span) used for the card&#x27;s own background, so at every point along
+    // the seam where the flap meets the card the two are mathematically
+    // the same colour. That&#x27;s what makes this read as the running
+    // background itself pulled into a point, instead of a shape placed
+    // on top of it with its own edge. Past y = cornerY (the tip, out in
+    // the margin) a canvas gradient just holds the last stop&#x27;s colour,
+    // so the tip continues in the same solid green the corner already
+    // ends in.
+    var grad = pctx.createLinearGradient(0, 0, 0, cornerY);
+    grad.addColorStop(0.00, &#x27;#FF9933&#x27;);
+    grad.addColorStop(0.28, &#x27;#FFC878&#x27;);
+    grad.addColorStop(0.50, &#x27;#FFFFFF&#x27;);
+    grad.addColorStop(0.72, &#x27;#8CC882&#x27;);
+    grad.addColorStop(1.00, &#x27;#46A050&#x27;);
+    pctx.fillStyle = grad;
+    pctx.fill();
 
     pctx.restore();
   }
@@ -3191,24 +3346,15 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.restore();
   }
 
-  function mbhlDrawPhotoInto(pctx, img, cx, cy, r, zoom, offFracX, offFracY, litUp){
-    // A flat alpha-blended colour overlay (what this used for most of
-    // this build) mixes every pixel toward the SAME target colour by the
-    // SAME amount regardless of how bright that pixel already was —
-    // which pulls highlights and shadows toward each other and reduces
-    // local contrast. That&#x27;s exactly why it read as &quot;muddy/flat&quot; rather
-    // than &quot;glowing&quot;: a real glow brightens what&#x27;s already bright more
-    // than it brightens what&#x27;s already dark, i.e. it needs to actually
-    // raise contrast, not flatten it. A flat fillRect overlay structurally
-    // cannot do that; ctx.filter&#x27;s brightness/contrast/saturate can,
-    // because it&#x27;s a per-pixel curve, not a uniform blend — and this
-    // exact technique (brightness(1.05) contrast(1.10) saturate(1.12))
-    // was the one version earlier in this build that got a direct &quot;yes,
-    // on track&quot; before being swapped out, wrongly, over a false &quot;doesn&#x27;t
-    // render&quot; signal from claude.ai&#x27;s own in-chat preview panel — proven
-    // unreliable once this was actually checked on the live deployed
-    // site. mbhlDrawLogoContain just above already relies on ctx.filter
-    // for its drop-shadow, so it&#x27;s already known-good in this codebase.
+  function mbhlDrawPhotoInto(pctx, img, cx, cy, r, zoom, offFracX, offFracY, brightness, contrast, saturate){
+    // A flat alpha-blended colour overlay mixes every pixel toward the
+    // SAME target colour by the SAME amount regardless of how bright
+    // that pixel already was — which pulls highlights and shadows toward
+    // each other and reduces local contrast, reading as &quot;muddy/flat&quot;
+    // rather than crisp. ctx.filter&#x27;s brightness/contrast/saturate is a
+    // per-pixel curve instead of a uniform blend, so that&#x27;s what this
+    // still uses — now driven by the person&#x27;s own slider values (or left
+    // untouched at 1/1/1) instead of a fixed always-on lift.
     var rect = mbhlPhotoRect(img, r, zoom, offFracX, offFracY);
     var dx = cx - rect.dw / 2 + rect.panX;
     var dy = cy - rect.dh / 2 + rect.panY;
@@ -3217,8 +3363,8 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     pctx.arc(cx, cy, r, 0, Math.PI * 2);
     pctx.closePath();
     pctx.clip();
-    if (litUp){
-      try { pctx.filter = &#x27;brightness(1.34) contrast(1.23) saturate(1.44)&#x27;; } catch (e){ /* unsupported — falls back to a plain draw below */ }
+    if (brightness !== 1 || contrast !== 1 || saturate !== 1){
+      try { pctx.filter = &#x27;brightness(&#x27; + brightness + &#x27;) contrast(&#x27; + contrast + &#x27;) saturate(&#x27; + saturate + &#x27;)&#x27;; } catch (e){ /* unsupported — falls back to a plain draw below */ }
     }
     pctx.drawImage(img, dx, dy, rect.dw, rect.dh);
     pctx.filter = &#x27;none&#x27;;
@@ -3446,8 +3592,15 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     // allowed to paint into it, once the card&#x27;s own clip is lifted below.
     var canvasW = mbhlCanvas.width, canvasH = mbhlCanvas.height;
     var W = 1080, H = 1080; // fixed card size — unchanged from before
-    var marginLeft = canvasW - W;
-    var marginTop = canvasH - H;
+    // Margin is now split evenly on every side (was: all of it piled on
+    // top+left, for the ribbon&#x27;s rolled ends only) so the 1080x1080 card
+    // — and the ring/photo centred within it — sits visually centred in
+    // the full exported canvas. The matching callout bubble in the
+    // opposite (bottom-right) corner, drawn further below, uses the same
+    // amount of space the ribbon uses at top-left, so all four sides of
+    // the final image carry the same margin.
+    var marginLeft = (canvasW - W) / 2;
+    var marginTop = (canvasH - H) / 2;
     var cx = W / 2;
 
     mbhlCtx.clearRect(0, 0, canvasW, canvasH);
@@ -3539,7 +3692,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
       // washed-out &quot;milky&quot; look rather than a crisp, lit-up photo); the
       // brightness/contrast/saturation lift inside mbhlDrawPhotoInto
       // itself is what makes this read as lit up now.
-      mbhlDrawPhotoInto(mbhlCtx, mbhlPhotoImg, holeCx, holeCy, photoR, mbhlPhotoZoom, mbhlPhotoOffFracX, mbhlPhotoOffFracY, window.MBHL_LED_EDGE_ON);
+      mbhlDrawPhotoInto(mbhlCtx, mbhlPhotoImg, holeCx, holeCy, photoR, mbhlPhotoZoom, mbhlPhotoOffFracX, mbhlPhotoOffFracY, mbhlPhotoBrightness, mbhlPhotoContrast, mbhlPhotoSaturate);
     } else {
       mbhlDrawPlaceholderSilhouette(mbhlCtx, holeCx, holeCy, photoR);
     }
@@ -3666,9 +3819,12 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     if (hasOwner) infoRows.push({ h: 40, text: ownerLine, has: true });
     if (hasBiz) infoRows.push({ h: 40, text: bizLine, has: true });
     if (hasLoc) infoRows.push({ h: 52, text: locText, mono: true });
-    if (infoRows.length){
-      mbhlDrawInfoPanel(mbhlCtx, cx, panelY, panelW, infoRows);
-    }
+    // The actual mbhlDrawInfoPanel(...) call is made further below, AFTER
+    // the ribbon and the green corner flap are drawn — not here — so the
+    // white info panel paints on top of the flap wherever the two
+    // overlap, instead of the flap&#x27;s opaque green covering part of the
+    // panel. cx/panelY/panelW/infoRows are plain vars, so they&#x27;re still
+    // in scope down there.
 
     mbhlCtx.restore(); // matches the rounded-square clip at the top — the
                         // card&#x27;s own clip is lifted here, so everything
@@ -3700,6 +3856,19 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
     mbhlCtx.rotate(-45 * Math.PI / 180);
     mbhlDrawRibbonBanner(mbhlCtx, ribbonSlide, 0, W * 0.0833);
     mbhlCtx.restore();
+
+    // green corner flap on the card&#x27;s own bottom-right corner, opposite
+    // the ribbon — anchored directly to the card&#x27;s own corner (W,H) in
+    // this same card-local space, not the ring, so it reads as the
+    // card&#x27;s own edge pulled into a point rather than a shape floating
+    // near the ring
+    mbhlDrawCalloutBubble(mbhlCtx, W, H, W * 0.0833);
+
+    // info panel is drawn last, on top of everything above (including the
+    // green corner flap), so it&#x27;s never partially covered by the flap
+    if (infoRows.length){
+      mbhlDrawInfoPanel(mbhlCtx, cx, panelY, panelW, infoRows);
+    }
 
     mbhlCtx.restore(); // matches the outer margin translate at the very top
   }
