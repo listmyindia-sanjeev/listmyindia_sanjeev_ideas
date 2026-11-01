@@ -649,7 +649,7 @@ select.pin-select:disabled ~ .pin-select-arrow{stroke:#94A3B8}
         <div class="tile-icon" style="background:#ECFDF5">🏪</div>
         <div class="tile-text">
           <div class="tile-title">Franchise Tiers</div>
-          <div class="tile-desc">Bronze · Silver · Gold · Kit ₹65,000 bundled</div>
+          <div class="tile-desc">Bronze · Silver · Gold · Kit ₹85,000 bundled</div>
         </div>
         <div class="tile-chevron">›</div>
       </div>
@@ -4049,17 +4049,17 @@ const PAC_DB = {"400058":{"sgp":"Manoj Pandit","gp":null,"fp":null,"district":"M
 
 const TIERS = [
   {key:'bronze',name:'LMI Bronze',cls:'bronze',mrp:100000,fee:50000,youngFee:25000,womenFee:25000,
-    share:0.30,kitFee:65000,marketing:5000,officeSetup:'Optional',bestFor:'First-time, solo starters',
+    share:0.30,kitFee:85000,marketing:5000,officeSetup:'Optional',bestFor:'First-time, solo starters',
     youngOk:true,womenOk:true,waiver:true,launchAd:0,launchAdOptional:40000,
-    totalStart:135700,totalStartYoung:106200,totalStartWaiver:76700},
+    totalStart:159300,totalStartYoung:129800,totalStartWaiver:100300},
   {key:'silver',name:'LMI Silver',cls:'silver',mrp:200000,fee:100000,youngFee:50000,womenFee:50000,
-    share:0.40,kitFee:65000,marketing:9000,officeSetup:'Optional',bestFor:'Serious, full-time operators',
+    share:0.40,kitFee:85000,marketing:9000,officeSetup:'Optional',bestFor:'Serious, full-time operators',
     youngOk:true,womenOk:true,waiver:false,launchAd:40000,
-    totalStart:234700,totalStartYoung:175700},
+    totalStart:258300,totalStartYoung:199300},
   {key:'gold',name:'LMI Gold',cls:'gold',mrp:600000,fee:300000,youngFee:null,womenFee:null,
-    share:0.55,kitFee:65000,marketing:10000,officeSetup:'Mandatory · Min. 200 sq.ft',bestFor:'Building a small team-led office',
+    share:0.55,kitFee:85000,marketing:10000,officeSetup:'Mandatory · Min. 200 sq.ft',bestFor:'Building a small team-led office',
     youngOk:false,womenOk:false,waiver:false,launchAd:40000,
-    totalStart:470700},
+    totalStart:494300},
 ];
 
 const SLABS = [
@@ -4299,17 +4299,17 @@ function renderTierCards(){
         <div class="tier-row"><span class="t-label">Limited period offer</span><span class="t-val">${fc(t.fee)} <span style="font-size:9px;font-weight:400">+GST</span></span></div>
         <div class="tier-row"><span class="t-label">Young (&lt;30 yrs)</span><span>${t.youngOk?'<span class="t-val" style="color:#166534">'+fc(t.youngFee)+'</span>':'<span class="badge badge-na">N/A</span>'}</span></div>
         <div class="tier-row"><span class="t-label">Women (&lt;50 yrs)</span><span>${t.womenOk?'<span class="t-val" style="color:#166534">'+fc(t.womenFee)+'</span>':'<span class="badge badge-na">N/A</span>'}</span></div>
-        <div class="tier-row"><span class="t-label">Franchise Kit</span><span>₹65,000 <span class="badge badge-opt">Incl.</span></span></div>
+        <div class="tier-row"><span class="t-label">Franchise Kit</span><span>₹85,000 <span class="badge badge-opt">Incl.</span></span></div>
         <div class="tier-row"><span class="t-label">Marketing min./mo</span><span class="t-val">${fc(t.marketing)} <span style="font-size:9px;font-weight:400;color:var(--text-tertiary)">(or 5% of gross, whichever higher)</span></span></div>
         <div class="tier-row"><span class="t-label">Launch Advertising</span><span class="badge ${t.key==='bronze'?'badge-opt':'badge-req'}">${t.key==='bronze'?'Optional · ₹40,000 if opted':'Mandatory · min ₹40,000'}</span></div>
         <div class="tier-row"><span class="t-label">Office</span><span style="font-size:10px">${t.key==='gold'?'<span class="badge badge-req">Mandatory ≥200 sq.ft</span>':'<span class="badge badge-opt">Optional</span>'}</span></div>
         <div class="total-invest">
           <div style="font-size:9.5px;color:var(--text-tertiary);margin-bottom:2px">TOTAL TO START (INCL. GST)</div>
           <div class="amount">${fc(t.totalStart)}</div>
-          <div style="font-size:9.5px;color:var(--text-tertiary);margin-top:2px">Fee ${fc(t.fee)} + Kit ₹65,000 + GST${t.launchAd?` + Launch Advertising ₹${t.launchAd.toLocaleString('en-IN')}`:''}</div>
+          <div style="font-size:9.5px;color:var(--text-tertiary);margin-top:2px">Fee ${fc(t.fee)} + Kit ₹85,000 + GST${t.launchAd?` + Launch Advertising ₹${t.launchAd.toLocaleString('en-IN')}`:''}</div>
           <div style="font-size:9.5px;color:var(--text-tertiary);margin-top:1px">${t.launchAd?`Includes Launch Advertising (min. ₹${t.launchAd.toLocaleString('en-IN')}) — you spend this directly on your own local ads, it isn't collected by the Company, but it's still part of the funds you need to arrange upfront.`:`Launch Advertising is optional here (₹${t.launchAdOptional.toLocaleString('en-IN')} if opted) — spent directly by you, not included above, not paid to the Company.`}</div>
           ${t.youngOk?`<div style="font-size:9.5px;color:#166534;margin-top:3px">Young/Women: ${fc(t.totalStartYoung||0)} (discounted)</div>`:''}
-          ${t.waiver?`<div style="font-size:9.5px;color:#991B1B;margin-top:2px">Special Needs Waiver: ₹76,700 (fee waived)</div>`:''}
+          ${t.waiver?`<div style="font-size:9.5px;color:#991B1B;margin-top:2px">Special Needs Waiver: ₹1,00,300 (fee waived)</div>`:''}
         </div>
         <div class="highlight-box" style="margin:8px 0;font-size:10px">🎁 <strong>Referral bonus:</strong> Earn 1 month's plan value for every business you personally refer — paid on first subscription.</div>
         <button class="submit-btn" style="width:100%;font-size:11.5px" onclick="navScreen('pincodes')">Check Pincode Availability →</button>
@@ -4317,18 +4317,19 @@ function renderTierCards(){
     </div>
   </div>
   <div class="card">
-    <div class="card-title">📦 Franchise Kit — ₹65,000 · One-Time · Included in all tiers</div>
+    <div class="card-title">📦 Franchise Kit — ₹85,000 · One-Time · Included in all tiers</div>
     <ul class="kit-list">
       <li>Thermal Transfer Printer — 1</li><li>Canopy — 1</li><li>Standee — 1</li><li>T-Shirt — 2</li>
-      <li>Superfone — 2 Users / 2 Yrs</li><li>Truecaller — 1</li><li>Email ID — 1</li><li>Acrylic Name Board — A4</li>
+      <li>Tab — 1</li><li>Tab Stand — 1</li>
+      <li>Superfone — 2 Users / 1 Yr</li><li>Truecaller — 1</li><li>Email ID — 1</li><li>Acrylic Name Board — A4</li>
       <li>Consumables (Ribbon, Roll, Cards)</li><li>Legal Agreement Fee</li><li>Partner Dashboard Setup</li>
     </ul>
-    <div class="info-note">From Year 2: Email + Truecaller renewal ₹3,000/yr. From Year 3: Superfone renewal ₹10,000/yr. Optional employee logins ₹5,000 each (typically LMI Gold).</div>
+    <div class="info-note">From Year 2: Email + Truecaller renewal ₹3,000/yr; Superfone renewal ₹10,000/yr. Optional employee logins ₹5,000 each (typically LMI Gold).</div>
   </div>
   <div class="waiver-card">
     <div style="color:#991B1B;font-weight:700;font-size:12px;margin-bottom:6px">♡ Special-Needs Inclusion Waiver — LMI Bronze Only</div>
     <p style="font-size:11px;color:#7F1D1D;line-height:1.6">For person with special needs, or immediate parent/sibling/caretaker. Franchise fee fully waived — pay only Kit + GST.</p>
-    <div style="margin-top:8px;font-size:14px;font-weight:700;color:#991B1B">Total: ₹76,700 <span style="font-size:10px;font-weight:400">(Kit ₹65,000 + GST ₹11,700)</span></div>
+    <div style="margin-top:8px;font-size:14px;font-weight:700;color:#991B1B">Total: ₹1,00,300 <span style="font-size:10px;font-weight:400">(Kit ₹85,000 + GST ₹15,300)</span></div>
     <div style="font-size:10px;color:#7F1D1D;margin-top:4px">Covers: Autism, Down syndrome, Dyslexia, Cerebral Palsy, Muscular Dystrophy, visual/hearing impairment, ADHD, anxiety. Valid medical documentation required.</div>
   </div>
 
