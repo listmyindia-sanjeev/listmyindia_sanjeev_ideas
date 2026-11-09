@@ -8,32 +8,63 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{--blue:#0046BF;--navy:#05132D;--yel:#FEEF22}
-  body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:Poppins,system-ui,sans-serif;
-       background:radial-gradient(circle at 50% 35%,#1d4fae 0%,var(--navy) 75%);color:#fff;padding:16px;box-sizing:border-box}
-  .card{max-width:380px;width:100%;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:18px;padding:32px 24px}
-  h1{font-size:20px;margin:0 0 6px}h1 span{color:var(--yel)}
-  p{font-size:14px;opacity:.85;line-height:1.5}
-  a.btn{display:inline-block;margin-top:12px;background:var(--yel);color:var(--navy);text-decoration:none;font-weight:600;padding:12px 22px;border-radius:10px}
-  .lock{font-size:12px;opacity:.6;margin-top:18px}
+  html,body{margin:0;height:100%;background:var(--navy);font-family:Poppins,system-ui,sans-serif;color:#fff}
+  .bar{height:52px;display:flex;align-items:center;gap:10px;padding:0 16px;box-sizing:border-box;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.12)}
+  .brand{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand span{color:var(--yel)}
+  .sp{flex:1}
+  .hint{font-size:12px;opacity:.65;white-space:nowrap}
+  button{font:600 13px Poppins,system-ui,sans-serif;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff}
+  button.pri{background:var(--yel);color:var(--navy);border-color:var(--yel)}
+  button:hover{filter:brightness(1.1)}
+  .wrap{position:relative;height:calc(100% - 52px);background:#f4f6fb}
+  .msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--navy);padding:16px}
+  .msg .card{max-width:420px}
+  .msg h2{margin:0 0 8px;font-size:20px}
+  .msg p{font-size:14px;color:#445;line-height:1.5;margin:0 0 14px}
+  iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent}
+  @media (max-width:640px){.hint{display:none}.brand{font-size:13px}button{padding:7px 10px;font-size:12px}}
 </style>
 </head>
 <body>
-<div class="card">
-  <h1>List My India<span>™</span> Founder Tracker</h1>
-  <p>Opening the secure dashboard… You'll be asked to sign in with an approved Google account.</p>
-  <a class="btn" id="go" href="#">Open tracker</a>
-  <div class="lock">🔒 Access limited to approved founders · data stays in Google</div>
+<div class="bar">
+  <div class="brand">List My India<span>™</span> · Founder Tracker</div>
+  <div class="sp"></div>
+  <div class="hint">🔒 Approved Google accounts only</div>
+  <button class="pri" id="login" title="Sign in or switch Google account">Log in</button>
+  <button id="logout" title="Sign out of Google in this browser">Log out</button>
+</div>
+<div class="wrap">
+  <div class="msg" id="msg">
+    <div class="card">
+      <h2>Loading your dashboard…</h2>
+      <p>If nothing appears, you're signed out or using a Google account that isn't approved. Click <b>Log in</b> and choose your approved account.</p>
+      <button class="pri" onclick="doLogin()">Log in</button>
+    </div>
+  </div>
+  <iframe id="app" title="LMI Founder Tracker" allow="clipboard-write"></iframe>
 </div>
 <script>
-  // Paste the Apps Script web-app URL (Deploy → Manage deployments → Web app URL) below.
+  // Apps Script web-app URL (Deploy → Manage deployments → Web app URL)
   var TRACKER_URL = "https://script.google.com/macros/s/AKfycbzjXC80_FN2QAxQYtctQ2-pjDMoZ80_kZzorRVddG7HH8ZISQjhayIM3CflAX96zr52/exec";
-  var a = document.getElementById('go');
-  if (TRACKER_URL.indexOf('https://script.google.com/') === 0) {
-    a.href = TRACKER_URL;
-    setTimeout(function () { window.location.replace(TRACKER_URL); }, 800);
-  } else {
-    a.textContent = 'Tracker URL not set yet';
+  var frame = document.getElementById('app');
+  function load() { frame.src = TRACKER_URL + '?t=' + Date.now(); }
+  // Sign-in / sign-out happen in a small Google window (Google doesn't allow its login page inside other sites);
+  // when that window closes, the dashboard reloads here — the address bar stays on listmyindia.org/mytracker.
+  function popup(url) {
+    var w = window.open(url, 'lmi_auth', 'width=480,height=640,left=' + (screen.width / 2 - 240) + ',top=' + (screen.height / 2 - 320));
+    if (!w) { window.location.href = url; return; }
+    var t = setInterval(function () { if (w.closed) { clearInterval(t); load(); } }, 700);
   }
+  function doLogin() {
+    popup('https://accounts.google.com/AccountChooser?continue=' + encodeURIComponent('https://myaccount.google.com/'));
+  }
+  function doLogout() {
+    popup('https://accounts.google.com/Logout');
+  }
+  document.getElementById('login').onclick = doLogin;
+  document.getElementById('logout').onclick = doLogout;
+  load();
 </script>
 </body>
 </html>
