@@ -59,6 +59,17 @@
     box.querySelector('span').textContent = msg;
     box.style.display = 'block';
   }
+  // Keep the sign-in for this browser until Google's token expires (~1 hour), so reloading only reloads the data.
+  var KEY = 'lmiTrackerSignIn';
+  function save(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+  function saved() { try { var o = JSON.parse(localStorage.getItem(KEY) || 'null'); return o && o.t && o.x > Date.now() ? o : null; } catch (e) { return null; } }
+  function openDash(tok, email) {
+    document.getElementById('err').style.display = 'none';
+    document.getElementById('gate').style.display = 'none';
+    var f = document.getElementById('app');
+    f.src = 'dash.html#tok=' + encodeURIComponent(tok) + '&em=' + encodeURIComponent(email);
+    f.style.display = 'block';
+  }
   function onToken(r) {
     if (!r || r.error || !r.access_token) {
       if (r && r.error && r.error !== 'popup_closed') showErr('Sign-in did not complete', 'Please try again.');
@@ -74,11 +85,8 @@
           if (google.accounts.oauth2.revoke) google.accounts.oauth2.revoke(r.access_token, function () {});
           return;
         }
-        document.getElementById('err').style.display = 'none';
-        document.getElementById('gate').style.display = 'none';
-        var f = document.getElementById('app');
-        f.src = 'dash.html#tok=' + encodeURIComponent(r.access_token);
-        f.style.display = 'block';
+        save({ t: r.access_token, e: email, x: Date.now() + ((+r.expires_in || 3600) - 120) * 1000 });
+        openDash(r.access_token, email);
       })
       .catch(function () { showErr('Sign-in did not complete', 'Please check your connection and try again.'); });
   }
@@ -87,6 +95,15 @@
     if (!client) client = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: 'openid email profile', callback: onToken });
     client.requestAccessToken({ prompt: 'select_account' });   // always shows Google's account list
   };
+  if (/[?&]logout=1/.test(location.search)) {
+    var old = null; try { old = JSON.parse(localStorage.getItem(KEY) || 'null'); localStorage.removeItem(KEY); } catch (e) {}
+    if (old && old.t) { var tries = 0, waitG = setInterval(function () {
+      if (window.google && google.accounts && google.accounts.oauth2) { clearInterval(waitG); google.accounts.oauth2.revoke(old.t, function () {}); }
+      else if (++tries > 50) clearInterval(waitG); }, 200); }
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  } else {
+    var s = saved(); if (s) openDash(s.t, s.e);
+  }
   // The dashboard's Log out / Log in buttons send the whole page back here (your Google session is not touched).
   window.addEventListener('message', function (e) {
     if (/\.googleusercontent\.com$|^https:\/\/script\.google\.com$/.test(e.origin) && e.data && (e.data.lmiLogout || e.data.lmiReload)) location.reload();

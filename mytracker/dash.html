@@ -30,9 +30,13 @@ select{flex:1;min-width:0;height:40px;font:600 14px Poppins,system-ui,sans-serif
 .btn.ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.3)}
 .btn.icon{width:40px;padding:0;font-size:18px;line-height:1}
 .btn:disabled{opacity:.6}
-.status{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11.5px;color:#C9D3EA}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}
+.status{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#C9D3EA;min-width:0;white-space:nowrap}
+.who{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#C9D3EA;min-width:0}
+.who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who i{flex:none;width:20px;height:20px;border-radius:50%;background:var(--yel);color:var(--navy);font:700 11px/20px Poppins,system-ui,sans-serif;text-align:center;font-style:normal}
 .status:before{content:"";width:7px;height:7px;border-radius:50%;background:#3DDC84;flex:none}
-@media(min-width:760px){header{padding:14px 24px}.hdr2{display:flex;gap:12px;align-items:center;margin-top:14px}.seg{margin-top:0;flex:none;width:400px}.ctrl{margin-top:0;flex:1}select{max-width:220px}.status{margin-top:8px}}
+@media(min-width:760px){header{padding:14px 24px}.hdr2{display:flex;gap:12px;align-items:center;margin-top:14px}.seg{margin-top:0;flex:none;width:400px}.ctrl{margin-top:0;flex:1}select{max-width:220px}.meta{margin-top:8px}}
 nav{display:flex;gap:4px;overflow-x:auto;padding:8px 12px;background:#fff;border-bottom:1px solid var(--line);scrollbar-width:none}
 nav button{flex:none;background:none;border:0;padding:8px 12px;border-radius:20px;font:500 13px Poppins;color:var(--mute);cursor:pointer}
 nav button.on{background:var(--blue);color:#fff}
@@ -74,7 +78,7 @@ canvas{max-height:300px}
 <header>
   <div class="top">
     <div class="brand"><small>List My India™</small><b>Founder Tracker</b></div>
-    <div class="acct"><button class="pill y" onclick="lmiAuth('in')">Log in</button><button class="pill" onclick="lmiAuth('out')">Log out</button></div>
+    <div class="acct"><button class="pill" onclick="lmiAuth('out')">Log out</button></div>
   </div>
   <div class="hdr2">
     <div class="seg" id="ptype"></div>
@@ -84,7 +88,7 @@ canvas{max-height:300px}
       <button class="btn" id="syncBtn" style="display:none">Sync now</button>
     </div>
   </div>
-  <div class="status" id="syncTxt">Loading…</div>
+  <div class="meta"><div class="status" id="syncTxt">Loading…</div><div class="who" id="who"></div></div>
 </header>
 <nav id="tabs" class="stick"></nav>
 <main><div id="load">Loading live data…</div><div id="view"></div></main>
@@ -329,6 +333,8 @@ function vLeads(){
 
 // ── data
 var TOK = (location.hash.match(/tok=([^&]+)/) || [])[1]; TOK = TOK ? decodeURIComponent(TOK) : '';
+var EM = (location.hash.match(/em=([^&]+)/) || [])[1]; EM = EM ? decodeURIComponent(EM) : '';
+if (EM) { var w = document.getElementById('who'); w.innerHTML = '<i></i><span></span>'; w.querySelector('i').textContent = EM.charAt(0).toUpperCase(); w.querySelector('span').textContent = EM; w.title = 'Signed in as ' + EM; }
 if (!TOK) { window.top.location.href = 'https://listmyindia.org/mytracker/'; }
 try { history.replaceState(null, '', location.pathname); } catch (e) {}
 function load(){document.getElementById('load').style.display='block';
@@ -337,12 +343,14 @@ function load(){document.getElementById('load').style.display='block';
     var sy=D.sync;document.getElementById('syncTxt').textContent=sy?('Zoho sync: '+dt(sy[0],1)+' · '+sy[1]):'Not synced yet';
     document.getElementById('syncBtn').style.display=D.owner?'inline-block':'none';
     buildShell();render();})
-  .withFailureHandler(function(e){document.getElementById('load').textContent='Could not load: '+e.message;}).getData(TOK);}
+  .withFailureHandler(function(e){var l=document.getElementById('load');
+    if(/sign in again|not authorised/i.test(e.message)){l.innerHTML='Your sign-in has expired (Google sign-ins last about an hour).<br><br><button class="btn" onclick="lmiAuth(\'out\')">Sign in again</button>';}
+    else l.textContent='Could not load: '+e.message;}).getData(TOK);}
 document.getElementById('syncBtn').onclick=function(){var b=this;b.disabled=true;b.textContent='Syncing…';
   google.script.run.withSuccessHandler(function(m){b.disabled=false;b.textContent='Sync now';load();})
   .withFailureHandler(function(e){b.disabled=false;b.textContent='Sync now';alert('Sync failed: '+e.message);}).syncFromWeb(TOK);};
-// ── Log in / Log out: Google's sign-in opens in a small window; when it closes the tracker reloads
-function lmiAuth(k){var a=document.createElement('a');a.href='https://listmyindia.org/mytracker/';a.target='_top';a.rel='noopener';
+// ── Log out: back to the sign-in screen (clears the saved sign-in)
+function lmiAuth(k){var a=document.createElement('a');a.href='https://listmyindia.org/mytracker/?logout=1';a.target='_top';a.rel='noopener';
   document.body.appendChild(a);a.click();a.remove();}
 load();
 </script>
