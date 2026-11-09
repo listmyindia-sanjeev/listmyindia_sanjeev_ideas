@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List My India™ — Founder Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--blue:#0046BF;--navy:#05132D;--yel:#FEEF22;--bg:#F4F6FB;--card:#fff;--ink:#05132D;--mute:#5B6478;--line:#E3E7F0;--good:#0E8A4B;--warn:#B76E00;--bad:#C62828;--soft:#E8EEFB}
+*{box-sizing:border-box}
+body{margin:0;font-family:Poppins,system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+.stick{position:sticky;top:0;z-index:5}
+header{background:var(--navy);color:#fff;padding:12px 16px}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:16px}.brand span{color:var(--yel)}
+.sync{margin-left:auto;font-size:11px;opacity:.85;display:flex;gap:8px;align-items:center}
+.btn{background:var(--yel);color:var(--navy);border:0;border-radius:8px;padding:6px 12px;font:600 12px Poppins;cursor:pointer}
+.btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35)}
+.ctrl{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.seg{display:flex;background:rgba(255,255,255,.12);border-radius:10px;padding:3px}
+.seg button{background:none;border:0;color:#fff;font:500 12px Poppins;padding:6px 10px;border-radius:8px;cursor:pointer}
+.seg button.on{background:var(--yel);color:var(--navy)}
+select{font:500 13px Poppins;padding:6px 10px;border-radius:8px;border:0;color:var(--navy)}
+nav{display:flex;gap:4px;overflow-x:auto;padding:8px 12px;background:#fff;border-bottom:1px solid var(--line);scrollbar-width:none}
+nav button{flex:none;background:none;border:0;padding:8px 12px;border-radius:20px;font:500 13px Poppins;color:var(--mute);cursor:pointer}
+nav button.on{background:var(--blue);color:#fff}
+main{padding:16px;max-width:1200px;margin:0 auto}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.tile{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--line);cursor:pointer;transition:transform .12s, box-shadow .12s}
+.tile:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(5,19,45,.08)}
+.tile .l{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.tile .v{font-size:22px;font-weight:700;margin-top:4px}
+.tile .s{font-size:12px;color:var(--mute);margin-top:4px}
+.tile.alert{border-color:#F3C1C1;background:#FFF7F7}.tile.hero{background:var(--blue);color:#fff;border:0}.tile.hero .l,.tile.hero .s{color:#DCE6FF}
+.bar{height:6px;background:var(--soft);border-radius:4px;margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--blue)}
+.card{background:var(--card);border-radius:14px;padding:16px;border:1px solid var(--line);margin-top:14px}
+.card h3{margin:0 0 10px;font-size:15px}
+.card .sub{font-size:12px;color:var(--mute);margin:-6px 0 10px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:1}
+th{font-weight:600;color:var(--mute);font-size:11px;text-transform:uppercase;background:#FAFBFE}
+tr.tot td{font-weight:700;background:#F7F9FF}tr.tot td:first-child{background:#F7F9FF}
+tr.click{cursor:pointer}tr.click:hover td{background:#F4F7FF}
+.pos{color:var(--good)}.neg{color:var(--bad)}
+.chip{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.chip.g{background:#E3F5EA;color:var(--good)}.chip.a{background:#FFF1D6;color:var(--warn)}.chip.r{background:#FDE3E3;color:var(--bad)}.chip.n{background:var(--soft);color:var(--mute)}
+.two{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:860px){.two{grid-template-columns:1fr 1fr}}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:13px}.kv div:nth-child(even){text-align:right;font-weight:600}
+.note{font-size:12px;color:var(--mute)}
+canvas{max-height:300px}
+#load{padding:60px;text-align:center;color:var(--mute)}
+.fr{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;cursor:pointer;background:#fff}
+.fr .hd{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.fr .meters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px}
+.m .t{font-size:11px;color:var(--mute)}.m .bar{position:relative}.m .bar b{position:absolute;top:-2px;width:2px;height:10px;background:var(--bad)}
+.detail{display:none;margin-top:10px}.fr.open .detail{display:block}
+</style>
+</head>
+<body>
+<div class="stick"><header>
+  <div class="top">
+    <div class="brand">List My India<span>™</span> · Founder Tracker</div>
+    <div class="sync"><span id="syncTxt">Loading…</span><button class="btn" id="syncBtn" style="display:none">Sync now</button><button class="btn ghost" onclick="load()">Refresh</button><button class="btn" onclick="lmiAuth('in')">Log in</button><button class="btn ghost" onclick="lmiAuth('out')">Log out</button></div>
+  </div>
+  <div class="ctrl">
+    <div class="seg" id="ptype"></div>
+    <select id="period"></select>
+  </div>
+</header>
+<nav id="tabs"></nav></div>
+<main><div id="load">Loading live data…</div><div id="view"></div></main>
+
+<script>
+// Stand-in for google.script.run: calls the Apps Script JSON API directly (no Google cookies sent).
+var LMI_API = "https://script.google.com/macros/s/AKfycbzjXC80_FN2QAxQYtctQ2-pjDMoZ80_kZzorRVddG7HH8ZISQjhayIM3CflAX96zr52/exec";
+var google = { script: { run: lmiRun_() } };
+function lmiRun_(ok, bad) {
+  function call(api, t) {
+    fetch(LMI_API + '?api=' + api + '&tok=' + encodeURIComponent(t || ''), { credentials: 'omit', redirect: 'follow' })
+      .then(function (r) { return r.json(); })
+      .then(function (o) { if (o.ok) { if (ok) ok(o.r); } else if (bad) bad(new Error(o.error)); })
+      .catch(function () { if (bad) bad(new Error('Network problem — please tap Refresh')); });
+  }
+  return { withSuccessHandler: function (h) { return lmiRun_(h, bad); },
+           withFailureHandler: function (h) { return lmiRun_(ok, h); },
+           getData: function (t) { call('getData', t); },
+           syncFromWeb: function (t) { call('sync', t); } };
+}
+</script>
+<script>
+var D=null, TYPE='Month', PERIOD=null, TAB='overview', charts=[];
+var TYPES={'Month':'Label','Quarter':'Fiscal Qtr','FY':'FY','Op-Year':'Op-Year'};
+var TABS=[['overview','Overview'],['pnl','P&L'],['cash','Cash & Funds'],['gst','GST & TDS'],['pay','Payables'],['fr','Franchises'],['exp','Expenses'],['plan','Plan 36m'],['rates','Rate Card'],['leads','Leads']];
+
+function inr(v,full){if(v===''||v===null||v===undefined||isNaN(v))return '—';var n=Number(v),a=Math.abs(n),s=n<0?'-':'';
+  if(!full&&a>=1e7)return s+'₹'+(a/1e7).toFixed(2)+' Cr'; if(!full&&a>=1e5)return s+'₹'+(a/1e5).toFixed(2)+' L';
+  return s+'₹'+Math.round(a).toLocaleString('en-IN');}
+function num(v){return (v===''||v==null||isNaN(v))?'—':Math.round(Number(v)).toLocaleString('en-IN');}
+function pct(v){return (v===''||v==null||isNaN(v))?'—':(Number(v)*100).toFixed(1)+'%';}
+var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function dt(s,day){s=String(s||'');if(!/^\d{4}-\d\d/.test(s))return esc(s);var m=MN[+s.slice(5,7)-1];return (day&&s.length>=10?(+s.slice(8,10))+' ':'')+m+"'"+s.slice(2,4);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function ci(t,h){var i=t.head.indexOf(h);if(i<0)console.warn('missing column',h);return i;}
+function nz(v){return (v===''||v==null||isNaN(v))?0:Number(v);}
+
+// ── period machinery
+function keyOf(t,row){var h=TYPES[TYPE];var i=t.head.indexOf(h);return i>=0?row[i]:null;}
+function periods(){var seen=[];D.proj.rows.forEach(function(r){var k=keyOf(D.proj,r);if(seen.indexOf(k)<0)seen.push(k);});return seen;}
+function rowsIn(t,p){return t.rows.filter(function(r){return keyOf(t,r)===p;});}
+function agg(t,rows,h,mode){var i=ci(t,h);if(i<0)return '';mode=mode||aggMode(t,h);
+  var v=rows.map(function(r){return r[i];}).filter(function(x){return x!==''&&x!=null&&!isNaN(x);}).map(Number);
+  if(!v.length)return '';
+  if(mode==='last')return v[v.length-1]; if(mode==='first')return v[0];
+  if(mode==='avg')return v.reduce(function(a,b){return a+b;},0)/v.length;
+  return v.reduce(function(a,b){return a+b;},0);}
+function aggMode(t,h){if(t===D.proj){var m=D.proj.agg[D.proj.head.indexOf(h)];if(m&&m.indexOf('ratio')===0)return 'avg';return m||'sum';}
+  if(/Bank balance|carry-forward closing/.test(h))return 'last';return 'sum';}
+function actRows(p){var c=ci(D.act,'Closed?');return rowsIn(D.act,p).filter(function(r){return nz(r[c])>0;});}
+function thisMonthIdx(){var t=new Date(),k=t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2);
+  for(var i=0;i<D.proj.rows.length;i++)if(String(D.proj.rows[i][0]).slice(0,7)===k)return i;return 0;}
+function curPeriod(){return keyOf(D.proj,D.proj.rows[thisMonthIdx()]);}
+function K(k){for(var i=0;i<D.kpi.length;i++)if(D.kpi[i].key===k)return D.kpi[i].value;return '';}
+
+// ── shell
+function buildShell(){
+  var s=document.getElementById('ptype');s.innerHTML='';
+  Object.keys(TYPES).forEach(function(t){var b=document.createElement('button');b.textContent=t;b.className=t===TYPE?'on':'';
+    b.onclick=function(){TYPE=t;PERIOD=curPeriod();buildShell();render();};s.appendChild(b);});
+  var sel=document.getElementById('period');sel.innerHTML='';
+  periods().forEach(function(p){var o=document.createElement('option');o.value=p;o.textContent=TYPE==='Op-Year'?('Op-Year '+String(p).slice(1)):p;if(p===PERIOD)o.selected=true;sel.appendChild(o);});
+  sel.onchange=function(){PERIOD=sel.value;render();};
+  var n=document.getElementById('tabs');n.innerHTML='';
+  TABS.forEach(function(t){var b=document.createElement('button');b.textContent=t[1];b.className=t[0]===TAB?'on':'';b.onclick=function(){go(t[0]);};n.appendChild(b);});
+}
+function go(t){TAB=t;buildShell();render();window.scrollTo(0,0);}
+function card(title,body,sub){return '<div class="card"><h3>'+title+'</h3>'+(sub?'<div class="sub">'+sub+'</div>':'')+body+'</div>';}
+function tile(lbl,val,sub,goTo,cls,bar){return '<div class="tile '+(cls||'')+'" onclick="go(\''+goTo+'\')"><div class="l">'+lbl+'</div><div class="v">'+val+'</div>'+(sub?'<div class="s">'+sub+'</div>':'')+(bar!=null?'<div class="bar"><i style="width:'+Math.max(0,Math.min(100,bar*100))+'%"></i></div>':'')+'</div>';}
+function chart(id,cfg){var c=new Chart(document.getElementById(id),cfg);charts.push(c);}
+function table(head,rows,opts){opts=opts||{};var h='<div class="tbl"><table><thead><tr>'+head.map(function(x){return '<th>'+esc(x)+'</th>';}).join('')+'</tr></thead><tbody>';
+  rows.forEach(function(r,i){var cls=(r._tot?'tot ':'')+(opts.click?'click':'');h+='<tr class="'+cls+'"'+(opts.click?' onclick="'+opts.click(r,i)+'"':'')+'>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';});
+  return h+'</tbody></table></div>';}
+function vcls(v){return v>0?'pos':(v<0?'neg':'');}
+
+// ── tabs
+function render(){charts.forEach(function(c){c.destroy();});charts=[];
+  var v=document.getElementById('view');v.innerHTML=({overview:vOverview,pnl:vPnl,cash:vCash,gst:vGst,pay:vPay,fr:vFr,exp:vExp,plan:vPlan,rates:vRates,leads:vLeads}[TAB])();
+  if(window._after){var f=window._after;window._after=null;f();}}
+
+function plabel(){return TYPE==='Op-Year'?'Op-Year '+String(PERIOD).slice(1):PERIOD;}
+
+function vOverview(){
+  var pr=rowsIn(D.proj,PERIOD), ar=actRows(PERIOD);
+  var sp=agg(D.proj,pr,'TOTAL SALES (ex-GST)'), sa=ar.length?agg(D.act,ar,'TOTAL SALES (ex-GST)'):'';
+  var ep=agg(D.proj,pr,'EBITDA'), ea=ar.length?agg(D.act,ar,'EBITDA (approx.)'):'';
+  var free=K('free'), runway=K('runway');
+  var h='<div class="grid">'+
+    tile('Bank balance',inr(K('bank')),'as of '+dt(K('bank_asof'),1),'cash','hero')+
+    tile('Free cash after dues',inr(free),'Dues '+inr(K('liab_tot')),'cash',free<0?'alert':'')+
+    tile('Runway',Number(runway).toFixed(1)+' mo','at '+inr(K('burn'))+'/mo spend','cash',runway<3?'alert':'')+
+    tile('Plan cash low point',inr(K('low')),'in '+esc(K('low_m'))+(K('fund_need')>0?' · need '+inr(K('fund_need')):''),'cash',K('low')<0?'alert':'')+
+    tile('Sales — '+esc(plabel()),sa===''?'—':inr(sa),'Plan '+inr(sp)+(sa!==''&&sp?' · '+pct(sa/sp):''),'pnl','',sa!==''&&sp?sa/sp:null)+
+    tile('EBITDA — '+esc(plabel()),ea===''?'—':inr(ea),'Plan '+inr(ep),'pnl')+
+    tile('Active franchises',num(K('fr_act')),'Plan '+num(K('fr_plan'))+' this month','fr','',K('fr_plan')?K('fr_act')/K('fr_plan'):null)+
+    tile('Paid listings',num(K('pl_act')),'Plan active '+num(K('pl_plan')),'fr','',K('pl_plan')?K('pl_act')/K('pl_plan'):null)+
+    tile('Franchise payable',inr(K('liab_fr')),num(K('below'))+' below floor','pay',K('below')>0?'alert':'')+
+    tile('Hemadri IT carry-forward',inr(K('hem_cf')),'recoverable from future share','pay')+
+    tile('EBITDA breakeven (plan)',esc(K('be_m')),'cash breakeven '+esc(K('cash_be')),'plan')+
+    tile('GST payable',inr(K('liab_gst')),'TDS '+inr(K('liab_tds')),'gst')+'</div>';
+  h+='<div class="two">'+card('Sales — plan vs actual (monthly)','<canvas id="c1"></canvas>')+card('Bank balance — plan forecast','<canvas id="c2"></canvas>','From the live Zoho balance in the current month onward')+'</div>';
+  window._after=function(){
+    var lab=D.proj.rows.map(function(r){return r[1];}), ia=ci(D.act,'TOTAL SALES (ex-GST)'), ic=ci(D.act,'Closed?');
+    chart('c1',{type:'bar',data:{labels:lab,datasets:[{label:'Plan',data:D.proj.rows.map(function(r){return r[ci(D.proj,'TOTAL SALES (ex-GST)')];}),backgroundColor:'#C9D6F5'},
+      {label:'Actual',data:D.act.rows.map(function(r){return nz(r[ic])>0?r[ia]:null;}),backgroundColor:'#0046BF'}]},options:{plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:function(v){return inr(v);}}}}}});
+    var cc=ci(D.proj,'Bank — closing (plan)');
+    chart('c2',{type:'line',data:{labels:lab,datasets:[{label:'Closing bank (plan)',data:D.proj.rows.map(function(r){return r[cc]===''?null:r[cc];}),borderColor:'#0046BF',fill:true,backgroundColor:'rgba(0,70,191,.08)',tension:.25}]},options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return inr(v);}}}}}});
+  };
+  return h;
+}
+
+var PNL=[['Listing subscriptions','Listing subscription revenue','Listing Subscription'],['Setup fees','Setup fee revenue','Setup Fee'],['Sponsorship','Sponsorship revenue','Sponsorship'],
+ ['Franchise licence fees','Franchise licence fees','Franchise Licence Fee'],['Franchise kit fees','Franchise kit fees','Franchise Kit Fee'],['Kit renewals','Kit renewals','Kit Renewal'],
+ ['GP / SGP tokens','GP / SGP token fees','GP / SGP Token'],['Other revenue','Other territory revenue','Other Revenue'],['TOTAL SALES (ex-GST)','TOTAL SALES (ex-GST)','TOTAL SALES (ex-GST)',1],
+ ['Less: franchise revenue share','Franchise revenue share (accrued)','Franchise share (accrued)',0,-1],['Less: GP / SGP commission','GP / SGP commission (accrued)',null,0,-1],
+ ['Less: Hemadri share (taxable)','Hemadri pool — taxable (P&L cost)','@hem',0,-1],['Less: kit & renewal cost','Kit cost (ex-GST)',null,0,-1],
+ ['Less: LMI opex (gross)','LMI OPEX (gross)','LMI opex (gross)',0,-1],['EBITDA','EBITDA','EBITDA (approx.)',1],['Income-tax provision','Income-tax provision',null,0,-1],['PAT','PAT',null,1]];
+function pnlVal(line,t,rows,isAct){var h=isAct?line[2]:line[1];if(!h)return '';
+  if(h==='@hem'){var p=agg(D.act,rows,'Hemadri pool');return p===''?'':p/1.18;}
+  var v=agg(t,rows,h);if(!isAct&&line[0].indexOf('kit & renewal')>=0)v=nz(v)+nz(agg(t,rows,'Renewal pass-through cost'));return v;}
+function vPnl(){
+  var pr=rowsIn(D.proj,PERIOD), ar=actRows(PERIOD);
+  var rows=PNL.map(function(l){var p=pnlVal(l,D.proj,pr,false), a=ar.length?pnlVal(l,D.act,ar,true):'';var sg=l[4]||1;
+    var r=[esc(l[0]),inr(p),inr(a),a===''||p===''?'—':'<span class="'+vcls((a-p)*sg)+'">'+inr(a-p)+'</span>',p&&a!==''?pct(a/p):'—'];if(l[3])r._tot=1;return r;});
+  var h=card('P&L — '+esc(plabel()),table(['Line','Plan','Actual','Variance','Achieved'],rows),ar.length?'Actual covers '+ar.length+' month(s) with Zoho data; EBITDA actual is approximate (no GP/SGP or kit cost split yet).':'No actuals yet for this period.');
+  var ps=periods(), lines=['TOTAL SALES (ex-GST)','Franchise revenue share (accrued)','Hemadri pool — taxable (P&L cost)','LMI OPEX (gross)','EBITDA','PAT'];
+  var tr=lines.map(function(l){var r=[esc(l)].concat(ps.map(function(p){return inr(agg(D.proj,rowsIn(D.proj,p),l));}));if(l==='EBITDA'||l==='PAT')r._tot=1;return r;});
+  tr.push(['Actual sales'].concat(ps.map(function(p){var a=actRows(p);return a.length?inr(agg(D.act,a,'TOTAL SALES (ex-GST)')):'—';})));
+  h+=card('Plan by '+TYPE.toLowerCase(),table(['Line'].concat(ps.map(function(p){return TYPE==='Op-Year'?'Op-Yr '+String(p).slice(1):p;})),tr));
+  return h;
+}
+
+function vCash(){
+  var h='<div class="grid">'+tile('Bank (Zoho)',inr(K('bank')),'as of '+dt(K('bank_asof'),1),'cash','hero')+tile('Total dues',inr(K('liab_tot')),'','pay')+
+    tile('Free cash',inr(K('free')),'','cash',K('free')<0?'alert':'')+tile('Avg monthly spend',inr(K('burn')),'last 2 closed months','exp')+
+    tile('Lowest plan balance',inr(K('low')),esc(K('low_m')),'cash',K('low')<0?'alert':'')+tile('Funding needed',inr(K('fund_need')),'to stay ≥ ₹0','cash',K('fund_need')>0?'alert':'')+
+    tile('Hemadri token due',inr(K('hem_tok')),'of ₹3.5 L commitment','pay')+'</div>';
+  h+=card('Dues right now','<div class="kv"><div>Franchise revenue share outstanding</div><div>'+inr(K('liab_fr'),1)+'</div><div>GST payable (last closed month)</div><div>'+inr(K('liab_gst'),1)+'</div><div>TDS payable (by 7th)</div><div>'+inr(K('liab_tds'),1)+'</div><div>Payable to Penny Software</div><div>'+inr(K('liab_pen'),1)+'</div><div><b>Total</b></div><div>'+inr(K('liab_tot'),1)+'</div></div>');
+  var ps=periods(), L=['Cash in — collections + funding','Cash out — all payments','Net cash flow','Bank — closing (plan)'];
+  var tr=L.map(function(l){var r=[esc(l)].concat(ps.map(function(p){return inr(agg(D.proj,rowsIn(D.proj,p),l));}));if(l.indexOf('Bank')===0)r._tot=1;return r;});
+  tr.push(['Bank — actual (Zoho)'].concat(ps.map(function(p){var a=actRows(p);return a.length?inr(agg(D.act,a,'Bank balance (month-end / latest)')):'—';})));
+  h+=card('Cash flow by '+TYPE.toLowerCase(),table(['Line'].concat(ps),tr),'Collections assumed in month of sale; partner shares, Penny, GST paid the following month.');
+  h+=card('Forecast','<canvas id="c3"></canvas>');
+  window._after=function(){var cc=ci(D.proj,'Net cash flow'),cb=ci(D.proj,'Bank — closing (plan)');
+    chart('c3',{data:{labels:D.proj.rows.map(function(r){return r[1];}),datasets:[{type:'bar',label:'Net cash flow',data:D.proj.rows.map(function(r){return r[cc];}),backgroundColor:D.proj.rows.map(function(r){return r[cc]<0?'#E57373':'#7FB3FF';})},
+      {type:'line',label:'Bank closing',data:D.proj.rows.map(function(r){return r[cb]===''?null:r[cb];}),borderColor:'#05132D',tension:.25}]},options:{plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:function(v){return inr(v);}}}}}});};
+  return h;
+}
+
+function vGst(){
+  var ps=periods(), L=['Output GST','Total ITC','Net GST payable (due 20th next month)','GST credit c/f — closing','TDS deducted (due 7th next month)'];
+  var tr=L.map(function(l){return [esc(l)].concat(ps.map(function(p){return inr(agg(D.proj,rowsIn(D.proj,p),l));}));});
+  tr.unshift(['Output GST — ACTUAL'].concat(ps.map(function(p){var a=actRows(p);return a.length?inr(agg(D.act,a,'Output GST')):'—';})));tr[0]._tot=1;
+  return card('GST & TDS — '+TYPE.toLowerCase(),table(['Line'].concat(ps),tr),'GSTR-3B by the 20th of next month · TDS (194H 2% on franchise/GP/SGP, 194J on Penny) by the 7th. ITC on Hemadri share flows only once Penny Software invoices.')+
+    '<div class="grid">'+tile('GST payable now',inr(K('liab_gst')),'last closed month','gst')+tile('TDS payable now',inr(K('liab_tds')),'','gst')+'</div>';
+}
+
+function vPay(){
+  var s=D.score, I=function(h){return s.head.indexOf(h);};
+  var fr=s.rows.map(function(r){return [esc(r[0])+' · '+esc(r[1]),esc(r[2]),pct(r[I('Share %')]),inr(r[I('Territory revenue — month')],1),inr(r[I('Revenue share — month')],1),inr(r[I('TDS')],1),inr(r[I('Net payable — month')],1),'<b>'+inr(r[I('OUTSTANDING PAYABLE')],1)+'</b>'];});
+  var h=card('Franchise revenue share — '+dt(s.asof),table(['Franchise','Tier','Share','Territory rev.','Share','TDS','Net payable','Outstanding'],fr),'Settle by the 10th (Clause 8.2). Record payments in Franchise_Payouts.');
+  var ps=periods(), L=['Hemadri share % in force','Hemadri pool (GST-incl.)','IT infra + PG paid by LMI','Payable to Penny Software (Hemadri)','IT carry-forward — closing (recoverable)'];
+  var tr=L.map(function(l){return [esc(l)].concat(ps.map(function(p){var v=agg(D.proj,rowsIn(D.proj,p),l);return l.indexOf('%')>0?pct(v):inr(v);}));});
+  ['Hemadri pool','IT cost paid by LMI','Penny payable','IT carry-forward closing'].forEach(function(l){tr.push([esc(l)+' — ACTUAL'].concat(ps.map(function(p){var a=actRows(p);return a.length?inr(agg(D.act,a,l)):'—';})));});
+  h+=card('Hemadri revenue share & IT cost recovery',table(['Line'].concat(ps),tr),'Pool = share % × total sales before GST (GST-inclusive). IT costs LMI pays are recovered first; excess carries forward. Equity 40% (4-yr vesting).');
+  var L2=['GP / SGP commission (accrued)','GP PINs booked','SGP PINs booked','GP / SGP token fees'];
+  h+=card('Growth / Super Growth Partners (plan)',table(['Line'].concat(ps),L2.map(function(l){return [esc(l)].concat(ps.map(function(p){var v=agg(D.proj,rowsIn(D.proj,p),l);return /PINs/.test(l)?num(v):inr(v);}));})));
+  return h;
+}
+
+function vFr(){
+  var s=D.score, I=function(h){return s.head.indexOf(h);};
+  var h=card('Franchise scorecard — as of '+dt(s.asof),'<div class="note">Targets follow Annexure A/D scaled to each territory; red marker = Franchise Minimum floor. Tap a franchise for monthly history.</div>'+
+    s.rows.map(function(r,i){var st=r[I('Status')],cls=st==='On target'?'g':(st==='Above floor'?'a':(st==='Below floor'?'r':'n'));
+      function meter(lbl,act,tgt,floor){var w=tgt?Math.min(1,act/tgt):0,fl=tgt&&floor?floor/tgt:null;return '<div class="m"><div class="t">'+lbl+': <b>'+num(act)+'</b> / '+num(tgt)+'</div><div class="bar"><i style="width:'+w*100+'%"></i>'+(fl!=null?'<b style="left:'+fl*100+'%"></b>':'')+'</div></div>';}
+      var hist=D.fm.rows.filter(function(x){return String(x[1])===String(r[0]);}).map(function(x){return [dt(x[0]),num(x[2]),num(x[3]),num(x[4]),inr(x[5],1),inr(x[9],1),esc(x[7])];});
+      return '<div class="fr" onclick="this.classList.toggle(\'open\')"><div class="hd"><div><b>'+esc(r[0])+'</b> · '+esc(r[1])+' <span class="note">('+esc(r[2])+', month '+num(r[I('Territory month #')])+')</span></div><span class="chip '+cls+'">'+esc(st)+'</span></div><div class="meters">'+
+        meter('Paid listings',r[I('Paid actual (cum.)')],r[I('Paid target (cum.)')],r[I('Paid floor (cum.)')])+meter('Free listings',r[I('Free actual (cum.)')],r[I('Free listings min (cum.)')],null)+
+        meter('Users',r[I('Users actual')],r[I('Users min')],null)+meter('Sponsorship (month)',r[I('Sponsorship — month')],r[I('Sponsorship target — month')],r[I('Sponsorship target — month')]/2)+
+        '</div><div class="detail">'+table(['Month','New paid','New free','Users','Territory rev.','Share','Notes'],hist)+'</div></div>';}).join(''));
+  var ps=periods(), L=['New franchises','Active franchises','Active paid listings','Avg locked price / listing','TERRITORY REVENUE (franchise PINs)'];
+  h+=card('Network plan by '+TYPE.toLowerCase(),table(['Line'].concat(ps),L.map(function(l){return [esc(l)].concat(ps.map(function(p){var v=agg(D.proj,rowsIn(D.proj,p),l);return /REVENUE|price/.test(l)?inr(v):num(v);}));})));
+  return h;
+}
+
+function opy(iso){var d=String(iso).slice(0,7);if(d<'2026-10')return 'Pre-launch';var y=+d.slice(0,4),m=+d.slice(5,7),idx=(y-2026)*12+m-10;return 'Y'+(Math.floor(idx/12)+1);}
+function expKey(r){if(TYPE==='Op-Year')return opy(r[0]);return r[D.exp.head.indexOf(TYPES[TYPE])];}
+function vExp(){
+  var E=D.exp, gi=E.head.slice(4,E.head.length-3), today=new Date().toISOString().slice(0,7);
+  var rows=E.rows.filter(function(r){return String(r[0]).slice(0,7)<=today;});
+  var keys=[];rows.forEach(function(r){var k=expKey(r);if(keys.indexOf(k)<0)keys.push(k);});keys=keys.filter(function(k){return rows.some(function(r){return expKey(r)===k&&nz(r[E.head.indexOf('GRAND TOTAL')])!==0;});}).slice(-8);
+  var sel=rows.filter(function(r){return expKey(r)===PERIOD;});
+  var tot=function(rs,h){var i=E.head.indexOf(h);return rs.reduce(function(a,r){return a+nz(r[i]);},0);};
+  var h='<div class="grid">'+tile('Spend — '+esc(plabel()),inr(tot(sel,'GRAND TOTAL')),'LMI '+inr(tot(sel,'TOTAL (LMI-borne)'))+' · IT '+inr(tot(sel,'TOTAL (Hemadri-borne IT)')),'exp','hero')+
+    tile('Avg monthly (last 2)',inr(K('burn')),'','cash')+'</div>';
+  h+=card('By group — '+esc(plabel()),sel.length?'<canvas id="c4"></canvas>':'<div class="note">No actual expenses in this period yet.</div>');
+  var tr=gi.concat(['TOTAL (LMI-borne)','TOTAL (Hemadri-borne IT)','GRAND TOTAL']).map(function(g){var r=[esc(g)].concat(keys.map(function(k){return inr(tot(rows.filter(function(x){return expKey(x)===k;}),g));}));if(g.indexOf('TOTAL')>=0)r._tot=1;return r;}).filter(function(r){return r.slice(1).some(function(c){return c!=='₹0'&&c!=='—';});});
+  h+=card('Actual spend by '+TYPE.toLowerCase(),table(['Group'].concat(keys),tr),'From Zoho Books. Re-map accounts in Category_Map (IT → Hemadri-borne is recovered from his share).');
+  h+=card('Recent transactions',table(['Date','Account','Vendor','Amount','Borne by'],D.recent.slice(0,40).map(function(x){return [dt(x.date,1),esc(x.account),esc(x.vendor),inr(x.amount,1),'<span class="chip '+(x.bearer==='HEMADRI'?'a':'n')+'">'+esc(x.bearer)+'</span>'];})));
+  window._after=function(){if(!sel.length)return;var vals=gi.map(function(g){return tot(sel,g);});var z=gi.map(function(g,i){return [g,vals[i]];}).filter(function(x){return x[1]>0;}).sort(function(a,b){return b[1]-a[1];});
+    chart('c4',{type:'bar',data:{labels:z.map(function(x){return x[0];}),datasets:[{data:z.map(function(x){return x[1];}),backgroundColor:'#0046BF'}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return inr(v);}}}}}});};
+  return h;
+}
+
+function vPlan(){
+  var ps=periods(), L=['New franchises','Active franchises','Active paid listings','Listing subscription revenue','Setup fee revenue','Sponsorship revenue','Franchise licence fees','Franchise kit fees','GP / SGP token fees',
+    'TOTAL SALES (ex-GST)','Franchise revenue share (accrued)','GP / SGP commission (accrued)','Hemadri pool — taxable (P&L cost)','LMI OPEX (gross)','EBITDA','EBITDA margin %','PAT','Cumulative PAT','Bank — closing (plan)'];
+  var tr=L.map(function(l){var r=[esc(l)].concat(ps.map(function(p){var v=agg(D.proj,rowsIn(D.proj,p),l,l==='EBITDA margin %'?'sum':null);
+    if(l==='EBITDA margin %'){var s=agg(D.proj,rowsIn(D.proj,p),'TOTAL SALES (ex-GST)'),e=agg(D.proj,rowsIn(D.proj,p),'EBITDA');return s?pct(e/s):'—';}
+    return /franchises|listings$/.test(l)?num(v):inr(v);}));if(/TOTAL|EBITDA$|PAT$/.test(l))r._tot=1;return r;});
+  var a=D.assume, h=card('36-month plan by '+TYPE.toLowerCase(),table(['Line'].concat(ps),tr),'Plan pace '+pct(a.PLAN_PACE)+' of Annexure target · churn '+pct(a.CHURN)+'/mo · sponsorship from '+dt(a.SPONS_LAUNCH)+'. Edit Assumptions, Drivers and Rate_Card in the Sheet.');
+  if(D.baselines&&D.baselines.length){
+    h+=card('Live plan vs saved baselines','<select id="bl">'+D.baselines.map(function(b,i){return '<option value="'+i+'">'+esc(b.name)+'</option>';}).join('')+'</select><div id="blt"></div>');
+    window._after=function(){var s=document.getElementById('bl');var f=function(){var b=D.baselines[+s.value];var bt={head:b.head,rows:b.rows};
+      var r=['TOTAL SALES (ex-GST)','EBITDA','PAT'].map(function(l){var bi=bt.head.indexOf(l);return [esc(l)].concat(ps.map(function(p){var live=agg(D.proj,rowsIn(D.proj,p),l);
+        var base=bt.rows.filter(function(x){return x[bt.head.indexOf(TYPES[TYPE])]===p;}).reduce(function(q,x){return q+nz(x[bi]);},0);return inr(live)+'<br><span class="note">was '+inr(base)+'</span>';}));});
+      document.getElementById('blt').innerHTML=table(['Line'].concat(ps),r);};s.onchange=f;f();};
+  }
+  return h;
+}
+
+function vRates(){
+  var R=D.rate, today=new Date().toISOString().slice(0,10), cur=null;
+  R.rows.forEach(function(r){if(String(r[0])<=today)cur=r;});
+  var fmt=function(h,v){return h.indexOf('%')>=0?pct(v):(h==='Effective from'?dt(v,1):h.indexOf('What')===0?esc(v):inr(v,1));};
+  var h=card('In force today'+(cur?' (since '+dt(cur[0],1)+')':''),cur?'<div class="kv">'+R.head.slice(1,26).map(function(hh,i){return '<div>'+esc(hh)+'</div><div>'+fmt(hh,cur[i+1])+'</div>';}).join('')+'</div>':'—',
+    'To change any price, fee, discount, share % or commission: add a row in the Rate_Card tab with its effective-from date (1st of a month). Past dates correct history; future dates schedule a change.');
+  h+=card('Rate history & scheduled changes',table(R.head,R.rows.map(function(r){return r.map(function(v,i){return fmt(R.head[i],v);});})));
+  return h;
+}
+
+function vLeads(){
+  var L=D.leads, si=L.head.indexOf('Stage'), src=L.head.indexOf('Lead generated through'), fit=L.head.indexOf('May be Suited for (our thought)');
+  var cnt=function(i){var o={};L.rows.forEach(function(r){var k=r[i]||'—';o[k]=(o[k]||0)+1;});return o;};
+  var st=cnt(si), order=['New','Connected','Presented','Met'];
+  var h='<div class="grid">'+order.map(function(s){return tile(s,num(st[s]||0),'','leads');}).join('')+'</div>';
+  var tb=function(o){return table(['',''],Object.keys(o).sort(function(a,b){return o[b]-o[a];}).map(function(k){return [esc(k),num(o[k])];}));};
+  h+='<div class="two">'+card('By source',tb(cnt(src)))+card('Best fit (our view)',tb(cnt(fit)))+'</div>';
+  h+=card('Pipeline',table(['Name','City','Fit','Stage','Latest update'],L.rows.map(function(r){return [esc(r[1]),esc(r[2]),esc(r[fit]),esc(r[si]),esc(String(r[10]||'').slice(0,80))];})));
+  return h;
+}
+
+// ── data
+var TOK = (location.hash.match(/tok=([^&]+)/) || [])[1]; TOK = TOK ? decodeURIComponent(TOK) : '';
+if (!TOK) { window.top.location.href = 'https://listmyindia.org/mytracker/'; }
+try { history.replaceState(null, '', location.pathname); } catch (e) {}
+function load(){document.getElementById('load').style.display='block';
+  google.script.run.withSuccessHandler(function(s){D=JSON.parse(s);document.getElementById('load').style.display='none';
+    if(!PERIOD)PERIOD=curPeriod();
+    var sy=D.sync;document.getElementById('syncTxt').textContent=sy?('Zoho sync: '+dt(sy[0],1)+' · '+sy[1]):'Not synced yet';
+    document.getElementById('syncBtn').style.display=D.owner?'inline-block':'none';
+    buildShell();render();})
+  .withFailureHandler(function(e){document.getElementById('load').textContent='Could not load: '+e.message;}).getData(TOK);}
+document.getElementById('syncBtn').onclick=function(){var b=this;b.disabled=true;b.textContent='Syncing…';
+  google.script.run.withSuccessHandler(function(m){b.disabled=false;b.textContent='Sync now';load();})
+  .withFailureHandler(function(e){b.disabled=false;b.textContent='Sync now';alert('Sync failed: '+e.message);}).syncFromWeb(TOK);};
+// ── Log in / Log out: Google's sign-in opens in a small window; when it closes the tracker reloads
+function lmiAuth(k){var a=document.createElement('a');a.href='https://listmyindia.org/mytracker/';a.target='_top';a.rel='noopener';
+  document.body.appendChild(a);a.click();a.remove();}
+load();
+</script>
+</body>
+</html>
