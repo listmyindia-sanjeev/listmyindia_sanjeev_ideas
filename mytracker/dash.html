@@ -103,6 +103,8 @@ canvas{max-height:300px}
   .brand{display:flex;align-items:center;gap:8px}
   .brand .logo{height:26px;margin:0}
   .brand b{font-size:14px;font-weight:600;opacity:.9}
+  .brand{min-width:0;flex:1 1 auto}.brand .logo{flex:none}
+  .brand b{min-width:0;white-space:normal;font-size:12.5px;line-height:1.15;max-width:72px;padding-left:8px;border-left:1px solid rgba(255,255,255,.25)}
   .acct,header .hdr2,header .meta{display:none}
   .mbar{display:flex;gap:8px;align-items:center;flex:none}
   #pchip{height:34px;border-radius:17px;border:0;background:var(--yel);color:var(--navy);font:600 13px Poppins,system-ui,sans-serif;padding:0 14px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
