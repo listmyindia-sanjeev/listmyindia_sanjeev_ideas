@@ -188,7 +188,7 @@ function lmiRun_(ok, bad) {
 <script>
 var D=null, TYPE='Month', PERIOD=null, TAB='overview', charts=[];
 var TYPES={'Month':'Label','Quarter':'Fiscal Qtr','FY':'FY','Op-Year':'Op-Year'};
-var TABS=[['overview','Overview'],['pnl','P&L'],['cash','Cash & Funds'],['gst','GST & TDS'],['pay','Payables'],['fr','Franchises'],['exp','Expenses'],['plan','Plan 36m'],['rates','Rate Card'],['leads','Leads']];
+var TABS=[['overview','Overview'],['pnl','P&L'],['cash','Cash & Funds'],['gst','GST & TDS'],['pay','Payables'],['fr','Franchises'],['exp','Expenses'],['plan','Planned 36m'],['rates','Rate Card'],['leads','Leads']];
 
 function inr(v,full){if(v===''||v===null||v===undefined||isNaN(v))return '—';var n=Number(v),a=Math.abs(n),s=n<0?'-':'';
   if(!full&&a>=1e7)return s+'₹'+(a/1e7).toFixed(2)+' Cr'; if(!full&&a>=1e5)return s+'₹'+(a/1e5).toFixed(2)+' L';
@@ -259,7 +259,7 @@ function tile(lbl,val,sub,goTo,cls,bar){return '<div class="tile '+(cls||'')+'" 
 function chart(id,cfg){var c=new Chart(document.getElementById(id),cfg);charts.push(c);}
 function table(head,rows,opts){opts=opts||{};var nc=head.length,lay=nc>8?'tw':(nc>=4?'tc':'');
   var h='<div class="tbl '+lay+'">'+(lay==='tw'?'<div class="swipe">Swipe sideways for more →</div>':'')+'<table><thead><tr>'+head.map(function(x){return '<th>'+esc(x)+'</th>';}).join('')+'</tr></thead><tbody>';
-  rows.forEach(function(r,i){var cls=(r._tot?'tot ':'')+(opts.click?'click':'');h+='<tr class="'+cls+'"'+(opts.click?' onclick="'+opts.click(r,i)+'"':'')+'>'+r.map(function(c,j){return '<td data-l="'+esc(String(head[j]||''))+'">'+c+'</td>';}).join('')+'</tr>';});
+  rows.forEach(function(r,i){var cls=(r._tot?'tot ':'')+(opts.click?'click':'');h+='<tr class="'+cls+'"'+(opts.click?' onclick="'+opts.click(r,i)+'"':'')+'>'+r.map(function(c,j){if(j===0&&typeof c==='string')c=c.replace('(plan)','(planned)');return '<td data-l="'+esc(String(head[j]||''))+'">'+c+'</td>';}).join('')+'</tr>';});
   return h+'</tbody></table></div>';}
 // ── listings drill-down: PIN → customers → invoices (from Zoho invoices)
 function pdate(s){s=String(s||'');if(/^\d{4}-\d\d-\d\d/.test(s))return s.slice(0,10);
@@ -326,22 +326,22 @@ function vOverview(){
     tile('Bank balance',inr(K('bank')),'as of '+dt(K('bank_asof'),1),'cash','hero')+
     tile('Free cash after dues',inr(free),'Dues '+inr(K('liab_tot')),'cash',free<0?'alert':'')+
     tile('Runway',Number(runway).toFixed(1)+' mo','at '+inr(K('burn'))+'/mo spend','cash',runway<3?'alert':'')+
-    tile('Plan cash low point',inr(K('low')),'in '+esc(K('low_m'))+(K('fund_need')>0?' · need '+inr(K('fund_need')):''),'cash',K('low')<0?'alert':'')+
-    tile('Sales — '+esc(plabel()),sa===''?'—':inr(sa),'Plan '+inr(sp)+(sa!==''&&sp?' · '+pct(sa/sp):''),'pnl','',sa!==''&&sp?sa/sp:null)+
-    tile('EBITDA — '+esc(plabel()),ea===''?'—':inr(ea),'Plan '+inr(ep),'pnl')+
-    tile('Active franchises',num(K('fr_act')),'Plan '+num(K('fr_plan'))+' this month','fr','',K('fr_plan')?K('fr_act')/K('fr_plan'):null)+
-    tile('Paid listings ›',num(LST().count),'Plan active '+num(K('pl_plan'))+' · tap for PIN-wise','!drill()','',K('pl_plan')?LST().count/K('pl_plan'):null)+
+    tile('Planned cash low point',inr(K('low')),'in '+esc(K('low_m'))+(K('fund_need')>0?' · need '+inr(K('fund_need')):''),'cash',K('low')<0?'alert':'')+
+    tile('Sales — '+esc(plabel()),sa===''?'—':inr(sa),'Planned '+inr(sp)+(sa!==''&&sp?' · '+pct(sa/sp):''),'pnl','',sa!==''&&sp?sa/sp:null)+
+    tile('EBITDA — '+esc(plabel()),ea===''?'—':inr(ea),'Planned '+inr(ep),'pnl')+
+    tile('Active franchises',num(K('fr_act')),'Planned '+num(K('fr_plan'))+' this month','fr','',K('fr_plan')?K('fr_act')/K('fr_plan'):null)+
+    tile('Paid listings ›',num(LST().count),'Planned active '+num(K('pl_plan'))+' · tap for PIN-wise','!drill()','',K('pl_plan')?LST().count/K('pl_plan'):null)+
     tile('Franchise payable',inr(K('liab_fr')),num(K('below'))+' below floor','pay',K('below')>0?'alert':'')+
     tile('Hemadri IT carry-forward',inr(K('hem_cf')),'recoverable from future share','pay')+
-    tile('EBITDA breakeven',esc(K('be_m')),'actuals + plan · cash breakeven '+esc(K('cash_be')),'plan')+
+    tile('EBITDA breakeven',esc(K('be_m')),'actuals + planned · cash breakeven '+esc(K('cash_be')),'plan')+
     tile('GST payable',inr(K('liab_gst')),'TDS '+inr(K('liab_tds')),'gst')+'</div>';
-  h+='<div class="two">'+card('Sales — plan vs actual (monthly)','<canvas id="c1"></canvas>')+card('Bank balance — plan forecast','<canvas id="c2"></canvas>','From the live Zoho balance in the current month onward')+'</div>';
+  h+='<div class="two">'+card('Sales — planned vs actual (monthly)','<canvas id="c1"></canvas>')+card('Bank balance — planned forecast','<canvas id="c2"></canvas>','From the live Zoho balance in the current month onward')+'</div>';
   window._after=function(){
     var lab=D.proj.rows.map(function(r){return r[1];}), ia=ci(D.act,'TOTAL SALES (ex-GST)'), ic=ci(D.act,'Closed?');
-    chart('c1',{type:'bar',data:{labels:lab,datasets:[{label:'Plan',data:D.proj.rows.map(function(r){return r[ci(D.proj,'TOTAL SALES (ex-GST)')];}),backgroundColor:'#C9D6F5'},
+    chart('c1',{type:'bar',data:{labels:lab,datasets:[{label:'Planned',data:D.proj.rows.map(function(r){return r[ci(D.proj,'TOTAL SALES (ex-GST)')];}),backgroundColor:'#C9D6F5'},
       {label:'Actual',data:D.act.rows.map(function(r){return nz(r[ic])>0?r[ia]:null;}),backgroundColor:'#0046BF'}]},options:{plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:function(v){return inr(v);}}}}}});
     var cc=ci(D.proj,'Bank — closing (plan)');
-    chart('c2',{type:'line',data:{labels:lab,datasets:[{label:'Closing bank (plan)',data:D.proj.rows.map(function(r){return r[cc]===''?null:r[cc];}),borderColor:'#0046BF',fill:true,backgroundColor:'rgba(0,70,191,.08)',tension:.25}]},options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return inr(v);}}}}}});
+    chart('c2',{type:'line',data:{labels:lab,datasets:[{label:'Closing bank (planned)',data:D.proj.rows.map(function(r){return r[cc]===''?null:r[cc];}),borderColor:'#0046BF',fill:true,backgroundColor:'rgba(0,70,191,.08)',tension:.25}]},options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:function(v){return inr(v);}}}}}});
   };
   return h;
 }
@@ -359,18 +359,18 @@ function vPnl(){
   var pr=rowsIn(D.proj,PERIOD), ar=actRows(PERIOD);
   var rows=PNL.map(function(l){var p=pnlVal(l,D.proj,pr,false), a=ar.length?pnlVal(l,D.act,ar,true):'';var sg=l[4]||1;
     var r=[esc(l[0]),inr(p),inr(a),a===''||p===''?'—':'<span class="'+vcls((a-p)*sg)+'">'+inr(a-p)+'</span>',p&&a!==''?pct(a/p):'—'];if(l[3])r._tot=1;return r;});
-  var h=card('P&L — '+esc(plabel()),table(['Line','Plan','Actual','Variance','Achieved'],rows),ar.length?'Actual covers '+ar.length+' month(s) with Zoho data; EBITDA actual is approximate (no GP/SGP or kit cost split yet).':'No actuals yet for this period.');
+  var h=card('P&L — '+esc(plabel()),table(['Line','Planned','Actual','Variance','Achieved'],rows),ar.length?'Actual covers '+ar.length+' month(s) with Zoho data; EBITDA actual is approximate (no GP/SGP or kit cost split yet).':'No actuals yet for this period.');
   var ps=periods(), lines=['TOTAL SALES (ex-GST)','Franchise revenue share (accrued)','Hemadri pool — taxable (P&L cost)','LMI OPEX (gross)','EBITDA','PAT'];
   var tr=lines.map(function(l){var r=[esc(l)].concat(ps.map(function(p){return inr(agg(D.proj,rowsIn(D.proj,p),l));}));if(l==='EBITDA'||l==='PAT')r._tot=1;return r;});
   tr.push(['Actual sales'].concat(ps.map(function(p){var a=actRows(p);return a.length?inr(agg(D.act,a,'TOTAL SALES (ex-GST)')):'—';})));
-  h+=card('Plan by '+TYPE.toLowerCase(),table(['Line'].concat(ps.map(function(p){return TYPE==='Op-Year'?'Op-Yr '+String(p).slice(1):p;})),tr));
+  h+=card('Planned by '+TYPE.toLowerCase(),table(['Line'].concat(ps.map(function(p){return TYPE==='Op-Year'?'Op-Yr '+String(p).slice(1):p;})),tr));
   return h;
 }
 
 function vCash(){
   var h='<div class="grid">'+tile('Bank (Zoho)',inr(K('bank')),'as of '+dt(K('bank_asof'),1),'cash','hero')+tile('Total dues',inr(K('liab_tot')),'','pay')+
     tile('Free cash',inr(K('free')),'','cash',K('free')<0?'alert':'')+tile('Avg monthly spend',inr(K('burn')),'last 2 closed months','exp')+
-    tile('Lowest plan balance',inr(K('low')),esc(K('low_m')),'cash',K('low')<0?'alert':'')+tile('Funding needed',inr(K('fund_need')),'to stay ≥ ₹0','cash',K('fund_need')>0?'alert':'')+
+    tile('Lowest planned balance',inr(K('low')),esc(K('low_m')),'cash',K('low')<0?'alert':'')+tile('Funding needed',inr(K('fund_need')),'to stay ≥ ₹0','cash',K('fund_need')>0?'alert':'')+
     tile('Hemadri token due',inr(K('hem_tok')),'of ₹3.5 L commitment','pay')+'</div>';
   h+=card('Dues right now','<div class="kv"><div>Franchise revenue share outstanding</div><div>'+inr(K('liab_fr'),1)+'</div><div>GST payable (last closed month)</div><div>'+inr(K('liab_gst'),1)+'</div><div>TDS payable (by 7th)</div><div>'+inr(K('liab_tds'),1)+'</div><div>Payable to Penny Software</div><div>'+inr(K('liab_pen'),1)+'</div><div><b>Total</b></div><div>'+inr(K('liab_tot'),1)+'</div></div>');
   var ps=periods(), L=['Cash in — collections + funding','Cash out — all payments','Net cash flow','Bank — closing (plan)'];
@@ -401,7 +401,7 @@ function vPay(){
   ['Hemadri pool','IT cost paid by LMI','Penny payable','IT carry-forward closing'].forEach(function(l){tr.push([esc(l)+' — ACTUAL'].concat(ps.map(function(p){var a=actRows(p);return a.length?inr(agg(D.act,a,l)):'—';})));});
   h+=card('Hemadri revenue share & IT cost recovery',table(['Line'].concat(ps),tr),'Pool = share % × total sales before GST (GST-inclusive). IT costs LMI pays are recovered first; excess carries forward. Equity 40% (4-yr vesting).');
   var L2=['GP / SGP commission (accrued)','GP PINs booked','SGP PINs booked','GP / SGP token fees'];
-  h+=card('Growth / Super Growth Partners (plan)',table(['Line'].concat(ps),L2.map(function(l){return [esc(l)].concat(ps.map(function(p){var v=agg(D.proj,rowsIn(D.proj,p),l);return /PINs/.test(l)?num(v):inr(v);}));})));
+  h+=card('Growth / Super Growth Partners (planned)',table(['Line'].concat(ps),L2.map(function(l){return [esc(l)].concat(ps.map(function(p){var v=agg(D.proj,rowsIn(D.proj,p),l);return /PINs/.test(l)?num(v):inr(v);}));})));
   return h;
 }
 
@@ -416,7 +416,7 @@ function vFr(){
         meter('Users',r[I('Users actual')],r[I('Users min')],null)+meter('Sponsorship (month)',r[I('Sponsorship — month')],r[I('Sponsorship target — month')],r[I('Sponsorship target — month')]/2)+
         '</div><div class="detail">'+table(['Month','New paid','New free','Users','Territory rev.','Share','Notes'],hist)+'</div></div>';}).join(''));
   var ps=periods(), L=['New franchises','Active franchises','Active paid listings','Avg locked price / listing','TERRITORY REVENUE (franchise PINs)'];
-  h+=card('Network plan by '+TYPE.toLowerCase(),table(['Line'].concat(ps),L.map(function(l){return [esc(l)].concat(ps.map(function(p){var v=agg(D.proj,rowsIn(D.proj,p),l);return /REVENUE|price/.test(l)?inr(v):num(v);}));})));
+  h+=card('Network planned by '+TYPE.toLowerCase(),table(['Line'].concat(ps),L.map(function(l){return [esc(l)].concat(ps.map(function(p){var v=agg(D.proj,rowsIn(D.proj,p),l);return /REVENUE|price/.test(l)?inr(v):num(v);}));})));
   return h;
 }
 
@@ -445,9 +445,9 @@ function vPlan(){
   var tr=L.map(function(l){var r=[esc(l)].concat(ps.map(function(p){var v=agg(D.proj,rowsIn(D.proj,p),l,l==='EBITDA margin %'?'sum':null);
     if(l==='EBITDA margin %'){var s=agg(D.proj,rowsIn(D.proj,p),'TOTAL SALES (ex-GST)'),e=agg(D.proj,rowsIn(D.proj,p),'EBITDA');return s?pct(e/s):'—';}
     return /franchises|listings$/.test(l)?num(v):inr(v);}));if(/TOTAL|EBITDA$|PAT$/.test(l))r._tot=1;return r;});
-  var a=D.assume, h=card('36-month plan by '+TYPE.toLowerCase(),table(['Line'].concat(ps),tr),'Plan pace '+pct(a.PLAN_PACE)+' of Annexure target · churn '+pct(a.CHURN)+'/mo · sponsorship from '+dt(a.SPONS_LAUNCH)+'. Edit Assumptions, Drivers and Rate_Card in the Sheet.');
+  var a=D.assume, h=card('36-month planned by '+TYPE.toLowerCase(),table(['Line'].concat(ps),tr),'Planned pace '+pct(a.PLAN_PACE)+' of Annexure target · churn '+pct(a.CHURN)+'/mo · sponsorship from '+dt(a.SPONS_LAUNCH)+'. Edit Assumptions, Drivers and Rate_Card in the Sheet.');
   if(D.baselines&&D.baselines.length){
-    h+=card('Live plan vs saved baselines','<select id="bl">'+D.baselines.map(function(b,i){return '<option value="'+i+'">'+esc(b.name)+'</option>';}).join('')+'</select><div id="blt"></div>');
+    h+=card('Live planned vs saved baselines','<select id="bl">'+D.baselines.map(function(b,i){return '<option value="'+i+'">'+esc(b.name)+'</option>';}).join('')+'</select><div id="blt"></div>');
     window._after=function(){var s=document.getElementById('bl');var f=function(){var b=D.baselines[+s.value];var bt={head:b.head,rows:b.rows};
       var r=['TOTAL SALES (ex-GST)','EBITDA','PAT'].map(function(l){var bi=bt.head.indexOf(l);return [esc(l)].concat(ps.map(function(p){var live=agg(D.proj,rowsIn(D.proj,p),l);
         var base=bt.rows.filter(function(x){return x[bt.head.indexOf(TYPES[TYPE])]===p;}).reduce(function(q,x){return q+nz(x[bi]);},0);return inr(live)+'<br><span class="note">was '+inr(base)+'</span>';}));});
