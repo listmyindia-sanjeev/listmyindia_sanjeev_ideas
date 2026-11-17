@@ -69,7 +69,7 @@
     document.getElementById('err').style.display = 'none';
     document.getElementById('gate').style.display = 'none';
     var f = document.getElementById('app');
-    f.src = 'dash.html#tok=' + encodeURIComponent(tok) + '&em=' + encodeURIComponent(email);
+    f.src = 'dash.html?v=' + Date.now() + '#tok=' + encodeURIComponent(tok) + '&em=' + encodeURIComponent(email);
     f.style.display = 'block';
   }
   function onToken(r) {
