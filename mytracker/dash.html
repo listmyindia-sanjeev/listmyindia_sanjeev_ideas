@@ -18,6 +18,7 @@ header{background:var(--navy);color:#fff;padding:12px 16px 14px;padding-top:max(
 .brand{min-width:0}
 .brand small{display:block;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--yel)}
 .brand b{display:block;font-size:19px;font-weight:700;line-height:1.2;white-space:nowrap}
+.brand .logo{display:block;height:34px;width:auto;margin-bottom:8px}
 .acct{display:flex;gap:6px;flex:none}
 .pill{height:32px;padding:0 12px;border-radius:16px;font:600 12px Poppins,system-ui,sans-serif;cursor:pointer;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;white-space:nowrap}
 .pill.y{background:var(--yel);border-color:var(--yel);color:var(--navy)}
@@ -72,12 +73,28 @@ canvas{max-height:300px}
 .fr .meters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:10px}
 .m .t{font-size:11px;color:var(--mute)}.m .bar{position:relative}.m .bar b{position:absolute;top:-2px;width:2px;height:10px;background:var(--bad)}
 .detail{display:none;margin-top:10px}.fr.open .detail{display:block}
+.dr{position:fixed;inset:0;background:rgba(5,19,45,.5);display:none;z-index:60;align-items:flex-end;justify-content:center}
+.dr.on{display:flex}
+.drp{background:#fff;width:100%;max-width:720px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:6px 16px 28px;box-sizing:border-box}
+.drh{position:sticky;top:0;background:#fff;display:flex;align-items:center;gap:8px;padding:10px 0 8px;border-bottom:1px solid #eef1f7;z-index:1}
+.drh b{flex:1;font-size:16px;color:var(--navy);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drh button{flex:none;width:36px;height:36px;border-radius:10px;border:1px solid #dde3ee;background:#fff;font-size:18px;cursor:pointer;color:var(--navy)}
+.drs{font-size:12px;color:#667;margin:8px 0 4px}
+.dri{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid #eef1f7}
+.dri.go{cursor:pointer}.dri.go:hover{background:#f7f9fd}
+.dri .a{min-width:0}.dri .a b{display:block;font-size:14px;color:var(--navy);overflow-wrap:anywhere}
+.dri small{display:block;font-size:12px;color:#667;margin-top:2px}
+.dri .z{flex:none;text-align:right;font-weight:600;font-size:14px;color:var(--navy)}
+.dri .z i{font-style:normal;color:#9aa5b8;margin-left:6px}
+.tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;background:#e8f5e9;color:#1b5e20;margin-left:6px;font-weight:600}
+.tag.o{background:#fff3e0;color:#a64b00}
+@media(min-width:760px){.dr{align-items:center}.drp{border-radius:18px}}
 </style>
 </head>
 <body>
 <header>
   <div class="top">
-    <div class="brand"><small>List My India™</small><b>Founder Tracker</b></div>
+    <div class="brand"><img class="logo" src="lmi-logo.png" alt="List My India™"><b>Founder Tracker</b></div>
     <div class="acct"><button class="pill" onclick="lmiAuth('out')">Log out</button></div>
   </div>
   <div class="hdr2">
@@ -91,6 +108,9 @@ canvas{max-height:300px}
   <div class="meta"><div class="status" id="syncTxt">Loading…</div><div class="who" id="who"></div></div>
 </header>
 <nav id="tabs" class="stick"></nav>
+<div class="dr" id="dr" onclick="if(event.target===this)drClose()"><div class="drp"><div class="drh">
+<button id="drBack" onclick="drBack()" aria-label="Back">‹</button><b id="drT"></b><button onclick="drClose()" aria-label="Close">✕</button></div>
+<div class="drs" id="drS"></div><div id="drB"></div></div></div>
 <main><div id="load">Loading live data…</div><div id="view"></div></main>
 
 <script>
@@ -157,11 +177,58 @@ function buildShell(){
 }
 function go(t){TAB=t;buildShell();render();window.scrollTo(0,0);}
 function card(title,body,sub){return '<div class="card"><h3>'+title+'</h3>'+(sub?'<div class="sub">'+sub+'</div>':'')+body+'</div>';}
-function tile(lbl,val,sub,goTo,cls,bar){return '<div class="tile '+(cls||'')+'" onclick="go(\''+goTo+'\')"><div class="l">'+lbl+'</div><div class="v">'+val+'</div>'+(sub?'<div class="s">'+sub+'</div>':'')+(bar!=null?'<div class="bar"><i style="width:'+Math.max(0,Math.min(100,bar*100))+'%"></i></div>':'')+'</div>';}
+function tile(lbl,val,sub,goTo,cls,bar){return '<div class="tile '+(cls||'')+'" onclick="'+(goTo.charAt(0)==='!'?goTo.slice(1):'go(\''+goTo+'\')')+'"><div class="l">'+lbl+'</div><div class="v">'+val+'</div>'+(sub?'<div class="s">'+sub+'</div>':'')+(bar!=null?'<div class="bar"><i style="width:'+Math.max(0,Math.min(100,bar*100))+'%"></i></div>':'')+'</div>';}
 function chart(id,cfg){var c=new Chart(document.getElementById(id),cfg);charts.push(c);}
 function table(head,rows,opts){opts=opts||{};var h='<div class="tbl"><table><thead><tr>'+head.map(function(x){return '<th>'+esc(x)+'</th>';}).join('')+'</tr></thead><tbody>';
   rows.forEach(function(r,i){var cls=(r._tot?'tot ':'')+(opts.click?'click':'');h+='<tr class="'+cls+'"'+(opts.click?' onclick="'+opts.click(r,i)+'"':'')+'>'+r.map(function(c){return '<td>'+c+'</td>';}).join('')+'</tr>';});
   return h+'</tbody></table></div>';}
+// ── listings drill-down: PIN → customers → invoices (from Zoho invoices)
+function pdate(s){s=String(s||'');if(/^\d{4}-\d\d-\d\d/.test(s))return s.slice(0,10);
+  var m=s.match(/^(\d{1,2})[-\/ ]([A-Za-z]{3})[-\/ ](\d{2,4})$/);if(m){var mi=MN.indexOf(m[2].charAt(0).toUpperCase()+m[2].slice(1,3).toLowerCase());
+    var y=m[3].length===2?'20'+m[3]:m[3];return y+'-'+('0'+(mi+1)).slice(-2)+'-'+('0'+m[1]).slice(-2);}
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(m)return m[3]+'-'+('0'+m[1]).slice(-2)+'-'+('0'+m[2]).slice(-2);return s;}
+function LST(){if(LST.c)return LST.c;
+  var byInv={},custs={};
+  (D.inv||[]).forEach(function(r){if(/void|draft/i.test(r.status))return;var k=r.no;
+    var i=byInv[k]||(byInv[k]={no:r.no,date:pdate(r.date),cust:String(r.cust||''),status:r.status,lines:[],amt:0,tax:0,pin:''});
+    i.lines.push(r);i.amt+=nz(r.amt);i.tax+=nz(r.tax);if(r.pin&&!i.pin)i.pin=r.pin;});
+  Object.keys(byInv).forEach(function(k){var i=byInv[k];var c=custs[i.cust]||(custs[i.cust]={name:i.cust,invs:[],pins:{},first:'',last:'',total:0,lt:0,listing:false});
+    c.invs.push(i);c.total+=i.amt+i.tax;
+    i.lines.forEach(function(l){if(/Listing Subscription|Setup Fee/.test(l.stream)){c.listing=true;c.lt+=nz(l.amt)+nz(l.tax);if(l.pin)c.pins[l.pin]=(c.pins[l.pin]||0)+1;
+      if(!c.first||i.date<c.first)c.first=i.date;if(!c.last||i.date>c.last)c.last=i.date;}});});
+  var list=Object.keys(custs).map(function(k){return custs[k];}).filter(function(c){return c.listing&&!/^list my india/i.test(c.name);});
+  var pins={};
+  list.forEach(function(c){c.pin=Object.keys(c.pins).sort(function(a,b){return c.pins[b]-c.pins[a];})[0]||'No PIN tag';
+    c.invs.sort(function(a,b){return a.date<b.date?1:(a.date>b.date?-1:0);});
+    var p=pins[c.pin]||(pins[c.pin]={pin:c.pin,custs:[],total:0,last:''});p.custs.push(c);p.total+=c.lt;if(c.last>p.last)p.last=c.last;});
+  var pl=Object.keys(pins).map(function(k){return pins[k];}).sort(function(a,b){return b.custs.length-a.custs.length||(a.pin<b.pin?-1:1);});
+  pl.forEach(function(p){p.custs.sort(function(a,b){return a.first<b.first?1:-1;});});
+  return LST.c={count:list.length,pins:pl};}
+var DR=[];
+function drShow(){var t=DR[DR.length-1];document.getElementById('drT').textContent=t.t;document.getElementById('drS').innerHTML=t.s;
+  document.getElementById('drB').innerHTML=t.h;document.getElementById('drBack').style.visibility=DR.length>1?'visible':'hidden';
+  document.getElementById('dr').classList.add('on');document.querySelector('#dr .drp').scrollTop=0;}
+function drClose(){DR=[];document.getElementById('dr').classList.remove('on');}
+function drBack(){if(DR.length>1){DR.pop();drShow();}else drClose();}
+function dri(a,sub,z,click){return '<div class="dri'+(click?' go':'')+'"'+(click?' onclick="'+click+'"':'')+'><div class="a"><b>'+a+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div><div class="z">'+z+(click?'<i>›</i>':'')+'</div></div>';}
+function isActive(c){var d=new Date();d.setDate(d.getDate()-35);return c.last>=d.toISOString().slice(0,10);}
+function drill(){var L=LST();
+  DR=[{t:'Paid listings — PIN-wise',s:L.count+' paying listing customers (from Zoho invoices) · amounts = listing income incl. GST · tap a PIN',
+    h:L.pins.map(function(p,i){var act=p.custs.filter(isActive).length;
+      return dri('PIN '+esc(p.pin),p.custs.length+' listing'+(p.custs.length>1?'s':'')+' · '+act+' paid in last 35 days · latest '+dt(p.last,true),inr(p.total,true),'drPin('+i+')');}).join('')||'<p class="drs">No listing invoices yet.</p>'}];
+  drShow();}
+function drPin(pi){var p=LST().pins[pi];
+  DR.push({t:'PIN '+p.pin,s:p.custs.length+' customer'+(p.custs.length>1?'s':'')+' · listing income incl. GST '+inr(p.total,true)+' · tap a customer',
+    h:p.custs.map(function(c,ci){return dri(esc(c.name)+(isActive(c)?'<span class="tag">Active</span>':'<span class="tag o">Renewal due</span>'),
+      'Listed since '+dt(c.first,true)+' · '+c.invs.length+' invoice'+(c.invs.length>1?'s':'')+' · last paid '+dt(c.last,true),inr(c.lt,true),'drCust('+pi+','+ci+')');}).join('')});
+  drShow();}
+function drCust(pi,ci){var c=LST().pins[pi].custs[ci];
+  DR.push({t:c.name,s:'PIN '+esc(c.pin)+' · '+c.invs.length+' invoice'+(c.invs.length>1?'s':'')+' · listings '+inr(c.lt,true)+(c.total-c.lt>1?' · all invoices '+inr(c.total,true):''),
+    h:c.invs.map(function(i){var items=i.lines.map(function(l){return esc(l.item)+' '+inr(nz(l.amt)+nz(l.tax),true);}).join(' + ');
+      return dri(esc(i.no)+' · '+dt(i.date,true)+' <span class="tag'+(/paid/i.test(i.status)?'':' o')+'">'+esc(i.status)+'</span>',
+        items+(i.tax?' · incl. GST '+inr(i.tax,true):' · no GST'),inr(i.amt+i.tax,true),'');}).join('')});
+  drShow();}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')drClose();});
 function vcls(v){return v>0?'pos':(v<0?'neg':'');}
 
 // ── tabs
@@ -184,10 +251,10 @@ function vOverview(){
     tile('Sales — '+esc(plabel()),sa===''?'—':inr(sa),'Plan '+inr(sp)+(sa!==''&&sp?' · '+pct(sa/sp):''),'pnl','',sa!==''&&sp?sa/sp:null)+
     tile('EBITDA — '+esc(plabel()),ea===''?'—':inr(ea),'Plan '+inr(ep),'pnl')+
     tile('Active franchises',num(K('fr_act')),'Plan '+num(K('fr_plan'))+' this month','fr','',K('fr_plan')?K('fr_act')/K('fr_plan'):null)+
-    tile('Paid listings',num(K('pl_act')),'Plan active '+num(K('pl_plan')),'fr','',K('pl_plan')?K('pl_act')/K('pl_plan'):null)+
+    tile('Paid listings ›',num(LST().count),'Plan active '+num(K('pl_plan'))+' · tap for PIN-wise','!drill()','',K('pl_plan')?LST().count/K('pl_plan'):null)+
     tile('Franchise payable',inr(K('liab_fr')),num(K('below'))+' below floor','pay',K('below')>0?'alert':'')+
     tile('Hemadri IT carry-forward',inr(K('hem_cf')),'recoverable from future share','pay')+
-    tile('EBITDA breakeven (plan)',esc(K('be_m')),'cash breakeven '+esc(K('cash_be')),'plan')+
+    tile('EBITDA breakeven',esc(K('be_m')),'actuals + plan · cash breakeven '+esc(K('cash_be')),'plan')+
     tile('GST payable',inr(K('liab_gst')),'TDS '+inr(K('liab_tds')),'gst')+'</div>';
   h+='<div class="two">'+card('Sales — plan vs actual (monthly)','<canvas id="c1"></canvas>')+card('Bank balance — plan forecast','<canvas id="c2"></canvas>','From the live Zoho balance in the current month onward')+'</div>';
   window._after=function(){
@@ -338,7 +405,7 @@ if (EM) { var w = document.getElementById('who'); w.innerHTML = '<i></i><span></
 if (!TOK) { window.top.location.href = 'https://listmyindia.org/mytracker/'; }
 try { history.replaceState(null, '', location.pathname); } catch (e) {}
 function load(){document.getElementById('load').style.display='block';
-  google.script.run.withSuccessHandler(function(s){D=JSON.parse(s);document.getElementById('load').style.display='none';
+  google.script.run.withSuccessHandler(function(s){D=JSON.parse(s);LST.c=null;document.getElementById('load').style.display='none';
     if(!PERIOD)PERIOD=curPeriod();
     var sy=D.sync;document.getElementById('syncTxt').textContent=sy?('Zoho sync: '+dt(sy[0],1)+' · '+sy[1]):'Not synced yet';
     document.getElementById('syncBtn').style.display=D.owner?'inline-block':'none';
