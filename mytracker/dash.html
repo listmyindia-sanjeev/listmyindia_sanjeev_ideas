@@ -450,10 +450,10 @@ function vPay(){
 
 function vFr(){
   var s=D.score, I=function(h){return s.head.indexOf(h);};
-  var h=card('Franchise scorecard — as of '+dt(s.asof),'<div class="note">Targets follow Annexure A/D scaled to each territory; red marker = Franchise Minimum floor. Tap a franchise for monthly history.</div>'+
+  var h=card('Franchise scorecard','<div class="note">Paid listings are live from Zoho invoices (same count as Home → Paid listings). Targets, floor and revenue share are as of '+dt(s.asof)+' (last closed month). Red marker = Franchise Minimum floor.</div>'+
     s.rows.map(function(r,i){var st=r[I('Status')],cls=st==='On target'?'g':(st==='Above floor'?'a':(st==='Below floor'?'r':'n'));
       function meter(lbl,act,tgt,floor){var w=tgt?Math.min(1,act/tgt):0,fl=tgt&&floor?floor/tgt:null;return '<div class="m"><div class="t">'+lbl+': <b>'+num(act)+'</b> / '+num(tgt)+'</div><div class="bar"><i style="width:'+w*100+'%"></i>'+(fl!=null?'<b style="left:'+fl*100+'%"></b>':'')+'</div></div>';}
-      var hist=D.fm.rows.filter(function(x){return String(x[1])===String(r[0]);}).map(function(x){return [dt(x[0]),num(x[2]),num(x[3]),num(x[4]),inr(x[5],1),inr(x[9],1),esc(x[7])];});
+      var today=new Date().toISOString().slice(0,10),hist=D.fm.rows.filter(function(x){return String(x[1])===String(r[0])&&String(x[0])<=today;}).map(function(x){return [dt(x[0]),num(x[2]),num(x[3]),num(x[4]),inr(x[5],1),inr(x[9],1),esc(x[7])];});
       return '<div class="fr" onclick="this.classList.toggle(\'open\')"><div class="hd"><div><b>'+esc(r[0])+'</b> · '+esc(r[1])+' <span class="note">('+esc(r[2])+', month '+num(r[I('Territory month #')])+')</span></div><span class="chip '+cls+'">'+esc(st)+'</span></div><div class="meters">'+
         meter('Paid listings',r[I('Paid actual (cum.)')],r[I('Paid target (cum.)')],r[I('Paid floor (cum.)')])+meter('Free listings',r[I('Free actual (cum.)')],r[I('Free listings min (cum.)')],null)+
         meter('Users',r[I('Users actual')],r[I('Users min')],null)+meter('Sponsorship (month)',r[I('Sponsorship — month')],r[I('Sponsorship target — month')],r[I('Sponsorship target — month')]/2)+
