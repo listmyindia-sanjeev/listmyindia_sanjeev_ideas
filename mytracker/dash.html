@@ -55,6 +55,22 @@ tr.click:hover td{background:#EEF3FF}
 .tile .v{font-size:20px;font-weight:700;margin-top:4px;overflow-wrap:anywhere}.tile.hero .v{font-size:26px}@media(min-width:760px){.tile .v,.tile.hero .v{font-size:22px}}
 .tile .s{font-size:12px;color:var(--mute);margin-top:4px}
 .tile.alert{border-color:#F3C1C1;background:#FFF7F7}
+.ldbar{display:flex;gap:8px;margin:0 0 10px}.ldbar input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:14px Poppins,system-ui,sans-serif;background:#fff}
+.ldadd{border:0;background:var(--blue);color:#fff;font:600 14px Poppins,system-ui,sans-serif;border-radius:12px;padding:10px 14px;cursor:pointer;white-space:nowrap}.ldadd:disabled{opacity:.6}.ldsec{border:1px solid var(--line);background:#fff;color:var(--ink);font:600 14px Poppins,system-ui,sans-serif;border-radius:12px;padding:10px 14px;cursor:pointer}
+.lchips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}.lchips::-webkit-scrollbar{display:none}
+.lch{flex:none;border:1px solid var(--line);background:#fff;border-radius:18px;padding:6px 12px;font:500 13px Poppins,system-ui,sans-serif;color:var(--ink);cursor:pointer}.lch b{color:var(--mute);font-weight:600;margin-left:2px}.lch.on{background:var(--navy);border-color:var(--navy);color:#fff}.lch.on b{color:var(--yel)}.lch.due{border-color:#F3C1C1;color:var(--bad)}.lch.due.on{background:var(--bad);border-color:var(--bad);color:#fff}
+.ld{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 8px;cursor:pointer;transition:border-color .12s,box-shadow .12s}.ld:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(5,19,45,.07)}.ld:active{transform:scale(.99);background:#F5F8FF}
+.ldh{display:flex;justify-content:space-between;align-items:center;gap:8px}.ldh b{font-size:15px;text-transform:capitalize}.lst{flex:none;font-size:11.5px;font-weight:600;border:1px solid;border-radius:12px;padding:2px 9px}
+.ldm{font-size:12.5px;color:var(--mute);margin-top:3px;text-transform:capitalize}.ldu{font-size:13px;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ldf{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-top:8px}.ldf .bad{color:var(--bad);font-weight:600}.ldf .lk{font-style:normal;margin:0 0 0 6px}
+.lform{display:grid;grid-template-columns:1fr 1fr;gap:10px 10px}.lform label{display:flex;flex-direction:column;gap:4px;min-width:0}.lform label.full{grid-column:1/-1}.lform span{font-size:11.5px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.03em}
+.lform input,.lform select,.lform textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:10px;font:14px Poppins,system-ui,sans-serif;background:#fff;color:var(--ink)}.lform textarea{resize:vertical}
+.lform input:focus,.lform select:focus,.lform textarea:focus,.ldt input:focus,.ldt select:focus{outline:2px solid var(--blue);outline-offset:-1px}
+.lact{display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:#fff;padding:12px 0 4px;margin-top:6px;border-top:1px solid var(--line)}.lact button{flex:1}
+.ldt th,.ldt td{text-align:left!important}.ldt td{padding:4px 4px;vertical-align:middle}.ldt td:first-child{width:28px}.ldt select,.ldt input{border:1px solid transparent;background:transparent;border-radius:8px;padding:6px 6px;font:13px Poppins,system-ui,sans-serif;color:var(--ink);min-width:132px;max-width:190px;width:100%;box-sizing:border-box}.ldt input[type=date]{min-width:140px}
+.ldt select:hover,.ldt input:hover{border-color:var(--line);background:#fff}.ldt .c_2 input{min-width:150px;font-weight:600}.ldt .c_11 input{min-width:220px;max-width:none}.ldt tr.due td{background:#FFF7F7}
+.saving{opacity:.5}.saved{border-color:var(--good)!important;background:#EAF7EF!important}.err{border-color:var(--bad)!important}
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:10px 16px;border-radius:20px;font:600 13px Poppins,system-ui,sans-serif;opacity:0;pointer-events:none;transition:all .2s;z-index:60}#toast.on{opacity:1;transform:translateX(-50%)}#toast.err{background:var(--bad)}@media(min-width:760px){#toast{bottom:28px}}
 #bk{position:sticky;top:var(--hd,0px);z-index:15;background:var(--bg);margin:-12px -12px 0;padding:10px 12px 0}#bk:empty{display:none}@media(min-width:760px){#bk{margin:-20px -20px 0;padding:12px 20px 0}}
 .fh{position:fixed;z-index:14;overflow:hidden;background:#FAFBFE;box-shadow:0 3px 8px rgba(5,19,45,.10);display:none;pointer-events:none}.fh table{border-collapse:collapse;table-layout:fixed;margin:0}.fh th{box-sizing:border-box}
 .bkb{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}.bkbtn{border:1px solid var(--blue);background:#fff;color:var(--blue);font:600 13px Poppins,system-ui,sans-serif;border-radius:18px;padding:7px 14px;cursor:pointer;transition:background .12s,color .12s}.bkbtn:hover{background:var(--blue);color:#fff}.bkbtn:active{transform:scale(.97)}
@@ -172,6 +188,7 @@ canvas{max-height:300px}
   <div class="meta"><div class="status" id="syncTxt">Loading…</div><div class="who" id="who"></div></div>
 </header>
 <nav id="tabs" class="stick"></nav>
+<div class="dr" id="le" onclick="if(event.target===this)ldClose()"><div class="drp"></div></div>
 <div class="dr" id="dr" onclick="if(event.target===this)drClose()"><div class="drp"><div class="drh">
 <button id="drBack" onclick="drBack()" aria-label="Back">‹</button><b id="drT"></b><button onclick="drClose()" aria-label="Close">✕</button></div>
 <div class="drs" id="drS"></div><div id="drB"></div></div></div>
@@ -509,16 +526,70 @@ function vRates(){
   return h;
 }
 
+var LF={q:'',st:'All',due:false};
+var LD_COL={'Stage':{'New':'#5B6478','Connected':'#0046BF','Presented':'#6A3FC1','Met':'#B76E00','Follow-up':'#D35400','Converted':'#0E8A4B','Not interested':'#C62828'}};
+var LD_SHORT={'Lead generated by':'Generated by','Lead generated through':'Source','May be Suited for (our thought)':'Fit (our view)','Their Thought':'Their view','Exploring for':'Exploring for','Current City':'City','Next follow-up':'Follow-up'};
+function ldi(h){return D.leads.head.indexOf(h)+1;}
+function ldv(r,h){var v=r[ldi(h)];return v==null?'':String(v);}
+function ldToday(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function ldDate(f){var p=String(f).split('-');var M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return p.length===3?(+p[2])+' '+M[+p[1]-1]+(p[0]!==String(new Date().getFullYear())?' '+p[0]:''):f;}
+function ldDue(r){var f=ldv(r,'Next follow-up');return f&&f<=ldToday();}
+function ldAgo(v){if(!v)return '';var t=new Date(String(v).replace(' ','T'));if(isNaN(t))return '';var d=Math.floor((Date.now()-t)/864e5);return d<=0?'today':d===1?'yesterday':d+' days ago';}
+function ldStageChip(s){var c=(LD_COL.Stage[s]||'#5B6478');return '<span class="lst" style="color:'+c+';border-color:'+c+'33;background:'+c+'12">'+esc(s||'—')+'</span>';}
+function ldFilter(){var q=LF.q.toLowerCase();return D.leads.rows.filter(function(r){
+  if(LF.st!=='All'&&ldv(r,'Stage')!==LF.st)return false;if(LF.due&&!ldDue(r))return false;
+  if(q&&r.slice(2,13).join(' ').toLowerCase().indexOf(q)<0)return false;return true;})
+  .sort(function(a,b){var da=ldDue(a)?0:1,db=ldDue(b)?0:1;if(da!==db)return da-db;return String(b[ldi('Last updated')]||'').localeCompare(String(a[ldi('Last updated')]||''))||(Number(b[1])-Number(a[1]));});}
 function vLeads(){
-  var L=D.leads, si=L.head.indexOf('Stage'), src=L.head.indexOf('Lead generated through'), fit=L.head.indexOf('May be Suited for (our thought)');
-  var cnt=function(i){var o={};L.rows.forEach(function(r){var k=r[i]||'—';o[k]=(o[k]||0)+1;});return o;};
-  var st=cnt(si), order=['New','Connected','Presented','Met'];
-  var h='<div class="grid">'+order.map(function(s){return tile(s,num(st[s]||0),'','leads');}).join('')+'</div>';
-  var tb=function(o){return table(['',''],Object.keys(o).sort(function(a,b){return o[b]-o[a];}).map(function(k){return [esc(k),num(o[k])];}));};
-  h+='<div class="two">'+card('By source',tb(cnt(src)))+card('Best fit (our view)',tb(cnt(fit)))+'</div>';
-  h+=card('Pipeline',table(['Name','City','Fit','Stage','Latest update'],L.rows.map(function(r){return [esc(r[1]),esc(r[2]),esc(r[fit]),esc(r[si]),esc(String(r[10]||'').slice(0,80))];})));
-  return h;
-}
+  var L=D.leads,cnt={},due=0;L.rows.forEach(function(r){var s=ldv(r,'Stage')||'—';cnt[s]=(cnt[s]||0)+1;if(ldDue(r))due++;});
+  var chips='<button class="lch'+(LF.st==='All'&&!LF.due?' on':'')+'" onclick="LF.st=\'All\';LF.due=false;render()">All <b>'+L.rows.length+'</b></button>'+
+    (due?'<button class="lch due'+(LF.due?' on':'')+'" onclick="LF.due=!LF.due;render()">⏰ Follow-up due <b>'+due+'</b></button>':'')+
+    L.opts.Stage.filter(function(s){return cnt[s];}).map(function(s){return '<button class="lch'+(LF.st===s?' on':'')+'" onclick="LF.st=\''+s.replace(/'/g,"\\'")+'\';render()">'+esc(s)+' <b>'+cnt[s]+'</b></button>';}).join('');
+  var h='<div class="ldbar"><input id="ldq" type="search" placeholder="Search name, city, update…" value="'+esc(LF.q)+'" oninput="LF.q=this.value;ldDraw()"><button class="ldadd" onclick="ldEdit(0)">＋ Add lead</button></div>'+
+    '<div class="lchips">'+chips+'</div><div id="ldlist"></div>'+
+    '<div class="note" style="margin-top:10px">Edits save straight to the <b>Leads</b> tab of the Google Sheet. Changes made in the Sheet show here after ↻ Refresh. Dropdowns list every value used before — pick “＋ New…” to add one.</div>';
+  setTimeout(ldDraw,0);return h;}
+function ldDraw(){var el=document.getElementById('ldlist');if(!el)return;var rows=ldFilter();
+  if(!rows.length){el.innerHTML='<div class="card" style="text-align:center;color:var(--mute)">No leads match.</div>';return;}
+  if(window.innerWidth>=760){el.innerHTML=ldTable(rows);return;}
+  el.innerHTML=rows.map(function(r){var meta=[ldv(r,'Current City'),ldv(r,'Lead generated through'),ldv(r,'May be Suited for (our thought)')].filter(String).map(esc).join(' · ');
+    var up=ldv(r,'Latest Update'),f=ldv(r,'Next follow-up');
+    return '<div class="ld" onclick="ldEdit('+r[0]+')"><div class="ldh"><b>'+esc(ldv(r,'Name'))+'</b>'+ldStageChip(ldv(r,'Stage'))+'</div>'+
+      (meta?'<div class="ldm">'+meta+'</div>':'')+(up?'<div class="ldu">'+esc(up)+'</div>':'')+
+      '<div class="ldf">'+(f?'<span class="'+(ldDue(r)?'bad':'')+'">⏰ '+esc(ldDate(f))+'</span>':'<span>No follow-up set</span>')+'<span>'+esc(ldAgo(r[ldi('Last updated')]))+' <i class="lk">Edit ›</i></span></div></div>';}).join('');}
+function ldCtl(h,val,row,inline){var o=D.leads.opts[h],id='f_'+ldi(h)+(inline?'_'+row:'');
+  var on=inline?' onchange="ldCell(this,'+row+',\''+h.replace(/'/g,"\\'")+'\')"':'';
+  if(h==='Next follow-up')return '<input type="date" id="'+id+'" value="'+esc(val)+'"'+on+'>';
+  if(h==='Latest Update')return inline?'<input id="'+id+'" value="'+esc(val)+'"'+on.replace('onchange','onchange')+' placeholder="Add update…">':'<textarea id="'+id+'" rows="3" placeholder="What happened? Next step?">'+esc(val)+'</textarea>';
+  if(h==='Name')return '<input id="'+id+'" value="'+esc(val)+'"'+on+' placeholder="Full name">';
+  var opts=(o||[]).slice();if(val&&opts.indexOf(val)<0)opts.unshift(val);
+  return '<select id="'+id+'" data-h="'+esc(h)+'"'+(inline?on:' onchange="ldNew(this)"')+'><option value="">—</option>'+opts.map(function(x){return '<option'+(x===val?' selected':'')+'>'+esc(x)+'</option>';}).join('')+'<option value="__new">＋ New…</option></select>';}
+var LD_FORM=['Name','Stage','Next follow-up','Latest Update','Current City','Exploring for','Lead generated through','Lead generated by','May be Suited for (our thought)','Their Thought','Call','Presentation'];
+function ldEdit(row){var r=row?D.leads.rows.filter(function(x){return x[0]===row;})[0]:null;var P=document.getElementById('le');
+  P.querySelector('.drp').innerHTML='<div class="drh"><b>'+(r?esc(ldv(r,'Name')):'New lead')+'</b><button onclick="ldClose()" aria-label="Close">✕</button></div>'+
+    '<div class="lform">'+LD_FORM.map(function(h){return '<label class="'+(h==='Latest Update'||h==='Name'?'full':'')+'"><span>'+esc(LD_SHORT[h]||h)+'</span>'+ldCtl(h,r?ldv(r,h):(h==='Stage'?'New':''),row,false)+'</label>';}).join('')+'</div>'+
+    (r?'<div class="note">Last updated '+esc(ldAgo(r[ldi('Last updated')])||'—')+(ldv(r,'Updated by')?' by '+esc(ldv(r,'Updated by')):'')+' · Sheet row '+row+'</div>':'')+
+    '<div class="lact"><button class="ldsec" onclick="ldClose()">Cancel</button><button class="ldadd" id="ldsave" onclick="ldSubmit('+row+')">Save</button></div>';
+  P.classList.add('on');sheetOn();P.querySelector('.drp').scrollTop=0;}
+function ldClose(){document.getElementById('le').classList.remove('on');sheetOff();}
+function ldNew(sel){if(sel.value!=='__new')return;var inp=document.createElement('input');inp.id=sel.id;inp.placeholder='Type new '+(LD_SHORT[sel.dataset.h]||sel.dataset.h).toLowerCase();sel.parentNode.replaceChild(inp,sel);inp.focus();}
+function ldSubmit(row){var v={};LD_FORM.forEach(function(h){var e=document.getElementById('f_'+ldi(h));if(e)v[h]=e.value==='__new'?'':e.value;});
+  if(!String(v.Name||'').trim()){ldToast('Please enter a name',1);return;}
+  var b=document.getElementById('ldsave');b.disabled=true;b.textContent='Saving…';
+  ldPost(row,v,function(){ldClose();render();ldToast(row?'Saved ✓':'Lead added ✓');},function(m){b.disabled=false;b.textContent='Save';ldToast(m,1);});}
+function ldTable(rows){var H=['Name','Stage','Next follow-up','Latest Update','Current City','Exploring for','Lead generated through','Lead generated by','May be Suited for (our thought)','Their Thought','Call','Presentation'];
+  return '<div class="tbl ldt"><table><thead><tr><th>#</th>'+H.map(function(h){return '<th>'+esc(LD_SHORT[h]||h)+'</th>';}).join('')+'</tr></thead><tbody>'+
+    rows.map(function(r){return '<tr'+(ldDue(r)?' class="due"':'')+'><td><a class="lk" onclick="ldEdit('+r[0]+')" title="Open full form">'+esc(String(r[1]||''))+'</a></td>'+H.map(function(h){return '<td class="c_'+ldi(h)+'">'+ldCtl(h,ldv(r,h),r[0],true)+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table></div>';}
+function ldCell(el,row,h){if(el.value==='__new'){var t=prompt('New value for '+(LD_SHORT[h]||h)+':');if(!t){el.value='';return;}var o=document.createElement('option');o.textContent=t;el.insertBefore(o,el.lastChild);el.value=t;}
+  if(h==='Name'&&!el.value.trim()){ldToast('Name cannot be empty',1);return;}
+  var v={};v[h]=el.value;el.classList.add('saving');
+  ldPost(row,v,function(){el.classList.remove('saving');el.classList.add('saved');setTimeout(function(){el.classList.remove('saved');},1500);ldToast('Saved ✓');},function(m){el.classList.remove('saving');el.classList.add('err');ldToast(m,1);});}
+function ldPost(row,v,ok,bad){fetch(LMI_API+'?api=leadSave&tok='+encodeURIComponent(TOK)+'&d='+encodeURIComponent(JSON.stringify({r:row,v:v})),{credentials:'omit',redirect:'follow'})
+  .then(function(r){return r.json();}).then(function(o){if(!o.ok)throw new Error(o.error);D.leads=JSON.parse(o.r).leads;ok();})
+  .catch(function(e){bad(String(e&&e.message||'Network problem — please try again'));});}
+function ldToast(m,err){var t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t);}
+  t.textContent=m;t.className=err?'on err':'on';clearTimeout(t._h);t._h=setTimeout(function(){t.className='';},2200);}
+window.addEventListener('resize',function(){if(TAB==='leads'&&!document.querySelector('.dr.on'))ldDraw();});
 
 // ── data
 var TOK = (location.hash.match(/tok=([^&]+)/) || [])[1]; TOK = TOK ? decodeURIComponent(TOK) : '';
