@@ -55,6 +55,7 @@ tr.click:hover td{background:#EEF3FF}
 .tile .v{font-size:20px;font-weight:700;margin-top:4px;overflow-wrap:anywhere}.tile.hero .v{font-size:26px}@media(min-width:760px){.tile .v,.tile.hero .v{font-size:22px}}
 .tile .s{font-size:12px;color:var(--mute);margin-top:4px}
 .tile.alert{border-color:#F3C1C1;background:#FFF7F7}
+.ustel{display:inline-flex;align-items:center;gap:10px;white-space:nowrap}.uswa{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#25D366;transition:transform .12s,box-shadow .12s;flex:none}.uswa svg{width:18px;height:18px;fill:#fff}.uswa:hover{transform:scale(1.08);box-shadow:0 3px 10px rgba(37,211,102,.45)}.uswa:active{transform:scale(.95)}.usct .uswa{width:34px;height:34px}.usct .uswa svg{width:20px;height:20px}
 .usfp{display:none;grid-template-columns:1fr 1fr;gap:8px 10px;margin:0 0 12px}.usfp.on{display:grid}@media(min-width:760px){.usfp{grid-template-columns:repeat(4,minmax(0,1fr))}.usft{display:none}}
 .usfl{display:flex;flex-direction:column;gap:3px;min-width:0}.usfl span{font-size:10.5px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.03em}
 .usfl select{flex:none;max-width:none;width:100%;height:38px;border:1px solid var(--line);border-radius:10px;padding:0 8px;font:13px Poppins,system-ui,sans-serif;background:#fff;color:var(--ink)}
@@ -555,8 +556,21 @@ var US={q:'',sort:'points',dir:-1,pin:'',lst:'',pts:'',ct:'',jn:'',act:'',lim:60
 var US_COLS=[['name','User'],['email','Email'],['mobile','Phone'],['ref','Referral code'],['pins','PIN'],['listings','Listings'],['points','Points'],['value','Value'],['joined','Joined'],['active','Last active']];
 function usD(v){v=String(v||'').slice(0,10);return /^\d{4}-\d\d-\d\d$/.test(v)?ldDate(v):(v||'—');}
 function usMail(e){e=String(e||'');return e?'<a class="lk" href="mailto:'+esc(e)+'">'+esc(e)+'</a>':'—';}
-function usTel(m){m=String(m||'').trim();if(!m)return '—';var d=m.replace(/\D/g,'');if(d.length===10)d='91'+d;
-  return '<span style="white-space:nowrap"><a class="lk" href="tel:+'+d+'">'+esc(m)+'</a> · <a class="lk" target="_blank" href="https://wa.me/'+d+'">WhatsApp</a></span>';}
+var US_WA_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.26-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35M12.05 21.79h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88m8.41-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89a11.82 11.82 0 0 0-3.48-8.41Z"/></svg>';
+// Pre-filled thank-you message sent from the WhatsApp icon. {NAME} and {CODE} are filled per user.
+var US_WA_MSG=['Namaste{NAME} 🙏','','*List My India™ 🇮🇳* par register karne ke liye dil se dhanyavaad! 🎉','','*List My India™ 🇮🇳 aapke liye 4 tarah se faydemand hai:*','',
+ '👤 *User:* Apne PIN code ke trusted local businesses aur services dhoondhiye. Paid business listing refer karke free Amazon voucher kamaaiye.','',
+ '🏪 *Business Owner:* Apna business *FREE* list kariye, hamesha ke liye. Zyada leads ke liye Premium listing sirf ₹99/month (launch offer).','',
+ '🏢 *Franchise Partner:* Apne hi PIN code mein apna passive income business shuru kariye. 3 tiers, 30–55% revenue share.','',
+ '🤝 *Growth Partner:* Franchise Partner refer kariye aur one-time + monthly commission kamaaiye.','',
+ '📍 *Ek zaroori kaam:* listmyindia.com par login karke *My Profile* mein apne ghar (primary residence) ka PIN code add kar dijiye, taaki aapko apne area ke local updates aur offers milte rahein.','',
+ '{REF}🏘️ Apne neighbourhood ke 2–3 local businesses (dukaan, tiffin, tuition, parlour, repair…) ko bhi List My India™ 🇮🇳 par list karwane mein madad kariye. *Listed ho kya?* 😊','',
+ 'Koi bhi sawaal ho toh mujhe seedha call ya WhatsApp kariye.','','*Sanjeev Kumar*','Founder & CEO, List My India™ 🇮🇳','📞 95556 14476','https://www.linkedin.com/in/sanjeevroy4u/'].join('\n');
+function usFirst(n){n=String(n||'').trim();if(!n||/^user\b/i.test(n)||/\d{3,}/.test(n))return '';var f=n.split(/\s+/);if(/^(dr|mr|mrs|ms|er|ca|adv)\.?$/i.test(f[0])&&f[1])return f[0].charAt(0).toUpperCase()+f[0].slice(1).toLowerCase().replace(/\.$/,'')+' '+f[1];return f[0].charAt(0).toUpperCase()+f[0].slice(1);}
+function usWaMsg(u){var nm=usFirst(u&&u.name),code=u&&u.ref;
+  return US_WA_MSG.replace('{NAME}',nm?' '+nm+' ji':' ji').replace('{REF}',code?'🔗 *Aapka referral code: '+code+'*\nIse copy karke apni family aur friends ke saath share kariye:\nhttps://listmyindia.com/r/'+code+'\n\n':'');}
+function usTel(m,u){m=String(m||'').trim();if(!m)return '—';var d=m.replace(/\D/g,'');if(d.length===10)d='91'+d;
+  return '<span class="ustel"><a class="lk" href="tel:+'+d+'">'+esc(m)+'</a><a class="uswa" target="_blank" rel="noopener" title="WhatsApp thank-you message" aria-label="Send WhatsApp message" href="https://wa.me/'+d+'?text='+encodeURIComponent(usWaMsg(u))+'">'+US_WA_SVG+'</a></span>';}
 function usRows(){var U=D.users,L=UL(),rate=1/(+L[11]||10);if(U._r)return U._r;
   return U._r=(U.all||[]).map(function(r){return {name:String(r[0]||''),email:String(r[1]||''),mobile:String(r[2]||''),ref:String(r[3]||''),pins:String(r[4]||''),
     listings:+r[5]||0,points:+r[6]||0,value:(+r[6]||0)*rate,joined:String(r[7]||''),active:String(r[8]||'')};});}
@@ -599,8 +613,8 @@ function usList(){var f=usFiltered(),sh=f.slice(0,US.lim),wide=window.innerWidth
   var h='<div class="note" style="margin:0 0 8px">'+num(f.length)+' user'+(f.length===1?'':'s')+' · '+num(sum)+' points ('+inr(sum/(+UL()[11]||10))+')'+(f.length>sh.length?' · showing '+sh.length:'')+'</div>';
   if(!f.length)return h+'<div class="note">No users match these filters.</div>';
   if(wide){h+='<div class="tbl ust"><table><thead><tr>'+US_COLS.map(function(c){var on=US.sort===c[0];return '<th class="srt'+(on?' on':'')+'" onclick="usSortBy(\''+c[0]+'\')">'+esc(c[1])+(on?(US.dir>0?' ▲':' ▼'):' ⇅')+'</th>';}).join('')+'</tr></thead><tbody>'+
-    sh.map(function(u){return '<tr><td>'+esc(u.name||'—')+'</td><td>'+usMail(u.email)+'</td><td>'+usTel(u.mobile)+'</td><td>'+esc(u.ref)+'</td><td>'+esc(u.pins||'—')+'</td><td>'+num(u.listings)+'</td><td>'+num(u.points)+'</td><td>'+inr(u.value)+'</td><td>'+esc(usD(u.joined))+'</td><td>'+esc(usD(u.active))+'</td></tr>';}).join('')+'</tbody></table></div>';}
-  else h+=sh.map(function(u){var c=[];if(u.mobile)c.push(usTel(u.mobile));if(u.email)c.push(usMail(u.email));
+    sh.map(function(u){return '<tr><td>'+esc(u.name||'—')+'</td><td>'+usMail(u.email)+'</td><td>'+usTel(u.mobile,u)+'</td><td>'+esc(u.ref)+'</td><td>'+esc(u.pins||'—')+'</td><td>'+num(u.listings)+'</td><td>'+num(u.points)+'</td><td>'+inr(u.value)+'</td><td>'+esc(usD(u.joined))+'</td><td>'+esc(usD(u.active))+'</td></tr>';}).join('')+'</tbody></table></div>';}
+  else h+=sh.map(function(u){var c=[];if(u.mobile)c.push(usTel(u.mobile,u));if(u.email)c.push(usMail(u.email));
     return '<div class="usc"><div class="usch"><b>'+esc(u.name||'—')+'</b><span class="uspt">'+num(u.points)+' pts · '+inr(u.value)+'</span></div>'+
       (c.length?'<div class="usct">'+c.join('<br>')+'</div>':'<div class="usct note">No email or phone</div>')+
       '<div class="usm"><span>Code <b>'+esc(u.ref||'—')+'</b></span><span>PIN <b>'+esc(u.pins||'—')+'</b></span><span>Listings <b>'+num(u.listings)+'</b></span><span>Joined <b>'+esc(usD(u.joined))+'</b></span><span>Active <b>'+esc(usD(u.active))+'</b></span></div></div>';}).join('');
