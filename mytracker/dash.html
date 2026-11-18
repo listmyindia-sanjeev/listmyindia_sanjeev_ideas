@@ -55,6 +55,7 @@ tr.click:hover td{background:#EEF3FF}
 .tile .v{font-size:20px;font-weight:700;margin-top:4px;overflow-wrap:anywhere}.tile.hero .v{font-size:26px}@media(min-width:760px){.tile .v,.tile.hero .v{font-size:22px}}
 .tile .s{font-size:12px;color:var(--mute);margin-top:4px}
 .tile.alert{border-color:#F3C1C1;background:#FFF7F7}
+.tile.static{cursor:default}.tile.static:hover{transform:none;box-shadow:none;border-color:var(--line)}.tile.hero.static:hover{border-color:transparent}
 .ldbar{display:flex;gap:8px;margin:0 0 10px}.ldbar input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font:14px Poppins,system-ui,sans-serif;background:#fff}
 .ldadd{border:0;background:var(--blue);color:#fff;font:600 14px Poppins,system-ui,sans-serif;border-radius:12px;padding:10px 14px;cursor:pointer;white-space:nowrap}.ldadd:disabled{opacity:.6}.ldsec{border:1px solid var(--line);background:#fff;color:var(--ink);font:600 14px Poppins,system-ui,sans-serif;border-radius:12px;padding:10px 14px;cursor:pointer}
 .lchips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}.lchips::-webkit-scrollbar{display:none}
@@ -219,7 +220,7 @@ function lmiRun_(ok, bad) {
 <script>
 var D=null, TYPE='Month', PERIOD=null, TAB='overview', charts=[];
 var TYPES={'Month':'Label','Quarter':'Fiscal Qtr','FY':'FY','Op-Year':'Op-Year'};
-var TABS=[['overview','Overview'],['pnl','P&L'],['cash','Cash & Funds'],['gst','GST & TDS'],['pay','Payables'],['fr','Franchises'],['exp','Expenses'],['plan','Planned 36m'],['rates','Rate Card'],['leads','Leads']];
+var TABS=[['overview','Overview'],['pnl','P&L'],['cash','Cash & Funds'],['gst','GST & TDS'],['pay','Payables'],['fr','Franchises'],['exp','Expenses'],['plan','Planned 36m'],['rates','Rate Card'],['users','Users & Points'],['leads','Leads']];
 
 function inr(v,full){if(v===''||v===null||v===undefined||isNaN(v))return '—';var n=Number(v),a=Math.abs(n),s=n<0?'-':'';
   if(!full&&a>=1e7)return s+'₹'+(a/1e7).toFixed(2)+' Cr'; if(!full&&a>=1e5)return s+'₹'+(a/1e5).toFixed(2)+' L';
@@ -297,7 +298,7 @@ var ICON={overview:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',pnl:'<p
   more:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
   gst:'<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/>',pay:'<path d="M3 7h18v10H3z"/><path d="M7 11h4"/>',
   exp:'<path d="M4 4h16v16H4z"/><path d="M8 15l3-3 2 2 4-5"/>',plan:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',
-  rates:'<path d="M3 12l9-9h9v9l-9 9z"/><circle cx="16" cy="8" r="1.5"/>',leads:'<path d="M3 5h18l-7 8v6l-4 2v-8z"/>'};
+  rates:'<path d="M3 12l9-9h9v9l-9 9z"/><circle cx="16" cy="8" r="1.5"/>',leads:'<path d="M3 5h18l-7 8v6l-4 2v-8z"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><path d="M17 11l1.5 3 3 .4-2.2 2.1.5 3-2.8-1.5"/>'};
 var BMAIN=[['overview','Home'],['pnl','P&L'],['cash','Cash'],['fr','Franchises']];
 function ico(k){return '<svg viewBox="0 0 24 24">'+(ICON[k]||'')+'</svg>';}
 function bnav(){var b=document.getElementById('bnav');if(!b)return;var inMain=BMAIN.some(function(x){return x[0]===TAB;});
@@ -314,7 +315,7 @@ function psClose(){document.getElementById('ps').classList.remove('on');sheetOff
   pb.appendChild(h.querySelector('.hdr2'));pb.appendChild(h.querySelector('.meta'));
   var lo=document.createElement('button');lo.className='lo';lo.textContent='Log out';lo.onclick=function(){lmiAuth('out');};pb.appendChild(lo);})();
 function card(title,body,sub){return '<div class="card"><h3>'+title+'</h3>'+(sub?'<div class="sub">'+sub+'</div>':'')+body+'</div>';}
-function tile(lbl,val,sub,goTo,cls,bar){return '<div class="tile '+(cls||'')+'" onclick="'+(goTo.charAt(0)==='!'?goTo.slice(1):'go(\''+goTo+'\')')+'"><div class="l">'+lbl+'</div><div class="v">'+val+'</div>'+(sub?'<div class="s">'+sub+'</div>':'')+(bar!=null?'<div class="bar"><i style="width:'+Math.max(0,Math.min(100,bar*100))+'%"></i></div>':'')+'<div class="lk">'+tileLink(goTo)+' ›</div></div>';}
+function tile(lbl,val,sub,goTo,cls,bar){goTo=goTo||'';return '<div class="tile '+(cls||'')+(goTo?'':' static')+'"'+(goTo?' onclick="'+(goTo.charAt(0)==='!'?goTo.slice(1):'go(\''+goTo+'\')')+'"':'')+'><div class="l">'+lbl+'</div><div class="v">'+val+'</div>'+(sub?'<div class="s">'+sub+'</div>':'')+(bar!=null?'<div class="bar"><i style="width:'+Math.max(0,Math.min(100,bar*100))+'%"></i></div>':'')+(goTo?'<div class="lk">'+tileLink(goTo)+' ›</div>':'')+'</div>';}
 function tileLink(g){if(g.charAt(0)==='!')return /drill/.test(g)?'View PIN-wise list':'View details';var t=TABS.filter(function(x){return x[0]===g;})[0];return 'Open '+(t?t[1]:'details');}
 function chart(id,cfg){var c=new Chart(document.getElementById(id),cfg);charts.push(c);}
 function table(head,rows,opts){opts=opts||{};var nc=head.length,lay=nc>8?'tw':(nc>=4?'tc':'');
@@ -372,7 +373,7 @@ function vcls(v){return v>0?'pos':(v<0?'neg':'');}
 
 // ── tabs
 function render(){charts.forEach(function(c){c.destroy();});charts=[];
-  var v=document.getElementById('view');v.innerHTML=({overview:vOverview,pnl:vPnl,cash:vCash,gst:vGst,pay:vPay,fr:vFr,exp:vExp,plan:vPlan,rates:vRates,leads:vLeads}[TAB])();
+  var v=document.getElementById('view');v.innerHTML=({overview:vOverview,pnl:vPnl,cash:vCash,gst:vGst,pay:vPay,fr:vFr,exp:vExp,plan:vPlan,rates:vRates,leads:vLeads,users:vUsers}[TAB])();
   if(window._after){var f=window._after;window._after=null;f();}}
 
 function plabel(){return TYPE==='Op-Year'?'Op-Year '+String(PERIOD).slice(1):PERIOD;}
@@ -391,6 +392,7 @@ function vOverview(){
     tile('EBITDA — '+esc(plabel()),ea===''?'—':inr(ea),'Planned '+inr(ep),'pnl')+
     tile('Active franchises',num(K('fr_act')),'Planned '+num(K('fr_plan'))+' this month','fr','',K('fr_plan')?K('fr_act')/K('fr_plan'):null)+
     tile('Paid listings',num(LST().count),'Planned active '+num(K('pl_plan'))+'','!drill()','',K('pl_plan')?LST().count/K('pl_plan'):null)+
+    (D.users&&D.users.log.length?tile('Referral points',inr(UL()[7]),num(UL()[6])+' points held · not yet redeemed','users'):'')+
     tile('Franchise payable',inr(K('liab_fr')),num(K('below'))+' below floor','pay',K('below')>0?'alert':'')+
     tile('Hemadri IT carry-forward',inr(K('hem_cf')),'recoverable from future share','pay')+
     tile('EBITDA breakeven',esc(K('be_m')),'actuals + planned · cash breakeven '+esc(K('cash_be')),'plan')+
@@ -526,6 +528,20 @@ function vRates(){
   return h;
 }
 
+function UL(){var l=D.users.log;return l[l.length-1];}
+function vUsers(){var U=D.users;if(!U||!U.log.length)return card('Users & Points','<div class="note">No data yet. Open <b>admin.listmyindia.com</b> in Chrome (signed in) and click the <b>Sync to Tracker</b> bookmark.</div>');
+  var L=UL(),prev=null;for(var i=U.log.length-2;i>=0;i--){if(String(U.log[i][0]).slice(0,10)<String(L[0]).slice(0,10)){prev=U.log[i];break;}}
+  var dlt=function(c){if(!prev)return '';var d=(+L[c]||0)-(+prev[c]||0);return (d>=0?'+':'')+num(d)+' since '+esc(ldDate(String(prev[0]).slice(0,10)));};
+  var h='<div class="note" style="margin:0 0 10px">Last synced '+esc(String(L[0]))+' from admin.listmyindia.com · '+num(L[11])+' points = ₹1 · redemptions '+(L[12]==='Yes'?'<b>ON</b>':'off')+'</div>';
+  h+='<div class="grid">'+tile('Points value (owed if redeemed)',inr(L[7]),num(L[6])+' points · '+num(L[8])+' users'+(prev?' · '+dlt(6):''),'','hero')+
+    tile('Registered users',num(L[1]),(L[3]?num(L[3])+' new in 30 days':'')+(prev?' · '+dlt(1):''),'')+
+    tile('Users with listings',num(L[4]),num(L[5])+' PIN codes covered','')+
+    tile('Vouchers redeemed',inr(L[10]),num(L[9])+' vouchers · paid-listing referral '+num(L[13])+' pts','')+'</div>';
+  if(U.log.length>1){var byDay={};U.log.forEach(function(r){byDay[String(r[0]).slice(0,10)]=r;});var ks=Object.keys(byDay).sort().slice(-30);
+    h+=card('Points value over time (₹)',table(['Date','Users','Points held','Value ₹','Vouchers ₹'],ks.slice().reverse().map(function(k){var r=byDay[k];return [esc(ldDate(k)),num(r[1]),num(r[6]),inr(r[7]),inr(r[10])];})));}
+  if(U.top.length)h+=card('Top point holders',table(['User','Referral code','PIN codes','Listings','Points','Value'],U.top.map(function(r){return [esc(r[1]),esc(r[2]),esc(r[3]||'—'),num(r[4]),num(r[5]),inr(r[6])];})));
+  if(U.pins.length)h+=card('Users by PIN code',table(['PIN','Area','Users','Businesses'],U.pins.slice(0,40).map(function(r){return [esc(String(r[0])),esc((r[1]||'')+(r[2]?', '+r[2]:'')),num(r[3]),num(r[4])];})));
+  return h;}
 var LF={q:'',st:'All',due:false};
 var LD_COL={'Stage':{'New':'#5B6478','Connected':'#0046BF','Presented':'#6A3FC1','Met':'#B76E00','Follow-up':'#D35400','Converted':'#0E8A4B','Not interested':'#C62828'}};
 var LD_SHORT={'Lead generated by':'Generated by','Lead generated through':'Source','May be Suited for (our thought)':'Fit (our view)','Their Thought':'Their view','Exploring for':'Exploring for','Current City':'City','Next follow-up':'Follow-up'};
