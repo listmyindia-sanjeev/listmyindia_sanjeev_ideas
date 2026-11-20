@@ -166,11 +166,75 @@
   A('card_p_and_l', 'P&L', 'Planned vs actual for the period.', 'See tab help for the columns.', 'Achieved 90–110%.', 'Where profit is won or lost.');
   A('card_cash_flow', 'Cash flow', 'Planned cash in, out, net and closing bank, with actual bank from Zoho.', 'Collections are assumed in the month of sale; partner shares, CTO and GST are paid the next month.', 'Closing bank never below ₹0.', 'Shows timing gaps even when the business is profitable.');
 
+
+  /* ───────────── HOW EACH FIGURE IS WORKED OUT ───────────── */
+  var F = {};
+  function B(k, t) { F[k] = t; }
+  B('tab_overview', 'Every box reads a KPI from the Dashboard tab of the Google Sheet. Cash numbers come from Zoho Books; plan numbers from the 36-month Projection; actuals from Zoho invoices, bills and expenses; sales and EBITDA boxes follow the period you pick at the top.');
+  B('tab_pnl', 'Planned = Projection tab (franchise count × listings × rate card, less shares, costs). Actual = Zoho invoices and bills of closed months. Variance = Actual − Planned (shown in your favour or against you). Achieved % = Actual ÷ Planned.');
+  B('tab_cash', 'Bank from Zoho. Dues = franchise payable + GST + TDS + CTO payable. Free cash = Bank − Dues. Runway = Free cash ÷ average spend. Planned bank = opening bank + planned cash in − planned cash out, month by month.');
+  B('tab_gst', 'Output GST = 18% on sales (from Zoho invoices). ITC = GST on bills and expenses (GSTR-2B actuals typed into the GST_Ledger tab). Net payable = Output GST − ITC − credit brought forward. TDS = 2% (Sec 194H) on franchise share.');
+  B('tab_pay', 'Franchise share = territory revenue × the franchise’s share % (30/40/55%). Net payable = share − TDS. Outstanding = accrued share − payments already booked in Zoho bills (Franchise Payout) or the Franchise_Payouts tab.');
+  B('tab_fr', 'Paid listings come from Zoho invoices tagged to the PIN; free listings and users are typed monthly in Franchise_Monthly. Targets and floors come from Annexure A (Target = 50% of TAM, floor = 25% of TAM by Year 3 on a ramp). Revenue share = territory revenue × share %.');
+  B('tab_exp', 'Expense_Summary adds Zoho expenses and bills by Zoho account, mapped to groups in Category_Map. Lines tagged with a franchise PIN move into that PIN. Share % = group ÷ grand total of the columns shown.');
+  B('tab_cto', 'Share = 25% × sales (GST-inclusive). Taxable = share ÷ 1.18 (21.19% of sales); GST = share − taxable (3.81%). Surplus = taxable − IT cost − carry-forward. Payout = surplus + 18% GST − 2% TDS (only if surplus is positive).');
+  B('tab_plan', 'Every line comes from the Projection tab, driven by Assumptions, Drivers and Rate_Card. Totals for a quarter/FY/Op-Year are sums of months; counts (franchises, listings) use the last month of the period.');
+  B('tab_rates', 'The Rate_Card tab: one row per effective-from date. The row in force on a date is the latest row on or before it.');
+  B('tab_users', 'Pulled from admin.listmyindia.com by the Sync to Tracker bookmark. Points value = points held ÷ points per ₹1.');
+  B('tab_leads', 'Live view of the Leads tab. Follow-up due = Next follow-up date is today or earlier.');
+
+  B('bank_balance', 'Sum of the bank account balances in Zoho Books at the latest daily sync (stored as ANCHOR_BAL).');
+  B('free_cash_after_dues', 'Bank balance − Total dues.');
+  B('runway', 'Free cash ÷ average monthly spend. Shows 0 if spend is 0; goes negative if free cash is negative.');
+  B('planned_cash_low_point', 'MIN of the planned closing bank balance across the 36 months. The month shown is where that minimum falls. “Need” = MAX(0, −low point).');
+  B('sales', 'Actual = sum of Zoho invoice amounts before GST for the closed months in the period. Planned = sum of planned total sales for the same months. % = Actual ÷ Planned.');
+  B('ebitda', 'Planned: Sales − franchise share − GP/SGP commission − CTO taxable share − kit & renewal cost − LMI opex (net of GST credit). Actual (approx.): same idea using Zoho actuals, without the GP/SGP and kit cost split.');
+  B('active_franchises', 'Actual = count of Franchise_Register rows with status Active. Planned = cumulative new franchises in the Projection for the current month.');
+  B('paid_listings', 'Count of distinct Zoho customers with a Listing Subscription or Setup Fee invoice (void/draft and LMI’s own listing excluded). Planned = active paid listings in the Projection for this month.');
+  B('referral_points', 'Points held by all users (admin panel) ÷ points per ₹1.');
+  B('franchise_payable', 'Sum over franchises of (accrued revenue share − TDS − payments made). “Below floor” = franchises whose Scorecard status is Below floor.');
+  B('hemadri_it_carry_forward', 'Opening carry-forward + IT costs paid by LMI − taxable CTO share (25% ÷ 1.18 of sales). Any positive remainder is the closing carry-forward; a negative remainder is the payout.');
+  B('ebitda_breakeven', 'The month after the last month with negative EBITDA, using actual EBITDA for months already started and planned EBITDA after. Cash breakeven uses planned net cash flow the same way.');
+  B('gst_payable', 'For each closed month in GST_Ledger: MAX(0, Output GST − ITC (IGST+CGST+SGST ± adjustment) − credit brought forward − challans paid). Summed over closed months.');
+  B('bank_zoho', 'Same as Bank balance: Zoho Books balance at the latest sync.');
+  B('total_dues', 'Franchise payable + GST payable + TDS payable + payable to Penny Software (CTO), all for the last closed month.');
+  B('free_cash', 'Bank balance − Total dues.');
+  B('avg_monthly_spend', 'Average of the grand total of LMI-borne + CTO-borne spend (Expense_Summary) for the last 2 closed months.');
+  B('lowest_planned_balance', 'MIN of planned closing bank balance across the plan; month = where it occurs.');
+  B('funding_needed', 'MAX(0, −Lowest planned balance).');
+  B('hemadri_token_due', '₹3,50,000 commitment − token amounts received so far.');
+  B('money_in', 'Sum of all bank transactions with direction IN in Zoho Books.');
+  B('money_out', 'Sum of all bank transactions with direction OUT in Zoho Books.');
+  B('closing_balance_statement', 'Money in − Money out (running balance from ₹0 on the first transaction). Difference = statement − Zoho balance.');
+  B('gst_payable_now', 'Same calculation as GST payable (GST_Ledger, closed months).');
+  B('tds_payable_now', 'Franchise revenue share of the last closed month × TDS rate (2%).');
+  B('spend', 'Sum of Expense_Summary grand total for the months in the period (LMI-borne + CTO-borne).');
+  B('avg_monthly_last_2', 'Average spend of the last 2 closed months.');
+  B('sales_ex_gst', 'Sum of Zoho invoice line amounts before GST in the period (void/draft excluded).');
+  B('cto_revenue_share_25', '25% × sales (GST-inclusive). Taxable = ÷ 1.18; GST portion = remainder.');
+  B('it_and_tech_cost_borne_by_cto', 'Sum of Zoho expenses/bills in accounts marked HEMADRI in Category_Map (IT Infrastructure group).');
+  B('net_payout_to_cto', 'Taxable share − IT cost − opening carry-forward, plus 18% GST on that surplus, minus 2% TDS (Sec 194J).');
+  B('carry_forward_owed_by_cto', 'MAX(0, IT cost + opening carry-forward − taxable share).');
+  B('points_value_owed_if_redeemed', 'Total points held ÷ points per ₹1.');
+  B('registered_users', 'Count from the admin panel at the last sync.');
+  B('users_with_listings', 'Users with at least one listing (admin panel count).');
+  B('vouchers_redeemed', 'Sum of voucher values issued (admin panel).');
+  B('card_dues_right_now', 'Each line is a Dashboard KPI; Total is their sum.');
+  B('card_bank_statement', 'Zoho Books bank transactions (all accounts), sorted by date with a running balance.');
+  B('card_franchise_scorecard', 'Actual ÷ target for each metric; status compares actual with target and floor.');
+  B('card_franchise_wise_revenue_and_expenses', 'Revenue = Zoho invoices tagged with the PIN (ex-GST). Expenses = Zoho expenses/bills tagged with the PIN. Net = Revenue − Expenses.');
+  B('card_by_group', 'Sum of actual spend per group for the selected period; % = share of the level shown.');
+  B('card_actual_spend', 'Expense_Summary columns summed per group and Zoho account.');
+  B('card_cto_settlement', 'A. sales → B. 25% share → C. less IT cost → D. surplus/shortfall → E. bank payout, as in the CTO Share box formulas.');
+  B('card_36_month_planned', 'Projection tab values aggregated to the period type chosen.');
+  B('card_p_and_l', 'See the P&L tab: planned from Projection, actual from Zoho.');
+  B('card_cash_flow', 'Planned cash in (collections + funding) − cash out (all payments) = net cash flow; closing bank = opening + net.');
+
   /* ───────────── ENGINE ───────────── */
   function ik(s) { return String(s).replace(/<[^>]*>/g, '').replace(/&amp;|&/g, ' and ').split(' — ')[0].toLowerCase().replace(/ by (month|quarter|fy|op-year)$/, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, ''); }
   function body(k) {
     var x = I[k]; if (!x) return '';
-    return '<div class="itp"><b>' + x.t + '</b><p><u>What it is</u>' + x.w + '</p><p><u>How to read it</u>' + x.r + '</p><p><u>Ideal range</u>' + x.i + '</p><p><u>As a founder</u>' + x.m + '</p></div>';
+    return '<div class="itp"><b>' + x.t + '</b><p><u>What it is</u>' + x.w + '</p><p><u>How to read it</u>' + x.r + '</p>' + (F[k] ? '<p><u>How it is calculated</u>' + F[k] + '</p>' : '') + '<p><u>Ideal range</u>' + x.i + '</p><p><u>As a founder</u>' + x.m + '</p></div>';
   }
   window.lmiInfo = function (k) {
     var x = I[k]; if (!x) return; hide();
