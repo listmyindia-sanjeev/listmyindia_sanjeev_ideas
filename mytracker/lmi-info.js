@@ -62,7 +62,7 @@
     'Updated at each Zoho sync. If it differs from the real bank balance, some bank lines are not yet categorised in Zoho.',
     'At least 3 months of average spend; 6 months is comfortable for a company heading to IPO.',
     'The one number that cannot be spun. Below one month of spend, hiring, ads and partner payouts all become decisions about survival.');
-  A('free_cash_after_dues', 'Free cash after dues', 'Bank balance minus everything due soon: franchise payable, GST, TDS, CTO payable.',
+  A('free_cash_after_dues', 'Free cash after dues', 'Bank balance minus everything due soon (franchise payable, GST, TDS, CTO payable) minus one month of expected spend. Tap the box for the clickable breakup.',
     'Positive = money truly yours to spend. Negative = you owe more than you hold, so some obligation will go late.',
     'Positive always; at least one month of spend above dues.',
     'Treat negative free cash as an alert, not a statistic. It is the earliest warning before a missed GST or partner payment.');
@@ -116,7 +116,7 @@
   A('total_dues', 'Total dues', 'Everything LMI owes in the near term: franchise payable, GST, TDS and CTO payable.',
     'See “Dues right now” below for the split.', 'Covered by bank balance at all times.',
     'If dues exceed the bank balance, the shortfall is the amount you must arrange this month.');
-  A('free_cash', 'Free cash', 'Bank balance − total dues.', 'Positive = spendable.', 'Positive always.', 'Negative = you are short on obligations, not just on growth.');
+  A('free_cash', 'Free cash', 'Bank balance − total dues − one month of expected spend.', 'Positive = spendable.', 'Positive always.', 'Negative = you are short on obligations, not just on growth.');
   A('avg_monthly_spend', 'Avg monthly spend', 'Average actual spend of the last 2 closed months, LMI + CTO IT costs.',
     'It feeds runway. One-time costs (exhibition, equipment) inflate it temporarily.',
     'Within plan; one-offs flagged separately.', 'This is your burn. Compare it with sales every month.');
@@ -184,7 +184,7 @@
   B('tab_leads', 'Live view of the Leads tab. Follow-up due = Next follow-up date is today or earlier.');
 
   B('bank_balance', 'Sum of the bank account balances in Zoho Books at the latest daily sync (stored as ANCHOR_BAL).');
-  B('free_cash_after_dues', 'Bank balance − Total dues.');
+  B('free_cash_after_dues', 'Bank balance − Total dues − Expected next-month spend. Expected spend = last closed month\'s operating spend from Zoho (franchise payouts excluded, already in dues; one-time items optional via a toggle) + recurring subscriptions not yet billed that month (same vendor + account billed in 2+ of the last 4 months, at their average).');
   B('runway', 'Free cash ÷ average monthly spend. Shows 0 if spend is 0; goes negative if free cash is negative.');
   B('planned_cash_low_point', 'MIN of the planned closing bank balance across the 36 months. The month shown is where that minimum falls. “Need” = MAX(0, −low point).');
   B('sales', 'Actual = sum of Zoho invoice amounts before GST for the closed months in the period. Planned = sum of planned total sales for the same months. % = Actual ÷ Planned.');
@@ -198,7 +198,7 @@
   B('gst_payable', 'For each closed month in GST_Ledger: MAX(0, Output GST − ITC (IGST+CGST+SGST ± adjustment) − credit brought forward − challans paid). Summed over closed months.');
   B('bank_zoho', 'Same as Bank balance: Zoho Books balance at the latest sync.');
   B('total_dues', 'Franchise payable + GST payable + TDS payable + payable to Penny Software (CTO), all for the last closed month.');
-  B('free_cash', 'Bank balance − Total dues.');
+  B('free_cash', 'Bank balance − Total dues − Expected next-month spend (recent month operating spend + unbilled subscriptions). Tap for breakup.');
   B('avg_monthly_spend', 'Average of the grand total of LMI-borne + CTO-borne spend (Expense_Summary) for the last 2 closed months.');
   B('lowest_planned_balance', 'MIN of planned closing bank balance across the plan; month = where it occurs.');
   B('funding_needed', 'MAX(0, −Lowest planned balance).');
