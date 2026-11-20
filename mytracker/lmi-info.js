@@ -241,7 +241,7 @@
     window.DR = [{ t: x.t, s: '', h: body(k) }]; window.drShow();
   };
   var css = document.createElement('style');
-  css.textContent = '.tile{position:relative}.ib{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1px solid currentColor;font:600 11px/1 Poppins,system-ui,sans-serif;font-style:normal;cursor:help;opacity:.55;flex:none;margin-left:6px;vertical-align:middle}.ib:hover{opacity:1}.tile>.ib{position:absolute;top:10px;right:10px;margin:0}.tile.hero>.ib{color:#fff}.card h3 .ib{color:var(--blue)}'
+  css.textContent = '.tile{position:relative}.ib{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1px solid currentColor;font:600 11px/1 Poppins,system-ui,sans-serif;font-style:normal;cursor:help;opacity:.55;flex:none;margin-left:6px;vertical-align:middle}.ib:hover{opacity:1}.tile>.ib{position:absolute;top:10px;right:10px;margin:0}.tile.hero>.ib{color:#fff}.card>.ib{position:absolute;top:10px;right:10px;margin:0;color:var(--blue)}'
     + '.bkbtn.ibk{margin-left:auto;flex:none}.lminote{font-size:12px;color:var(--mute);background:var(--soft);border-radius:10px;padding:8px 12px;margin:0 0 10px}'
     + '#lmitip{position:fixed;z-index:80;max-width:340px;background:var(--navy);color:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 10px 30px rgba(5,19,45,.35);font-size:12.5px;line-height:1.45;display:none;pointer-events:none}'
     + '#lmitip b,.itp b{display:block;font-size:14px;margin-bottom:4px}#lmitip u,.itp u{display:block;text-decoration:none;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--yel);margin-top:8px}#lmitip p,.itp p{margin:0}'
@@ -263,12 +263,12 @@
   // KPI boxes
   wrap('tile', function (o, a) {
     var k = ik(a[0]), h = o.apply(this, a); if (!I[k]) return h;
-    return h.replace('<div class="tile ', '<div data-i="' + k + '" class="tile ').replace('<div class="l">', '<i class="ib" data-i="' + k + '" onclick="event.stopPropagation();lmiInfo(\'' + k + '\')">i</i><div class="l">');
+    return h.replace('<div class="l">', '<i class="ib" data-i="' + k + '" onclick="event.stopPropagation();lmiInfo(\'' + k + '\')">i</i><div class="l">');
   });
   // Cards
   wrap('card', function (o, a) {
     var k = 'card_' + ik(a[0]), h = o.apply(this, a); if (!I[k]) return h;
-    return h.replace('</h3>', ' <i class="ib" data-i="' + k + '" onclick="lmiInfo(\'' + k + '\')">i</i></h3>');
+    return h.replace('<div class="card">', '<div class="card" style="position:relative"><i class="ib" data-i="' + k + '" onclick="event.stopPropagation();lmiInfo(\'' + k + '\')">i</i>').replace('<h3>', '<h3 style="padding-right:28px">');
   });
   // Tabs: hover on desktop tab bar, ⓘ button on every tab page, intro line on Overview
   wrap('buildShell', function (o, a) {
