@@ -56,7 +56,7 @@ tr.click:hover td{background:#EEF3FF}
 .tile .s{font-size:12px;color:var(--mute);margin-top:4px}
 .tile.alert{border-color:#F3C1C1;background:#FFF7F7}
 .ustel{display:inline-flex;align-items:center;gap:10px;white-space:nowrap}.uswa{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#25D366;transition:transform .12s,box-shadow .12s;flex:none}.uswa svg{width:18px;height:18px;fill:#fff}.uswa:hover{transform:scale(1.08);box-shadow:0 3px 10px rgba(37,211,102,.45)}.uswa:active{transform:scale(.95)}.usct .uswa{width:34px;height:34px}.usct .uswa svg{width:20px;height:20px}
-.usfp{display:none;grid-template-columns:1fr 1fr;gap:8px 10px;margin:0 0 12px}.usfp.on{display:grid}@media(min-width:760px){.usfp{grid-template-columns:repeat(4,minmax(0,1fr))}.usft{display:none}}
+.usfp{display:none;grid-template-columns:1fr 1fr;gap:8px 10px;margin:0 0 12px}.usfp.on{display:grid}@media(min-width:760px){.usfp{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .usfl{display:flex;flex-direction:column;gap:3px;min-width:0}.usfl span{font-size:10.5px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.03em}
 .usfl select{flex:none;max-width:none;width:100%;height:38px;border:1px solid var(--line);border-radius:10px;padding:0 8px;font:13px Poppins,system-ui,sans-serif;background:#fff;color:var(--ink)}
 .ussort{display:flex;gap:6px}.usfl.sortl{grid-column:1/-1}@media(min-width:760px){.usfl.sortl{grid-column:auto}}.ussort select{flex:1;min-width:0}.ussort .ldsec{flex:none;padding:0 10px;height:38px;font-size:12px;white-space:nowrap}
@@ -859,7 +859,7 @@ function vUsers(){var U=D.users;if(!U||!U.log.length)return card('Users & Points
   if(U.all&&U.all.length)h+=card('All users','<div id="usctl">'+usCard()+'</div><div id="usl">'+usList()+'</div>',(window.innerWidth>=760?'Click a column heading to sort (click again to reverse) · ':'Use Filters to sort and narrow the list · ')+'Full data is in the Users_Points tab of the Sheet');
   if(U.pins.length)h+=card('Users by PIN code',table(['PIN','Area','Users','Businesses'],U.pins.slice(0,40).map(function(r){return [esc(String(r[0])),esc((r[1]||'')+(r[2]?', '+r[2]:'')),num(r[3]),num(r[4])];})));
   return h;}
-var US={q:'',sort:'joined',dir:-1,pin:'',lst:'',pts:'',ct:'',jn:'',act:'',lim:60};
+function usReset(){US={q:'',sort:'joined',dir:-1,pin:'',lst:'',pts:'',ct:'',jn:'',act:'',lim:60,fo:false};}var US;usReset();
 var US_COLS=[['name','User'],['email','Email'],['mobile','Phone'],['ref','Referral code'],['pins','PIN'],['listings','Listings'],['points','Points'],['value','Value'],['joined','Joined'],['active','Last active']];
 function usD(v){v=String(v||'');var d=v.slice(0,10),t=v.slice(11,16);return /^\d{4}-\d\d-\d\d$/.test(d)?ldDate(d)+(/^\d\d:\d\d$/.test(t)?' · '+usT(t):''):(v||'—');}
 function usT(t){var h=+t.slice(0,2),m=t.slice(3,5);return (h%12||12)+':'+m+(h<12?' am':' pm');}
@@ -905,8 +905,8 @@ function usCard(){var pins={};usRows().forEach(function(u){u.pins.split(', ').fo
   var pl=Object.keys(pins).sort(function(a,b){return pins[b]-pins[a]||(a<b?-1:1);});
   var nf=['pin','lst','pts','ct','jn','act'].filter(function(k){return US[k];}).length;
   return '<div class="ldbar"><input id="usq" type="search" placeholder="Search name, email, phone, PIN, referral code…" value="'+esc(US.q)+'" oninput="US.q=this.value;US.lim=60;usDraw()">'+
-    '<button class="ldsec usft" onclick="document.getElementById(\'usfp\').classList.toggle(\'on\')">Filters'+(nf?' ('+nf+')':'')+'</button></div>'+
-    '<div id="usfp" class="usfp'+(nf||window.innerWidth>=760?' on':'')+'">'+
+    '<button class="ldsec usft" onclick="US.fo=!US.fo;document.getElementById(\'usfp\').classList.toggle(\'on\',US.fo)">Filters'+(nf?' ('+nf+')':'')+'</button></div>'+
+    '<div id="usfp" class="usfp'+(US.fo?' on':'')+'">'+
     usSel('pin','PIN code',US.pin,[['','All PINs']].concat(pl.map(function(p){return [p,p+' ('+pins[p]+')'];})).concat([['none','No PIN']]))+
     usSel('lst','Listings',US.lst,[['','Any'],['y','Has listings'],['n','No listings']])+
     usSel('pts','Points',US.pts,[['','Any'],['y','Has points'],['n','Zero points']])+
@@ -1003,7 +1003,7 @@ if (EM) { var w = document.getElementById('who'); w.innerHTML = '<i></i><span></
 if (!TOK) { window.top.location.href = 'https://listmyindia.org/mytracker/'; }
 try { history.replaceState(null, '', location.pathname); } catch (e) {}
 function load(){document.getElementById('load').style.display='block';
-  google.script.run.withSuccessHandler(function(s){D=JSON.parse(s);LST.c=null;document.getElementById('load').style.display='none';
+  google.script.run.withSuccessHandler(function(s){D=JSON.parse(s);LST.c=null;usReset();document.getElementById('load').style.display='none';
     if(!PERIOD)PERIOD=curPeriod();
     var sy=D.sync;document.getElementById('syncTxt').textContent=sy?('Zoho sync: '+dt(sy[0],1)+' · '+sy[1]):'Not synced yet';
     document.getElementById('syncBtn').style.display=D.owner?'inline-block':'none';
