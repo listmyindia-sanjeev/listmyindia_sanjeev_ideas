@@ -181,7 +181,7 @@ canvas{max-height:300px}
 }
 .vtg{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;margin:0 0 10px}.vtg button{border:0;background:none;font:600 12.5px Poppins,system-ui,sans-serif;padding:6px 14px;border-radius:8px;color:var(--mute);cursor:pointer}.vtg button.on{background:var(--blue);color:#fff}
 .expc{position:relative;height:340px}.expc.pie{height:360px}.expc canvas{max-height:none}@media(max-width:759px){.expc.pie{height:560px}}
-.ext tr.eg td{font-weight:600}.ext tr.eg td:first-child{color:var(--navy)}.ext .ea{display:inline-block;width:18px;color:var(--blue)}.ext .en{font-size:10.5px;font-weight:600;color:var(--mute);background:var(--soft);border-radius:8px;padding:0 6px}.ext tr.ec td{color:var(--mute);font-size:12px;background:#FCFDFF}.ext td.ei{padding-left:34px}.ext tr.es td{font-weight:600;color:var(--ink);background:#F7F9FF;font-size:12.5px}.ext td.esn{padding-left:30px}.ext td.ei2{padding-left:56px}.ext tr.fra td{background:#EEF8F1}.ext tr.ee td{font-size:11.5px;color:var(--mute);background:#fff}.ext td.ei3{padding-left:80px;white-space:normal;min-width:320px}.ext a.zl{color:var(--blue);text-decoration:none}.ext a.zl:hover{text-decoration:underline}.ext tr.ee i{color:var(--ink);font-style:normal}.ext tr.cto td{background:#FFF4EC}.ext tr.cto td:first-child{background:#FFF4EC}.ext tr.gt td{background:#E8EEFB}.ext .esh{color:var(--blue);font-weight:600}
+.ext tr.eg td{font-weight:600}.ext tr.eg td:first-child{color:var(--navy)}.ext .ea{display:inline-block;width:18px;color:var(--blue)}.ext .en{font-size:10.5px;font-weight:600;color:var(--mute);background:var(--soft);border-radius:8px;padding:0 6px}.ext tr.ec td{color:var(--mute);font-size:12px;background:#FCFDFF}.ext td.ei{padding-left:34px}.ext tr.es td{font-weight:600;color:var(--ink);background:#F7F9FF;font-size:12.5px}.ext td.esn{padding-left:30px}.ext td.ei2{padding-left:56px}.ext tr.fra td{background:#EEF8F1}.ext td.esn2{padding-left:52px}.ext td.ei4{padding-left:78px}.ext td.ei5{padding-left:102px;white-space:normal;min-width:320px}.expbc{font-size:13px;margin:4px 0 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.expbc a{color:var(--blue)}.expbc .bcb{margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:14px;padding:3px 12px;font:600 12px Poppins,system-ui,sans-serif;color:var(--blue);cursor:pointer}.ext tr.ee td{font-size:11.5px;color:var(--mute);background:#fff}.ext td.ei3{padding-left:80px;white-space:normal;min-width:320px}.ext a.zl{color:var(--blue);text-decoration:none}.ext a.zl:hover{text-decoration:underline}.ext tr.ee i{color:var(--ink);font-style:normal}.ext tr.cto td{background:#FFF4EC}.ext tr.cto td:first-child{background:#FFF4EC}.ext tr.gt td{background:#E8EEFB}.ext .esh{color:var(--blue);font-weight:600}
 .extx td:nth-child(-n+4),.extx th:nth-child(-n+4){text-align:left}.extx td.xd{white-space:normal;min-width:200px;max-width:320px;font-size:12px;color:var(--mute)}.extx td.xd b.zd{color:var(--ink);font-size:12.5px;font-weight:600}.extx tr.ec td{color:var(--ink)}.extx tr.ec td.xd{color:var(--mute)}.extx td:first-child{white-space:nowrap}
 </style>
 </head>
@@ -576,6 +576,8 @@ var EXP_GRP=[['Software & Tools',['Business Software']],
 var EXP_CTO=['CTO Revenue Share (25%)',['IT Infrastructure']];
 var EXPO={};
 var EXP_FRG='Franchise Expenses (PIN-wise)';
+var EXPD=[];
+function expSup(g){for(var i=0;i<EXP_GRP.length;i++)if(EXP_GRP[i][1].indexOf(g)>=0)return EXP_GRP[i][0];return EXP_CTO[1].indexOf(g)>=0?EXP_CTO[0]:'Finance, Compliance & Other';}function expDrill(n){EXPD.length=n;if(window._expDraw)window._expDraw();}
 function expT(k){EXPO[k]=!EXPO[k];[].forEach.call(document.querySelectorAll('.ext tr[data-p]'),function(r){r.style.display=r.getAttribute('data-p').split(' ').every(function(x){return EXPO[x];})?'':'none';});
   var a=document.getElementById('ea'+k);if(a)a.textContent=EXPO[k]?'▾':'▸';}
 // Moves every expense/bill line tagged with a franchise PIN (D.expTags, from the Zoho "Franchise" tag) out of its normal
@@ -585,7 +587,7 @@ function expFranchise(E,AC){var T=(D.expTags||[]).filter(function(r){return r[5]
   AC.forEach(function(x){A[String(x.a).toLowerCase()]=x;});
   T.forEach(function(r){var x=A[String(r[2]).toLowerCase()];if(!x)return;var pin=String(r[5]),p=P[pin];
     if(!p){var t=String(r[6]||'').split('|').map(function(s){return s.trim();});p=P[pin]={pin:pin,label:'PIN '+pin+(t[1]?' · '+t[1]:''),h:'FR ▸ '+pin,heads:[],seen:{}};ix(p.h);}
-    var ah=p.h+' ▸ '+x.a;if(!p.seen[ah]){p.seen[ah]=1;p.heads.push({a:x.a,h:ah});ix(ah);}
+    var ah=p.h+' ▸ '+x.a;if(!p.seen[ah]){p.seen[ah]=1;p.heads.push({a:x.a,h:ah,g:x.g});ix(ah);}
     L.push({m:String(r[0]).slice(0,7),a:nz(r[4]),x:x,p:p,ah:ah});});
   var iL=H.indexOf('TOTAL (LMI-borne)'),iC=H.indexOf('TOTAL (Hemadri-borne IT)');
   var rows=E.rows.map(function(r0){var r=r0.slice();while(r.length<H.length)r.push(0);var m=String(r[0]).slice(0,7);
@@ -644,7 +646,7 @@ function vExp(){
   var h='<div class="grid">'+tile('Spend — '+esc(plabel()),inr(tot(sel,'GRAND TOTAL')),'LMI '+inr(tot(sel,'TOTAL (LMI-borne)'))+' · CTO Revenue Share (25%) '+inr(tot(sel,'TOTAL (Hemadri-borne IT)')),'exp','hero')+
     tile('Avg monthly (last 2)',inr(K('burn')),'','cash')+'</div>';
   var tg='<div class="vtg"><button class="'+(EXPV==='bar'?'on':'')+'" onclick="EXPV=\'bar\';render()">Bar chart</button><button class="'+(EXPV==='pie'?'on':'')+'" onclick="EXPV=\'pie\';render()">Pie chart</button></div>';
-  h+=card('By group — '+esc(plabel()),sel.length?tg+'<div class="expc'+(EXPV==='pie'?' pie':'')+'"><canvas id="c4"></canvas></div>':'<div class="note">No actual expenses in this period yet.</div>',sel.length?'% = share of total spend in '+esc(plabel()):'');
+  h+=card('By group — '+esc(plabel()),sel.length?tg+'<div class="expbc" id="expbc"></div><div class="expc'+(EXPV==='pie'?' pie':'')+'"><canvas id="c4"></canvas></div>':'<div class="note">No actual expenses in this period yet.</div>',sel.length?'Tap a bar or slice to open it: group → sub-group / PIN → Zoho expense head → each Zoho entry (tap an entry to open it in Zoho Books). % = share of the level shown, in '+esc(plabel())+'.':'');
   // grouped, expandable table
   var byK=keys.map(function(k){return rows.filter(function(x){return expKey(x)===k;});}), allR=[].concat.apply([],byK), GT=tot(allR,'GRAND TOTAL');
   var cells=function(list){return byK.map(function(rs){return '<td>'+inr(totL(rs,list))+'</td>';}).join('')+'<td class="esh">'+(GT?(totL(allR,list)/GT*100).toFixed(1)+'%':'—')+'</td>';};
@@ -656,14 +658,14 @@ function vExp(){
   var ekey=function(e){return m2k[String(e[0]).slice(0,7)];};
   var ents=function(acc,pin){acc=String(acc).toLowerCase();return (D.expTags||[]).filter(function(e){return String(e[2]).toLowerCase()===acc&&(pin==null?!e[5]:String(e[5])===pin)&&keys.indexOf(ekey(e))>=0;})
     .sort(function(x,y){return String(y[0]).localeCompare(String(x[0]));});};
-  var headRows=function(x,p,key,cls,pin){var es=ents(x.a,pin),path=p.concat([key]);
+  var headRows=function(x,p,key,cls,pin,ecls){ecls=ecls||'ei3';var es=ents(x.a,pin),path=p.concat([key]);
     var diffs=byK.map(function(rs,j){var s=es.filter(function(e){return ekey(e)===keys[j];}).reduce(function(t,e){return t+nz(e[4]);},0);return Math.round((totL(rs,[x.h])-s)*100)/100;});
     var odd=diffs.some(function(d){return Math.abs(d)>=1;}),can=es.length||odd;
     var r='<tr class="ec'+(can?' click':'')+'"'+dp(p)+(can?' onclick="expT(\''+key+'\')"':'')+'><td class="'+cls+'">'+(can?arrow(key):'')+esc(x.a)+(es.length?' <span class="en">'+es.length+' entr'+(es.length===1?'y':'ies')+'</span>':'')+'</td>'+cells([x.h])+'</tr>';
     es.forEach(function(e){var u=String(e[9]||''),lab=dt(String(e[0]),1)+' · '+esc(e[1])+(e[3]?' · '+esc(e[3]):'')+(e[8]?' — <i>'+esc(e[8])+'</i>':'');
-      r+='<tr class="ee"'+dp(path)+'><td class="ei3">'+(u?'<a class="zl" href="'+esc(u)+'" target="_blank" rel="noopener">'+lab+'</a>':lab)+'</td>'+
+      r+='<tr class="ee"'+dp(path)+'><td class="'+ecls+'">'+(u?'<a class="zl" href="'+esc(u)+'" target="_blank" rel="noopener">'+lab+'</a>':lab)+'</td>'+
         keys.map(function(k){return '<td>'+(ekey(e)===k?inr(e[4],1):'')+'</td>';}).join('')+'<td>'+(u?'<a class="zl" href="'+esc(u)+'" target="_blank" rel="noopener">Open ↗</a>':'')+'</td></tr>';});
-    if(odd)r+='<tr class="ee"'+dp(path)+'><td class="ei3 note">Other Zoho entries (refunds, journals or not yet read)</td>'+diffs.map(function(d){return '<td>'+(Math.abs(d)>=1?inr(d,1):'')+'</td>';}).join('')+'<td></td></tr>';
+    if(odd)r+='<tr class="ee"'+dp(path)+'><td class="'+ecls+' note">Other Zoho entries (refunds, journals or not yet read)</td>'+diffs.map(function(d){return '<td>'+(Math.abs(d)>=1?inr(d,1):'')+'</td>';}).join('')+'<td></td></tr>';
     return r;};
   var grpRows=function(g,i,cls){var gk='g'+i,subs=g[1].filter(function(x){return totL(allR,[x])!==0;});
     var heads=function(sg){return AC.filter(function(x){return sg.indexOf(x.g)>=0&&totL(allR,[x.h])!==0;}).sort(function(a,b){return totL(allR,[b.h])-totL(allR,[a.h]);});};
@@ -683,27 +685,58 @@ function vExp(){
     var r='<tr class="eg click fra" onclick="expT(\''+gk+'\')"><td>'+arrow(gk)+esc(g[0])+' <span class="en">'+ps.length+' PIN'+(ps.length===1?'':'s')+'</span></td>'+cells(g[1])+'</tr>';
     ps.forEach(function(p,k){var sk=gk+'_'+k,hs=p.heads.filter(function(x){return totL(allR,[x.h])!==0;}).sort(function(a,b){return totL(allR,[b.h])-totL(allR,[a.h]);});
       r+='<tr class="es click"'+dp([gk])+' onclick="expT(\''+sk+'\')"><td class="esn">'+arrow(sk)+esc(p.label)+' <span class="en">'+hs.length+'</span></td>'+cells([p.h])+'</tr>';
-      hs.forEach(function(x,n){r+=headRows(x,[gk,sk],sk+'_'+n,'ei2',p.pin);});});
+      var SG={},so=[];hs.forEach(function(x){var g2=expSup(x.g);if(!SG[g2]){SG[g2]=[];so.push(g2);}SG[g2].push(x);});
+      so.sort(function(a,b){return totL(allR,SG[b].map(function(x){return x.h;}))-totL(allR,SG[a].map(function(x){return x.h;}));});
+      so.forEach(function(g2,m){var tk=sk+'_'+m,L2=SG[g2].map(function(x){return x.h;});
+        r+='<tr class="es click"'+dp([gk,sk])+' onclick="expT(\''+tk+'\')"><td class="esn2">'+arrow(tk)+esc(g2)+' <span class="en">'+L2.length+'</span></td>'+cells(L2)+'</tr>';
+        SG[g2].forEach(function(x,n){r+=headRows(x,[gk,sk,tk],tk+'_'+n,'ei4',p.pin,'ei5');});});});
     return r;};
   var body=GR.lmi.filter(function(g){return totL(allR,g[1])!==0;}).map(function(g,i){return g[0]===EXP_FRG?fraRows(g,i):grpRows(g,i);}).join('')+
     '<tr class="tot"><td>TOTAL — LMI operating costs</td>'+cells(lmiAll)+'</tr>'+
     (GR.cto[1].length?grpRows(GR.cto,'c','cto'):'')+
     '<tr class="tot gt"><td>GRAND TOTAL</td>'+cells(lmiAll.concat(GR.cto[1]))+'</tr>';
   h+=card('Actual spend by '+TYPE.toLowerCase(),'<div class="tbl tw ext"><div class="swipe">Swipe sideways for more →</div><table><thead><tr><th>Group <span class="note">(tap ▸ to open)</span></th>'+keys.map(function(k){return '<th>'+esc(k)+'</th>';}).join('')+'<th>Share</th></tr></thead><tbody>'+body+'</tbody></table></div>',
-    'From Zoho Books. Tap a group, then an expense head, to see every Zoho Books entry booked under it — tap an entry to open it in Zoho Books. '+EXP_FRG+' = expenses and bills tagged with a franchise PIN in Zoho (Franchise tag); they are moved out of their normal group, so nothing is counted twice. CTO Revenue Share (25%) = everything marked HEMADRI in Category_Map (recovered from the CTO Revenue Share). Share = % of grand total across the columns shown.');
+    'From Zoho Books. Tap a group (for franchises: PIN, then expense group), then an expense head, to see every Zoho Books entry booked under it — tap an entry to open it in Zoho Books. '+EXP_FRG+' = expenses and bills tagged with a franchise PIN in Zoho (Franchise tag); they are moved out of their normal group, so nothing is counted twice. CTO Revenue Share (25%) = everything marked HEMADRI in Category_Map (recovered from the CTO Revenue Share). Share = % of grand total across the columns shown.');
   h+=expTxCard(AC,sel);
+  // ── Drill-down chart: group → sub-group / PIN → Zoho expense head → individual Zoho entries (tap an entry to open it in Zoho Books)
+  var headsOf=function(list){return AC.filter(function(x){return list.indexOf(x.g)>=0&&totL(sel,[x.h])>0;});};
+  var headNode=function(x,pin){var v=totL(sel,[x.h]);return {id:'H:'+x.h,label:x.a,v:v,kids:function(){
+    var es=(D.expTags||[]).filter(function(e){return String(e[2]).toLowerCase()===String(x.a).toLowerCase()&&(pin==null?!e[5]:String(e[5])===pin)&&ekey(e)===PERIOD;})
+      .sort(function(p,q){return String(q[0]).localeCompare(String(p[0]));});
+    var n=es.map(function(e,i){var d=String(e[8]||e[3]||e[1]);return {id:'E'+i,label:dt(String(e[0]),1)+' · '+(d.length>42?d.slice(0,40)+'…':d),full:dt(String(e[0]),1)+' · '+e[1]+(e[3]?' · '+e[3]:'')+(e[8]?' — '+e[8]:''),v:nz(e[4]),url:String(e[9]||'')};});
+    var rest=Math.round((v-n.reduce(function(t,e){return t+e.v;},0))*100)/100;if(rest>=1)n.push({id:'X',label:'Other Zoho entries',v:rest});return n;}};};
+  var groupNode=function(g){return {id:'G:'+g[0],label:g[0],v:totL(sel,g[1]),top:g[0],kids:function(){
+    if(g[0]===EXP_FRG)return FR.pins.map(function(p){return {id:'P:'+p.pin,label:p.label,v:totL(sel,[p.h]),kids:function(){var SG={},so=[];p.heads.forEach(function(x){var g2=expSup(x.g);if(!SG[g2]){SG[g2]=[];so.push(g2);}SG[g2].push(x);});
+      return so.map(function(g2){return {id:'F:'+g2,label:g2,v:totL(sel,SG[g2].map(function(x){return x.h;})),kids:function(){return SG[g2].map(function(x){return headNode(x,p.pin);});}};});}};});
+    var subs=g[1].filter(function(x){return totL(sel,[x])>0;});
+    if(AC.length&&subs.length>1)return subs.map(function(sg){return {id:'S:'+sg,label:sg,v:totL(sel,[sg]),kids:function(){return headsOf([sg]).map(function(x){return headNode(x,null);});}};});
+    return AC.length?headsOf(g[1]).map(function(x){return headNode(x,null);}):null;}};};
+  var root={label:'All groups',kids:function(){return GR.lmi.map(groupNode).concat(GR.cto[1].length?[groupNode(GR.cto)]:[]);}};
   window._after=function(){if(!sel.length)return;
-    var z=GR.lmi.map(function(g){return [g[0],totL(sel,g[1])];}).concat(GR.cto[1].length?[[GR.cto[0],totL(sel,GR.cto[1])]]:[]).filter(function(x){return x[1]>0;}).sort(function(a,b){return b[1]-a[1];});
-    var T=z.reduce(function(a,x){return a+x[1];},0),pc=function(v){return T?(v/T*100).toFixed(1)+'%':'—';};
-    var tip={callbacks:{label:function(c){return ' '+c.label+': '+inr(c.raw,1)+' ('+pc(c.raw)+')';}}};
-    var cols=z.map(function(x,i){return x[0]===EXP_CTO[0]?'#D35400':x[0]===EXP_FRG?'#0E8A4B':EXP_PAL[i%EXP_PAL.length];});
-    if(EXPV==='pie'){
-      chart('c4',{type:'doughnut',data:{labels:z.map(function(x){return x[0];}),datasets:[{data:z.map(function(x){return x[1];}),backgroundColor:cols,borderColor:'#fff',borderWidth:2}]},
-        options:{maintainAspectRatio:false,cutout:'42%',plugins:{tooltip:tip,legend:{position:window.innerWidth<760?'bottom':'right',
-          labels:{boxWidth:12,font:{family:'Poppins',size:12},generateLabels:function(c){var L=Chart.overrides.doughnut.plugins.legend.labels.generateLabels(c);
-            L.forEach(function(l,i){l.text=l.text+'  '+pc(c.data.datasets[0].data[i])+' · '+inr(c.data.datasets[0].data[i]);});return L;}}}}},plugins:[EXP_PCT]});}
-    else chart('c4',{type:'bar',data:{labels:z.map(function(x){return x[0];}),datasets:[{data:z.map(function(x){return x[1];}),backgroundColor:z.map(function(x){return x[0]===EXP_CTO[0]?'#D35400':x[0]===EXP_FRG?'#0E8A4B':'#0046BF';})}]},
-      options:{indexAxis:'y',maintainAspectRatio:false,layout:{padding:{right:46}},plugins:{legend:{display:false},tooltip:tip},scales:{x:{ticks:{callback:function(v){return inr(v);}}}}},plugins:[EXP_PCT]});};
+    var cv=document.getElementById('c4');if(!cv)return;
+    var draw=function(){
+      var path=[root],cur=root;for(var i=0;i<EXPD.length;i++){var k=(cur.kids&&cur.kids()||[]).filter(function(x){return x.id===EXPD[i];})[0];if(!k){EXPD.length=i;break;}path.push(k);cur=k;}
+      var top=path[1]?path[1].top:null;
+      var z=(cur.kids()||[]).filter(function(x){return x.v>0;}).sort(function(a,b){return b.v-a.v;});
+      var bc=document.getElementById('expbc');if(bc)bc.innerHTML=path.map(function(n,i){return i<path.length-1?'<a href="javascript:void(0)" onclick="expDrill('+i+')">'+esc(n.label)+'</a>':'<b>'+esc(n.label)+'</b>';}).join(' <span class="note">›</span> ')+
+        (path.length>1?' <button class="bcb" onclick="expDrill('+(path.length-2)+')">‹ Back</button>':'');
+      var T=z.reduce(function(a,x){return a+x.v;},0),pc=function(v){return T?(v/T*100).toFixed(1)+'%':'—';};
+      var tip={callbacks:{title:function(c){var n=z[c[0].dataIndex];return n.full||n.label;},label:function(c){var n=z[c.dataIndex];return ' '+inr(c.raw,1)+' ('+pc(c.raw)+')'+(n.url?' · tap to open in Zoho Books':(n.kids?' · tap to open':''));}}};
+      var base=top===EXP_CTO[0]?'#D35400':top===EXP_FRG?'#0E8A4B':'#0046BF';
+      var cols=z.map(function(x,i){if(!top)return x.label===EXP_CTO[0]?'#D35400':x.label===EXP_FRG?'#0E8A4B':EXP_PAL[i%EXP_PAL.length];return i===0?base:EXP_PAL[i%EXP_PAL.length];});
+      var box=cv.parentNode;box.style.height=EXPV==='pie'?'':Math.max(300,z.length*46+70)+'px';
+      var old=Chart.getChart(cv);if(old){old.destroy();charts=charts.filter(function(c){return c!==old;});}
+      var click=function(ev,els){if(!els.length)return;var n=z[els[0].index];if(n.url){window.open(n.url,'_blank','noopener');return;}var k=n.kids&&n.kids();if(k&&k.some(function(x){return x.v>0;})){EXPD.push(n.id);draw();}};
+      var hover=function(ev,els){var n=els.length?z[els[0].index]:null;ev.native.target.style.cursor=n&&(n.url||n.kids)?'pointer':'default';};
+      if(EXPV==='pie'){
+        chart('c4',{type:'doughnut',data:{labels:z.map(function(x){return x.label;}),datasets:[{data:z.map(function(x){return x.v;}),backgroundColor:cols,borderColor:'#fff',borderWidth:2}]},
+          options:{maintainAspectRatio:false,cutout:'42%',onClick:click,onHover:hover,plugins:{tooltip:tip,legend:{position:window.innerWidth<760?'bottom':'right',
+            onClick:function(e,item){click(e,[{index:item.index}]);},
+            labels:{boxWidth:12,font:{family:'Poppins',size:12},generateLabels:function(c){var L=Chart.overrides.doughnut.plugins.legend.labels.generateLabels(c);
+              L.forEach(function(l,i){l.text=l.text+'  '+pc(c.data.datasets[0].data[i])+' · '+inr(c.data.datasets[0].data[i]);});return L;}}}}},plugins:[EXP_PCT]});}
+      else chart('c4',{type:'bar',data:{labels:z.map(function(x){return x.label;}),datasets:[{data:z.map(function(x){return x.v;}),backgroundColor:top?base:z.map(function(x){return x.label===EXP_CTO[0]?'#D35400':x.label===EXP_FRG?'#0E8A4B':'#0046BF';})}]},
+        options:{indexAxis:'y',maintainAspectRatio:false,onClick:click,onHover:hover,layout:{padding:{right:46}},plugins:{legend:{display:false},tooltip:tip},scales:{x:{ticks:{callback:function(v){return inr(v);}}}}},plugins:[EXP_PCT]});};
+    window._expDraw=draw;draw();};
   return h;
 }
 
