@@ -183,6 +183,7 @@ canvas{max-height:300px}
 .expc{position:relative;height:340px}.expc.pie{height:360px}.expc canvas{max-height:none}@media(max-width:759px){.expc.pie{height:560px}}
 .ext tr.eg td{font-weight:600}.ext tr.eg td:first-child{color:var(--navy)}.ext .ea{display:inline-block;width:18px;color:var(--blue)}.ext .en{font-size:10.5px;font-weight:600;color:var(--mute);background:var(--soft);border-radius:8px;padding:0 6px}.ext tr.ec td{color:var(--mute);font-size:12px;background:#FCFDFF}.ext td.ei{padding-left:34px}.ext tr.es td{font-weight:600;color:var(--ink);background:#F7F9FF;font-size:12.5px}.ext td.esn{padding-left:30px}.ext td.ei2{padding-left:56px}.ext tr.fra td{background:#EEF8F1}.ext td.esn2{padding-left:52px}.ext td.ei4{padding-left:78px}.ext td.ei5{padding-left:102px;white-space:normal;min-width:320px}.expbc{font-size:13px;margin:4px 0 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.expbc a{color:var(--blue)}.expbc .bcb{margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:14px;padding:3px 12px;font:600 12px Poppins,system-ui,sans-serif;color:var(--blue);cursor:pointer}.ext tr.ee td{font-size:11.5px;color:var(--mute);background:#fff}.ext td.ei3{padding-left:80px;white-space:normal;min-width:320px}.ext a.zl{color:var(--blue);text-decoration:none}.ext a.zl:hover{text-decoration:underline}.ext tr.ee i{color:var(--ink);font-style:normal}.ext tr.cto td{background:#FFF4EC}.ext tr.cto td:first-child{background:#FFF4EC}.ext tr.gt td{background:#E8EEFB}.ext .esh{color:var(--blue);font-weight:600}
 .extx td:nth-child(-n+4),.extx th:nth-child(-n+4){text-align:left}.extx td.xd{white-space:normal;min-width:200px;max-width:320px;font-size:12px;color:var(--mute)}.extx td.xd b.zd{color:var(--ink);font-size:12.5px;font-weight:600}.extx tr.ec td{color:var(--ink)}.extx tr.ec td.xd{color:var(--mute)}.extx td:first-child{white-space:nowrap}
+@media(max-width:759px){.ext td:first-child,.ext th:first-child{position:sticky;left:0;z-index:1;background:#fff;min-width:160px;max-width:200px;box-shadow:2px 0 4px rgba(5,19,45,.06)}.ext th:first-child{z-index:2}.ext td.ei{padding-left:24px}.ext td.esn{padding-left:20px}.ext td.esn2,.ext td.ei2{padding-left:30px}.ext td.ei4{padding-left:38px}.ext td.ei3,.ext td.ei5{padding-left:34px;min-width:200px;max-width:240px;white-space:normal}.expbc{font-size:12px}}
 </style>
 </head>
 <body>
@@ -396,7 +397,8 @@ var CTO_TXT=[['TOTAL (Hemadri-borne IT)','TOTAL (CTO Revenue Share (25%))'],['He
 function ctoTxt(h){CTO_TXT.forEach(function(p){h=h.split(p[0]).join(p[1]);});return h.replace(/Hemadri/g,'CTO Revenue Share (25%)');}
 function render(){charts.forEach(function(c){c.destroy();});charts=[];
   var v=document.getElementById('view');v.innerHTML=ctoTxt(({overview:vOverview,pnl:vPnl,cash:vCash,gst:vGst,pay:vPay,fr:vFr,exp:vExp,cto:vCto,plan:vPlan,rates:vRates,leads:vLeads,users:vUsers}[TAB])());
-  if(window._after){var f=window._after;window._after=null;f();}}
+  if(window._after){var f=window._after;window._after=null;f();}
+  if(window.innerWidth<760)[].forEach.call(document.querySelectorAll('#view .tbl.ext'),function(t){t.scrollLeft=t.scrollWidth;});}
 
 function plabel(){return TYPE==='Op-Year'?'Op-Year '+String(PERIOD).slice(1):PERIOD;}
 
@@ -577,6 +579,7 @@ var EXP_CTO=['CTO Revenue Share (25%)',['IT Infrastructure']];
 var EXPO={};
 var EXP_FRG='Franchise Expenses (PIN-wise)';
 var EXPD=[];
+function expWrap(t,n){var w=String(t).split(' '),L=[],c='';w.forEach(function(x){if(c&&(c+' '+x).length>n){L.push(c);c=x;}else c=c?c+' '+x:x;});if(c)L.push(c);return L.length>1?L.slice(0,3):String(t);}
 function expSup(g){for(var i=0;i<EXP_GRP.length;i++)if(EXP_GRP[i][1].indexOf(g)>=0)return EXP_GRP[i][0];return EXP_CTO[1].indexOf(g)>=0?EXP_CTO[0]:'Finance, Compliance & Other';}function expDrill(n){EXPD.length=n;if(window._expDraw)window._expDraw();}
 function expT(k){EXPO[k]=!EXPO[k];[].forEach.call(document.querySelectorAll('.ext tr[data-p]'),function(r){r.style.display=r.getAttribute('data-p').split(' ').every(function(x){return EXPO[x];})?'':'none';});
   var a=document.getElementById('ea'+k);if(a)a.textContent=EXPO[k]?'▾':'▸';}
@@ -724,7 +727,7 @@ function vExp(){
       var tip={callbacks:{title:function(c){var n=z[c[0].dataIndex];return n.full||n.label;},label:function(c){var n=z[c.dataIndex];return ' '+inr(c.raw,1)+' ('+pc(c.raw)+')'+(n.url?' · tap to open in Zoho Books':(n.kids?' · tap to open':''));}}};
       var base=top===EXP_CTO[0]?'#D35400':top===EXP_FRG?'#0E8A4B':'#0046BF';
       var cols=z.map(function(x,i){if(!top)return x.label===EXP_CTO[0]?'#D35400':x.label===EXP_FRG?'#0E8A4B':EXP_PAL[i%EXP_PAL.length];return i===0?base:EXP_PAL[i%EXP_PAL.length];});
-      var box=cv.parentNode;box.style.height=EXPV==='pie'?'':Math.max(300,z.length*46+70)+'px';
+      var box=cv.parentNode;box.style.height=EXPV==='pie'?'':Math.max(300,z.length*(window.innerWidth<760?54:46)+70)+'px';
       var old=Chart.getChart(cv);if(old){old.destroy();charts=charts.filter(function(c){return c!==old;});}
       var click=function(ev,els){if(!els.length)return;var n=z[els[0].index];if(n.url){window.open(n.url,'_blank','noopener');return;}var k=n.kids&&n.kids();if(k&&k.some(function(x){return x.v>0;})){EXPD.push(n.id);draw();}};
       var hover=function(ev,els){var n=els.length?z[els[0].index]:null;ev.native.target.style.cursor=n&&(n.url||n.kids)?'pointer':'default';};
@@ -734,8 +737,8 @@ function vExp(){
             onClick:function(e,item){click(e,[{index:item.index}]);},
             labels:{boxWidth:12,font:{family:'Poppins',size:12},generateLabels:function(c){var L=Chart.overrides.doughnut.plugins.legend.labels.generateLabels(c);
               L.forEach(function(l,i){l.text=l.text+'  '+pc(c.data.datasets[0].data[i])+' · '+inr(c.data.datasets[0].data[i]);});return L;}}}}},plugins:[EXP_PCT]});}
-      else chart('c4',{type:'bar',data:{labels:z.map(function(x){return x.label;}),datasets:[{data:z.map(function(x){return x.v;}),backgroundColor:top?base:z.map(function(x){return x.label===EXP_CTO[0]?'#D35400':x.label===EXP_FRG?'#0E8A4B':'#0046BF';})}]},
-        options:{indexAxis:'y',maintainAspectRatio:false,onClick:click,onHover:hover,layout:{padding:{right:46}},plugins:{legend:{display:false},tooltip:tip},scales:{x:{ticks:{callback:function(v){return inr(v);}}}}},plugins:[EXP_PCT]});};
+      else chart('c4',{type:'bar',data:{labels:z.map(function(x){return window.innerWidth<760?expWrap(x.label,15):x.label;}),datasets:[{data:z.map(function(x){return x.v;}),backgroundColor:top?base:z.map(function(x){return x.label===EXP_CTO[0]?'#D35400':x.label===EXP_FRG?'#0E8A4B':'#0046BF';})}]},
+        options:{indexAxis:'y',maintainAspectRatio:false,onClick:click,onHover:hover,layout:{padding:{right:46}},plugins:{legend:{display:false},tooltip:tip},scales:{y:{ticks:{autoSkip:false,font:{size:window.innerWidth<760?11:12}}},x:{ticks:{maxTicksLimit:window.innerWidth<760?4:8,callback:function(v){return inr(v);}}}}},plugins:[EXP_PCT]});};
     window._expDraw=draw;draw();};
   return h;
 }
