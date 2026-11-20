@@ -234,7 +234,7 @@ function lmiRun_(ok, bad) {
 <script>
 var D=null, TYPE='Month', PERIOD=null, TAB='overview', charts=[];
 var TYPES={'Month':'Label','Quarter':'Fiscal Qtr','FY':'FY','Op-Year':'Op-Year'};
-var TABS=[['overview','Overview'],['pnl','P&L'],['cash','Cash & Funds'],['gst','GST & TDS'],['pay','Payables'],['fr','Franchises'],['exp','Expenses'],['plan','Planned 36m'],['rates','Rate Card'],['users','Users & Points'],['leads','Leads']];
+var TABS=[['overview','Overview'],['pnl','P&L'],['cash','Cash & Funds'],['gst','GST & TDS'],['pay','Payables'],['fr','Franchises'],['exp','Expenses'],['cto','CTO Share'],['plan','Planned 36m'],['rates','Rate Card'],['users','Users & Points'],['leads','Leads']];
 
 function inr(v,full){if(v===''||v===null||v===undefined||isNaN(v))return '—';var n=Number(v),a=Math.abs(n),s=n<0?'-':'';
   if(!full&&a>=1e7)return s+'₹'+(a/1e7).toFixed(2)+' Cr'; if(!full&&a>=1e5)return s+'₹'+(a/1e5).toFixed(2)+' L';
@@ -395,7 +395,7 @@ var CTO_TXT=[['TOTAL (Hemadri-borne IT)','TOTAL (CTO Revenue Share (25%))'],['He
   ['recovered from his share','recovered from the CTO Revenue Share (25%)'],['ITC on Hemadri share','ITC on CTO Revenue Share'],['Hemadri-borne','CTO Revenue Share (25%)']];
 function ctoTxt(h){CTO_TXT.forEach(function(p){h=h.split(p[0]).join(p[1]);});return h.replace(/Hemadri/g,'CTO Revenue Share (25%)');}
 function render(){charts.forEach(function(c){c.destroy();});charts=[];
-  var v=document.getElementById('view');v.innerHTML=ctoTxt(({overview:vOverview,pnl:vPnl,cash:vCash,gst:vGst,pay:vPay,fr:vFr,exp:vExp,plan:vPlan,rates:vRates,leads:vLeads,users:vUsers}[TAB])());
+  var v=document.getElementById('view');v.innerHTML=ctoTxt(({overview:vOverview,pnl:vPnl,cash:vCash,gst:vGst,pay:vPay,fr:vFr,exp:vExp,cto:vCto,plan:vPlan,rates:vRates,leads:vLeads,users:vUsers}[TAB])());
   if(window._after){var f=window._after;window._after=null;f();}}
 
 function plabel(){return TYPE==='Op-Year'?'Op-Year '+String(PERIOD).slice(1):PERIOD;}
@@ -740,6 +740,84 @@ function vExp(){
   return h;
 }
 
+
+// ── CTO Revenue Share settlement: 25% of sales (ex-GST), GST-inclusive → taxable 21.19% + GST 3.81%.
+// IT & tech costs paid by LMI (CTO groups in Category_Map) are recovered first; any shortfall is carried forward.
+// Payable = taxable surplus + 18% GST (Penny Software invoice) − TDS. Change CTO_TDS below if the TDS rate is different.
+var CTO_PCT=0.25,CTO_GST=0.18,CTO_TDS=0.02;
+function ctoCalc(){var E=D.exp,today=new Date().toISOString().slice(0,7),iT=E.head.indexOf('TOTAL (Hemadri-borne IT)');
+  var am=E.head.indexOf('ACCOUNTS ▸'),AC=[];if(am>0)E.head.slice(am+1).forEach(function(h){h=String(h||'');var k=h.indexOf(' | ');if(k>0&&EXP_CTO[1].indexOf(h.slice(0,k))>=0)AC.push({a:h.slice(k+3),h:h,i:E.head.indexOf(h)});});
+  var inv={};(D.inv||[]).forEach(function(r){if(/void|draft/i.test(r.status))return;var d=pdate(r.date);if(!/^\d{4}-\d\d/.test(d))return;(inv[d.slice(0,7)]=inv[d.slice(0,7)]||[]).push(r);});
+  var M=[],cf=0,started=false;
+  E.rows.forEach(function(r){var m=String(r[0]).slice(0,7);if(m>today)return;var lines=inv[m]||[],C=nz(r[iT]);
+    var S=lines.reduce(function(t,l){return t+nz(l.amt);},0);if(!started&&!S&&!C)return;started=true;
+    var st={};lines.forEach(function(l){var k=String(l.stream||'Other');(st[k]=st[k]||{v:0,l:[]}).v+=nz(l.amt);st[k].l.push(l);});
+    var G=S*CTO_PCT,T=G/(1+CTO_GST),avail=T-C-cf,P=Math.max(0,avail);
+    var o={m:m,key:expKey(r),row:r,S:S,st:st,C:C,heads:AC.map(function(x){return {a:x.a,v:nz(r[x.i])};}).filter(function(x){return x.v;}),
+      G:G,T:T,Gst:G-T,sur:T-C,cfo:cf,P:P,pg:P*CTO_GST,tds:P*CTO_TDS};o.pay=o.P+o.pg-o.tds;cf=Math.max(0,-avail);o.cfc=cf;M.push(o);});
+  return M;}
+function vCto(){var M=ctoCalc();if(!M.length)return card('CTO Revenue Share (25%)','<div class="note">No sales or CTO costs yet.</div>');
+  var keys=[];M.forEach(function(o){if(keys.indexOf(o.key)<0)keys.push(o.key);});keys=keys.slice(-12);
+  var by=keys.map(function(k){return M.filter(function(o){return o.key===k;});}),all=[].concat.apply([],by);
+  var sum=function(ms,f){return ms.reduce(function(t,o){return t+(typeof f==='function'?f(o):o[f]);},0);};
+  var first=function(ms,f){return ms.length?ms[0][f]:0;},last=function(ms,f){return ms.length?ms[ms.length-1][f]:0;};
+  var sel=M.filter(function(o){return o.key===PERIOD;});
+  var pctS=function(v,S){return S?' · '+(v/S*100).toFixed(2)+'% of sales':'';};
+  var sS=sum(sel,'S'),sT=sum(sel,'T'),sC=sum(sel,'C'),sPay=sum(sel,'pay'),cfE=sel.length?last(sel,'cfc'):last(M,'cfc');
+  var h='<div class="grid">'+tile('Sales (ex-GST) — '+esc(plabel()),inr(sS),sel.length?'from Zoho invoices':'no data in this period','','hero')+
+    tile('CTO Revenue Share (25%)',inr(sum(sel,'G')),'Taxable '+inr(sT)+' (21.19%) + GST '+inr(sum(sel,'Gst'))+' (3.81%)')+
+    tile('IT & tech cost borne by CTO',inr(sC),'paid by LMI, recovered from the share','!go(\'exp\')')+
+    tile(sPay>0?'Net payout to CTO':'Carry-forward owed by CTO',sPay>0?inr(sPay):inr(cfE),sPay>0?'after GST + and TDS −':'to be recovered from future share','',sPay>0?'':'alert')+'</div>';
+  // chart
+  h+=card('CTO share vs CTO cost — by '+TYPE.toLowerCase(),'<div class="expc"><canvas id="c9"></canvas></div>','Blue = taxable CTO share (21.19% of sales), orange = IT & tech cost, red line = carry-forward still owed by the CTO. Tap a bar to select that '+TYPE.toLowerCase()+'.');
+  // table
+  var hide=function(p){return p.every(function(k){return EXPO[k];})?'':' style="display:none"';},dp=function(p){return ' data-p="'+p.join(' ')+'"'+hide(p);};
+  var arrow=function(k){return '<span class="ea" id="ea'+k+'">'+(EXPO[k]?'▾':'▸')+'</span>';};
+  var vc=function(v,b){return '<td class="'+(v>0.5?'pos':v<-0.5?'neg':'')+'">'+(b?'<b>':'')+inr(v,1)+(b?'</b>':'')+'</td>';};
+  var line=function(lab,f,o){o=o||{};var vals=by.map(function(ms){return o.open?first(ms,f):o.close?last(ms,f):sum(ms,f);}),tv=o.open?first(all,f):o.close?last(all,f):sum(all,f);
+    var td=function(v){return o.col?vc(o.neg?-v:v,o.b):'<td>'+(o.b?'<b>':'')+inr(v,1)+(o.b?'</b>':'')+'</td>';};
+    return '<tr class="'+(o.cls||'')+(o.k?' click':'')+'"'+(o.p?dp(o.p):'')+(o.k?' onclick="expT(\''+o.k+'\')"':'')+'><td class="'+(o.td||'')+'">'+(o.k?arrow(o.k):'')+lab+'</td>'+vals.map(td).join('')+td(tv)+'</tr>';};
+  var body='';
+  // A. Sales → stream → invoices
+  var streams=[];all.forEach(function(o){Object.keys(o.st).forEach(function(k){if(streams.indexOf(k)<0)streams.push(k);});});
+  body+=line('A. Sales (ex-GST)','S',{cls:'eg',k:'ca',b:1});
+  streams.forEach(function(sn,i){var k='ca_'+i;body+=line(esc(sn),function(o){return o.st[sn]?o.st[sn].v:0;},{cls:'es',k:k,p:['ca'],td:'esn'});
+    all.forEach(function(o){if(!o.st[sn])return;o.st[sn].l.forEach(function(l){var j=keys.indexOf(o.key);
+      body+='<tr class="ee"'+dp(['ca',k])+'><td class="ei3">'+dt(pdate(l.date),1)+' · '+esc(l.no)+' · '+esc(l.cust)+(l.item?' — <i>'+esc(l.item)+'</i>':'')+(l.pin?' <span class="en">PIN '+esc(l.pin)+'</span>':'')+'</td>'+
+        keys.map(function(_,x){return '<td>'+(x===j?inr(l.amt,1):'')+'</td>';}).join('')+'<td></td></tr>';});});});
+  // B. CTO share
+  body+=line('B. CTO Revenue Share — 25% of sales (GST-incl.)','G',{cls:'eg',k:'cb',b:1});
+  body+=line('Taxable value — 21.19% of sales (25% ÷ 1.18)','T',{cls:'ec',p:['cb'],td:'ei'});
+  body+=line('GST portion — 3.81% of sales (18% on taxable)','Gst',{cls:'ec',p:['cb'],td:'ei'});
+  // C. CTO costs → head → Zoho entries
+  var heads=[];all.forEach(function(o){o.heads.forEach(function(x){if(heads.indexOf(x.a)<0)heads.push(x.a);});});
+  heads.sort(function(a,b){return sum(all,function(o){return (o.heads.filter(function(x){return x.a===b;})[0]||{v:0}).v;})-sum(all,function(o){return (o.heads.filter(function(x){return x.a===a;})[0]||{v:0}).v;});});
+  body+=line('C. Less: IT & tech costs paid by LMI (CTO account)','C',{cls:'eg cto',k:'cc',b:1});
+  heads.forEach(function(a,i){var k='cc_'+i,f=function(o){return (o.heads.filter(function(x){return x.a===a;})[0]||{v:0}).v;};
+    var es=(D.expTags||[]).filter(function(e){return String(e[2]).toLowerCase()===a.toLowerCase();}).filter(function(e){return all.some(function(o){return o.m===String(e[0]).slice(0,7);});})
+      .sort(function(x,y){return String(y[0]).localeCompare(String(x[0]));});
+    body+=line(esc(a)+(es.length?' <span class="en">'+es.length+' entr'+(es.length===1?'y':'ies')+'</span>':''),f,{cls:'es',k:es.length?k:null,p:['cc'],td:'esn'});
+    es.forEach(function(e){var u=String(e[9]||''),mm=String(e[0]).slice(0,7),o=all.filter(function(x){return x.m===mm;})[0],j=o?keys.indexOf(o.key):-1,lab=dt(String(e[0]),1)+' · '+esc(e[1])+(e[3]?' · '+esc(e[3]):'')+(e[8]?' — <i>'+esc(e[8])+'</i>':'');
+      body+='<tr class="ee"'+dp(['cc',k])+'><td class="ei3">'+(u?'<a class="zl" href="'+esc(u)+'" target="_blank" rel="noopener">'+lab+'</a>':lab)+'</td>'+keys.map(function(_,x){return '<td>'+(x===j?inr(e[4],1):'')+'</td>';}).join('')+'<td>'+(u?'<a class="zl" href="'+esc(u)+'" target="_blank" rel="noopener">Open ↗</a>':'')+'</td></tr>';});});
+  // D. Settlement
+  body+=line('D. Surplus / (shortfall) this period — taxable share − cost','sur',{cls:'tot',col:1,b:1});
+  body+=line('Carry-forward owed by CTO — opening','cfo',{open:1,col:1,neg:1});
+  body+=line('Net payable to CTO (taxable)','P',{b:1});
+  body+=line('+ GST 18% (on Penny Software invoice)','pg',{td:'ei'});
+  body+=line('− TDS '+(CTO_TDS*100)+'% (Sec 194J)','tds',{td:'ei'});
+  body+=line('E. Bank payout to CTO','pay',{cls:'tot gt',b:1});
+  body+=line('Carry-forward owed by CTO — closing (recovered from future share)','cfc',{close:1,col:1,neg:1,cls:'cto'});
+  h+=card('CTO settlement by '+TYPE.toLowerCase(),'<div class="tbl tw ext"><div class="swipe">Swipe sideways for more →</div><table><thead><tr><th>Line <span class="note">(tap ▸ to open)</span></th>'+keys.map(function(k){return '<th>'+esc(k)+'</th>';}).join('')+'<th>Total</th></tr></thead><tbody>'+body+'</tbody></table></div>',
+    'Sales = Zoho invoices before GST (all streams). CTO share = 25% of sales, GST-inclusive → taxable 21.19% + GST 3.81%. IT & tech costs paid by LMI are recovered first; any shortfall is carried forward from Mar\'26 and recovered from future share before anything is paid. Payout = taxable surplus + 18% GST − TDS '+(CTO_TDS*100)+'%. Green = in CTO\'s favour, red = owed by CTO. Tap a cost entry to open it in Zoho Books.');
+  window._after=function(){var ch=null;
+    chart('c9',{type:'bar',data:{labels:keys,datasets:[
+      {label:'Taxable CTO share',data:by.map(function(ms){return sum(ms,'T');}),backgroundColor:'#0046BF',order:2},
+      {label:'IT & tech cost',data:by.map(function(ms){return sum(ms,'C');}),backgroundColor:'#D35400',order:2},
+      {label:'Carry-forward owed (closing)',type:'line',data:by.map(function(ms){return last(ms,'cfc');}),borderColor:'#C62828',backgroundColor:'#C62828',tension:.25,order:1}]},
+      options:{maintainAspectRatio:false,onClick:function(ev,els){if(!els.length)return;PERIOD=keys[els[0].index];buildShell();render();},
+        onHover:function(ev,els){ev.native.target.style.cursor=els.length?'pointer':'default';},
+        plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:function(c){return ' '+c.dataset.label+': '+inr(c.raw,1);}}}},scales:{y:{ticks:{callback:function(v){return inr(v);}}}}}});};
+  return h;}
 function vPlan(){
   var ps=periods(), L=['New franchises','Active franchises','Active paid listings','Listing subscription revenue','Setup fee revenue','Sponsorship revenue','Franchise licence fees','Franchise kit fees','GP / SGP token fees',
     'TOTAL SALES (ex-GST)','Franchise revenue share (accrued)','GP / SGP commission (accrued)','Hemadri pool — taxable (P&L cost)','LMI OPEX (gross)','EBITDA','EBITDA margin %','PAT','Cumulative PAT','Bank — closing (plan)'];
