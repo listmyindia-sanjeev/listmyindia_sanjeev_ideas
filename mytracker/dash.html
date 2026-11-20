@@ -450,6 +450,29 @@ function vPnl(){
   return h;
 }
 
+// ── Bank statement since inception (Cash & Funds tab) — data from Raw_BankTxn (Zoho Books bank transactions)
+var BKV='Month',BKO={};
+function bkKey(d,v){var y=+d.slice(0,4),m=+d.slice(5,7),fy=m>=4?y:y-1,F='FY'+String(fy).slice(2)+'-'+String(fy+1).slice(2);
+  if(v==='FY')return F;if(v==='Quarter')return 'Q'+({4:1,5:1,6:1,7:2,8:2,9:2,10:3,11:3,12:3,1:4,2:4,3:4}[m])+' '+F;return MN[m-1]+"'"+String(y).slice(2);}
+function bkTog(i){BKO[i]=!BKO[i];[].forEach.call(document.querySelectorAll('tr.bk'+i),function(r){r.style.display=BKO[i]?'':'none';});var a=document.getElementById('bka'+i);if(a)a.textContent=BKO[i]?'▾':'▸';}
+function bankCard(){var B=D.bankTx;
+  if(!B||!B.length)return card('Bank statement — since inception','<div class="note">Bank transactions will appear here after the Apps Script update and the next Zoho sync.</div>');
+  var rows=B.slice().sort(function(a,b){return a[0]<b[0]?-1:(a[0]>b[0]?1:0);}),bal=0,G=[],idx={},tin=0,tout=0;
+  rows.forEach(function(r){var k=bkKey(String(r[0]),BKV),g=idx[k];if(!g){g=idx[k]={k:k,open:bal,inn:0,out:0,tx:[]};G.push(g);}
+    var a=nz(r[4]);if(r[3]==='IN'){g.inn+=a;bal+=a;tin+=a;}else{g.out+=a;bal-=a;tout+=a;}g.close=bal;g.tx.push({r:r,bal:bal});});
+  var zb=nz(K('bank')),diff=bal-zb;
+  var tg='<div class="vtg">'+['Month','Quarter','FY'].map(function(v){return '<button class="'+(BKV===v?'on':'')+'" onclick="BKV=\''+v+'\';BKO={};render()">'+(v==='FY'?'Year (FY)':v)+'</button>';}).join('')+'</div>';
+  var h='<div class="grid" style="margin-bottom:10px">'+tile('Money in — since inception',inr(tin),'','','static')+tile('Money out — since inception',inr(tout),'','','static')+
+    tile('Closing balance (statement)',inr(bal),'Zoho Books balance '+inr(zb),'','static'+(Math.abs(diff)>1?' alert':''))+'</div>';
+  h+=tg+'<div class="tbl tw ext"><div class="swipe">Swipe sideways for more →</div><table><thead><tr><th>Period (tap ▸ for transactions)</th><th>Opening</th><th>Money in</th><th>Money out</th><th>Net</th><th>Closing</th><th>Txns</th></tr></thead><tbody>';
+  G.slice().reverse().forEach(function(g,i){var on=!!BKO[i],net=g.inn-g.out;
+    h+='<tr class="eg click" onclick="bkTog('+i+')"><td><span class="ea" id="bka'+i+'">'+(on?'▾':'▸')+'</span>'+esc(g.k)+'</td><td>'+inr(g.open,1)+'</td><td class="pos">'+inr(g.inn,1)+'</td><td class="neg">'+inr(g.out,1)+'</td><td class="'+vcls(net)+'">'+inr(net,1)+'</td><td><b>'+inr(g.close,1)+'</b></td><td>'+g.tx.length+'</td></tr>';
+    g.tx.slice().reverse().forEach(function(t){var r=t.r,who=[r[5],r[6]].filter(String).join(' · ')||r[2];
+      h+='<tr class="ec bk'+i+'"'+(on?'':' style="display:none"')+'><td class="ei">'+dt(String(r[0]),1)+' · '+esc(who).slice(0,90)+
+        ' <span class="en">'+esc(r[2]||'')+'</span>'+(/uncategor/i.test(r[8])?' <span class="chip a">not categorised in Zoho</span>':'')+'</td><td></td><td class="pos">'+(r[3]==='IN'?inr(r[4],1):'')+'</td><td class="neg">'+(r[3]==='OUT'?inr(r[4],1):'')+'</td><td></td><td>'+inr(t.bal,1)+'</td><td></td></tr>';});});
+  h+='<tr class="tot gt"><td>Since inception</td><td>₹0</td><td>'+inr(tin,1)+'</td><td>'+inr(tout,1)+'</td><td>'+inr(tin-tout,1)+'</td><td>'+inr(bal,1)+'</td><td>'+rows.length+'</td></tr></tbody></table></div>';
+  return card('Bank statement — since inception',h,'Every bank transaction from Zoho Books (all bank accounts), latest period first. Running balance starts at ₹0 on the first transaction.'+(Math.abs(diff)>1?' Statement balance differs from Zoho Books by '+inr(diff,1)+' — usually bank-feed lines not yet categorised (or duplicates) in Zoho.':''));}
+
 function vCash(){
   var h='<div class="grid">'+tile('Bank (Zoho)',inr(K('bank')),'as of '+dt(K('bank_asof'),1),'cash','hero')+tile('Total dues',inr(K('liab_tot')),'','pay')+
     tile('Free cash',inr(K('free')),'','cash',K('free')<0?'alert':'')+tile('Avg monthly spend',inr(K('burn')),'last 2 closed months','exp')+
@@ -460,6 +483,7 @@ function vCash(){
   var tr=L.map(function(l){var r=[esc(l)].concat(ps.map(function(p){return inr(agg(D.proj,rowsIn(D.proj,p),l));}));if(l.indexOf('Bank')===0)r._tot=1;return r;});
   tr.push(['Bank — actual (Zoho)'].concat(ps.map(function(p){var a=actRows(p);return a.length?inr(agg(D.act,a,'Bank balance (month-end / latest)')):'—';})));
   h+=card('Cash flow by '+TYPE.toLowerCase(),table(['Line'].concat(ps),tr),'Collections assumed in month of sale; partner shares, Penny, GST paid the following month.');
+  h+=bankCard();
   h+=card('Forecast','<canvas id="c3"></canvas>');
   window._after=function(){var cc=ci(D.proj,'Net cash flow'),cb=ci(D.proj,'Bank — closing (plan)');
     chart('c3',{data:{labels:D.proj.rows.map(function(r){return r[1];}),datasets:[{type:'bar',label:'Net cash flow',data:D.proj.rows.map(function(r){return r[cc];}),backgroundColor:D.proj.rows.map(function(r){return r[cc]<0?'#E57373':'#7FB3FF';})},
