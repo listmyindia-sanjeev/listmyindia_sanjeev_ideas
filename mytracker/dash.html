@@ -182,7 +182,7 @@ canvas{max-height:300px}
 .vtg{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;margin:0 0 10px}.vtg button{border:0;background:none;font:600 12.5px Poppins,system-ui,sans-serif;padding:6px 14px;border-radius:8px;color:var(--mute);cursor:pointer}.vtg button.on{background:var(--blue);color:#fff}
 .expc{position:relative;height:340px}.expc.pie{height:360px}.expc canvas{max-height:none}@media(max-width:759px){.expc.pie{height:560px}}
 .ext tr.eg td{font-weight:600}.ext tr.eg td:first-child{color:var(--navy)}.ext .ea{display:inline-block;width:18px;color:var(--blue)}.ext .en{font-size:10.5px;font-weight:600;color:var(--mute);background:var(--soft);border-radius:8px;padding:0 6px}.ext tr.ec td{color:var(--mute);font-size:12px;background:#FCFDFF}.ext td.ei{padding-left:34px}.ext tr.es td{font-weight:600;color:var(--ink);background:#F7F9FF;font-size:12.5px}.ext td.esn{padding-left:30px}.ext td.ei2{padding-left:56px}.ext tr.cto td{background:#FFF4EC}.ext tr.cto td:first-child{background:#FFF4EC}.ext tr.gt td{background:#E8EEFB}.ext .esh{color:var(--blue);font-weight:600}
-.extx td:nth-child(-n+4),.extx th:nth-child(-n+4){text-align:left}.extx td.xd{white-space:normal;min-width:180px;max-width:280px;font-size:12px;color:var(--mute)}.extx tr.ec td{color:var(--ink)}.extx tr.ec td.xd{color:var(--mute)}.extx td:first-child{white-space:nowrap}
+.extx td:nth-child(-n+4),.extx th:nth-child(-n+4){text-align:left}.extx td.xd{white-space:normal;min-width:200px;max-width:320px;font-size:12px;color:var(--mute)}.extx td.xd b.zd{color:var(--ink);font-size:12.5px;font-weight:600}.extx tr.ec td{color:var(--ink)}.extx tr.ec td.xd{color:var(--mute)}.extx td:first-child{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -468,7 +468,7 @@ function bankCard(){var B=D.bankTx;
   h+=tg+'<div class="tbl tw ext"><div class="swipe">Swipe sideways for more →</div><table><thead><tr><th>Period (tap ▸ for transactions)</th><th>Opening</th><th>Money in</th><th>Money out</th><th>Net</th><th>Closing</th><th>Txns</th></tr></thead><tbody>';
   G.slice().reverse().forEach(function(g,i){var on=!!BKO[i],net=g.inn-g.out;
     h+='<tr class="eg click" onclick="bkTog('+i+')"><td><span class="ea" id="bka'+i+'">'+(on?'▾':'▸')+'</span>'+esc(g.k)+'</td><td>'+inr(g.open,1)+'</td><td class="pos">'+inr(g.inn,1)+'</td><td class="neg">'+inr(g.out,1)+'</td><td class="'+vcls(net)+'">'+inr(net,1)+'</td><td><b>'+inr(g.close,1)+'</b></td><td>'+g.tx.length+'</td></tr>';
-    g.tx.slice().reverse().forEach(function(t){var r=t.r,who=[r[5],r[6]].filter(String).join(' · ')||r[2];
+    g.tx.slice().reverse().forEach(function(t){var r=t.r,who=[r[10],r[5],r[6]].filter(String).join(' · ')||r[2];
       h+='<tr class="ec bk'+i+'"'+(on?'':' style="display:none"')+'><td class="ei">'+dt(String(r[0]),1)+' · '+esc(who).slice(0,90)+
         ' <span class="en">'+esc(r[2]||'')+'</span>'+(/uncategor/i.test(r[8])?' <span class="chip a">not categorised in Zoho</span>':'')+'</td><td></td><td class="pos">'+(r[3]==='IN'?inr(r[4],1):'')+'</td><td class="neg">'+(r[3]==='OUT'?inr(r[4],1):'')+'</td><td></td><td>'+inr(t.bal,1)+'</td><td></td></tr>';});});
   h+='<tr class="tot gt"><td>Since inception</td><td>₹0</td><td>'+inr(tin,1)+'</td><td>'+inr(tout,1)+'</td><td>'+inr(tin-tout,1)+'</td><td>'+inr(bal,1)+'</td><td>'+rows.length+'</td></tr></tbody></table></div>';
@@ -545,7 +545,8 @@ var EXP_PCT={id:'expPct',afterDatasetsDraw:function(c){var ds=c.data.datasets[0]
   x.restore();}};
 var EXP_GRP=[['Software & Tools',['Business Software']],
   ['Marketing & Promotion',['Digital Marketing','Offline Marketing & Collateral']],
-  ['Franchise Kit & Equipment',['Franchise Kit & Equipment']],
+  ['Franchise Kit & Field Equipment',['Franchise Kit & Equipment']],
+  ['Company Equipment & Assets',['Equipment & Assets']],
   ['People & Professional',['Professional Fees','Learning & Networking','Staff & Manpower']],
   ['Operations & Admin',['Travel & Conveyance','Telecom & Messaging','Office & Admin','Rent & Utilities']],
   ['Finance, Compliance & Other',['Bank & PG Charges','Statutory, Penalties & Fees','Other','Unmapped']]];
@@ -578,11 +579,11 @@ function expTxCard(AC,sel){var B=D.bankTx;
   var h='<div style="display:flex;gap:8px;flex-wrap:wrap"><div class="vtg">'+sw('Since inception',EXTX.all,'EXTX.all=true')+sw(esc(plabel()),!EXTX.all,'EXTX.all=false')+'</div>'+
     '<div class="vtg">'+['Month','Quarter','FY'].map(function(v){return sw(v==='FY'?'Year (FY)':v,EXTX.by===v,'EXTX.by=\''+v+'\'');}).join('')+'</div></div>'+
     '<div class="note" style="margin:0 0 8px">'+out.length+' payment'+(out.length===1?'':'s')+' · total '+inr(sum,1)+' · tap a heading to open or close it</div>'+
-    '<div class="tbl tw ext extx"><div class="swipe">Swipe sideways for more →</div><table><thead><tr><th>Date</th><th>Paid to</th><th>Description</th><th>Expense head (Zoho)</th><th>Amount</th><th>Borne by</th></tr></thead><tbody>';
+    '<div class="tbl tw ext extx"><div class="swipe">Swipe sideways for more →</div><table><thead><tr><th>Date</th><th>Paid to</th><th>Zoho description / bank narration</th><th>Expense head (Zoho)</th><th>Amount</th><th>Borne by</th></tr></thead><tbody>';
   G.forEach(function(g,i){var on=!!EXTO[i];
     h+='<tr class="eg click" onclick="extTog('+i+')"><td colspan="4"><span class="ea" id="xta'+i+'">'+(on?'▾':'▸')+'</span>'+esc(g.k)+' <span class="en">'+g.n+' payment'+(g.n===1?'':'s')+'</span>'+(g.cto?' <span class="en">CTO Revenue Share '+inr(g.cto,1)+'</span>':'')+'</td><td><b>'+inr(g.t,1)+'</b></td><td></td></tr>';
     g.rows.forEach(function(x){var r=x[0],cto=x[2]==='IT Infrastructure',unc=/uncategor/i.test(r[8]);
-      h+='<tr class="ec xt'+i+'"'+(on?'':' style="display:none"')+'><td>'+dt(String(r[0]),1)+'</td><td>'+esc(r[5]||'—')+'</td><td class="xd">'+esc((r[6]||'').slice(0,70))+'</td><td>'+esc(x[1])+(x[2]?' <span class="en">'+esc(x[2])+'</span>':'')+'</td><td><b>'+inr(r[4],1)+'</b></td><td><span class="chip '+(cto?'a':(unc?'r':'n'))+'">'+(cto?'CTO Revenue Share (25%)':(unc?'Not categorised':'LMI'))+'</span></td></tr>';});});
+      h+='<tr class="ec xt'+i+'"'+(on?'':' style="display:none"')+'><td>'+dt(String(r[0]),1)+'</td><td>'+esc(r[5]||'—')+'</td><td class="xd">'+(r[10]?'<b class="zd">'+esc(r[10])+'</b><br>':'')+'<span>'+esc((r[6]||'').slice(0,70))+'</span></td><td>'+esc(x[1]||(/vendor/i.test(r[2])?'Vendor payment (bill)':r[2]))+(x[2]?' <span class="en">'+esc(x[2])+'</span>':'')+'</td><td><b>'+inr(r[4],1)+'</b></td><td><span class="chip '+(cto?'a':(unc?'r':'n'))+'">'+(cto?'CTO Revenue Share (25%)':(unc?'Not categorised':'LMI'))+'</span></td></tr>';});});
   h+='<tr class="tot gt"><td colspan="4">Total</td><td>'+inr(sum,1)+'</td><td></td></tr></tbody></table></div>';
   return card('Expense payments — from the bank statement',h,'Every payment out of the bank account(s) in Zoho Books, grouped by '+(EXTX.by==='FY'?'financial year':EXTX.by.toLowerCase())+', latest first. Expense head = the Zoho account it is booked to.');}
 function vExp(){
