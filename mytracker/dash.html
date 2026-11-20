@@ -564,6 +564,9 @@ function expGroups(gi){var used={},G=EXP_GRP.map(function(g){var k=g[1].filter(f
   gi.forEach(function(x){if(!used[x])G[G.length-1][1].push(x);});
   return {lmi:G.filter(function(g){return g[1].length;}),cto:[EXP_CTO[0],cto]};}
 // ── Expense payments from the bank statement (all money out since inception), shown on the Expenses tab
+// Zoho description minus the bank narration Zoho copies into it (keeps notes you typed + Ref numbers)
+function zdOf(r){var z=String(r[10]||''),n=String(r[6]||'').replace(/\s+/g,' ').trim(),zn=z.replace(/\s+/g,' ').trim();
+  if(n&&zn.indexOf(n)===0){z=zn.slice(n.length).replace(/^\s*·\s*/,'');}return z;}
 var EXTX={all:true,lim:50,by:'Month'},EXTO={};
 function extTog(i){EXTO[i]=!EXTO[i];[].forEach.call(document.querySelectorAll('tr.xt'+i),function(r){r.style.display=EXTO[i]?'':'none';});var a=document.getElementById('xta'+i);if(a)a.textContent=EXTO[i]?'▾':'▸';}
 function expTxCard(AC,sel){var B=D.bankTx;
@@ -583,7 +586,7 @@ function expTxCard(AC,sel){var B=D.bankTx;
   G.forEach(function(g,i){var on=!!EXTO[i];
     h+='<tr class="eg click" onclick="extTog('+i+')"><td colspan="4"><span class="ea" id="xta'+i+'">'+(on?'▾':'▸')+'</span>'+esc(g.k)+' <span class="en">'+g.n+' payment'+(g.n===1?'':'s')+'</span>'+(g.cto?' <span class="en">CTO Revenue Share '+inr(g.cto,1)+'</span>':'')+'</td><td><b>'+inr(g.t,1)+'</b></td><td></td></tr>';
     g.rows.forEach(function(x){var r=x[0],cto=x[2]==='IT Infrastructure',unc=/uncategor/i.test(r[8]);
-      h+='<tr class="ec xt'+i+'"'+(on?'':' style="display:none"')+'><td>'+dt(String(r[0]),1)+'</td><td>'+esc(r[5]||'—')+'</td><td class="xd">'+(r[10]?'<b class="zd">'+esc(r[10])+'</b><br>':'')+'<span>'+esc((r[6]||'').slice(0,70))+'</span></td><td>'+esc(x[1]||(/vendor/i.test(r[2])?'Vendor payment (bill)':r[2]))+(x[2]?' <span class="en">'+esc(x[2])+'</span>':'')+'</td><td><b>'+inr(r[4],1)+'</b></td><td><span class="chip '+(cto?'a':(unc?'r':'n'))+'">'+(cto?'CTO Revenue Share (25%)':(unc?'Not categorised':'LMI'))+'</span></td></tr>';});});
+      h+='<tr class="ec xt'+i+'"'+(on?'':' style="display:none"')+'><td>'+dt(String(r[0]),1)+'</td><td>'+esc(r[5]||'—')+'</td><td class="xd">'+(zdOf(r)?'<b class="zd">'+esc(zdOf(r))+'</b><br>':'')+'<span>'+esc((r[6]||'').slice(0,70))+'</span></td><td>'+esc(x[1]||(/vendor/i.test(r[2])?'Vendor payment (bill)':r[2]))+(x[2]?' <span class="en">'+esc(x[2])+'</span>':'')+'</td><td><b>'+inr(r[4],1)+'</b></td><td><span class="chip '+(cto?'a':(unc?'r':'n'))+'">'+(cto?'CTO Revenue Share (25%)':(unc?'Not categorised':'LMI'))+'</span></td></tr>';});});
   h+='<tr class="tot gt"><td colspan="4">Total</td><td>'+inr(sum,1)+'</td><td></td></tr></tbody></table></div>';
   return card('Expense payments — from the bank statement',h,'Every payment out of the bank account(s) in Zoho Books, grouped by '+(EXTX.by==='FY'?'financial year':EXTX.by.toLowerCase())+', latest first. Expense head = the Zoho account it is booked to.');}
 function vExp(){
