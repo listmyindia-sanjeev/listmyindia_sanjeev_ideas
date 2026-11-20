@@ -181,7 +181,7 @@ canvas{max-height:300px}
 }
 .vtg{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;margin:0 0 10px}.vtg button{border:0;background:none;font:600 12.5px Poppins,system-ui,sans-serif;padding:6px 14px;border-radius:8px;color:var(--mute);cursor:pointer}.vtg button.on{background:var(--blue);color:#fff}
 .expc{position:relative;height:340px}.expc.pie{height:360px}.expc canvas{max-height:none}@media(max-width:759px){.expc.pie{height:560px}}
-.ext tr.eg td{font-weight:600}.ext tr.eg td:first-child{color:var(--navy)}.ext .ea{display:inline-block;width:18px;color:var(--blue)}.ext .en{font-size:10.5px;font-weight:600;color:var(--mute);background:var(--soft);border-radius:8px;padding:0 6px}.ext tr.ec td{color:var(--mute);font-size:12px;background:#FCFDFF}.ext td.ei{padding-left:34px}.ext tr.cto td{background:#FFF4EC}.ext tr.cto td:first-child{background:#FFF4EC}.ext tr.gt td{background:#E8EEFB}.ext .esh{color:var(--blue);font-weight:600}
+.ext tr.eg td{font-weight:600}.ext tr.eg td:first-child{color:var(--navy)}.ext .ea{display:inline-block;width:18px;color:var(--blue)}.ext .en{font-size:10.5px;font-weight:600;color:var(--mute);background:var(--soft);border-radius:8px;padding:0 6px}.ext tr.ec td{color:var(--mute);font-size:12px;background:#FCFDFF}.ext td.ei{padding-left:34px}.ext tr.es td{font-weight:600;color:var(--ink);background:#F7F9FF;font-size:12.5px}.ext td.esn{padding-left:30px}.ext td.ei2{padding-left:56px}.ext tr.cto td{background:#FFF4EC}.ext tr.cto td:first-child{background:#FFF4EC}.ext tr.gt td{background:#E8EEFB}.ext .esh{color:var(--blue);font-weight:600}
 </style>
 </head>
 <body>
@@ -385,8 +385,16 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')drClose();})
 function vcls(v){return v>0?'pos':(v<0?'neg':'');}
 
 // ── tabs
+// Display wording: the Sheet keeps its internal column names; on screen the CTO's 25% share is always "CTO Revenue Share (25%)".
+var CTO_TXT=[['TOTAL (Hemadri-borne IT)','TOTAL (CTO Revenue Share (25%))'],['Hemadri pool — taxable (P&L cost)','CTO Revenue Share (25%) — taxable (P&L cost)'],
+  ['Hemadri pool (GST-incl.)','CTO Revenue Share (25%) — GST-incl.'],['Less: Hemadri share (taxable)','Less: CTO Revenue Share (25%) — taxable'],
+  ['Hemadri share % in force','CTO Revenue Share % in force'],['Hemadri revenue share & IT cost recovery','CTO Revenue Share (25%) & IT cost recovery'],
+  ['Hemadri IT carry-forward','CTO Revenue Share (25%) — IT carry-forward'],['Hemadri token due','CTO token due'],['Payable to Penny Software (Hemadri)','Payable to Penny Software (CTO Revenue Share)'],
+  ['Hemadri pool','CTO Revenue Share (25%)'],['marked Hemadri-borne','marked HEMADRI'],['recovered from his 25% share','recovered from the CTO Revenue Share (25%)'],
+  ['recovered from his share','recovered from the CTO Revenue Share (25%)'],['ITC on Hemadri share','ITC on CTO Revenue Share'],['Hemadri-borne','CTO Revenue Share (25%)']];
+function ctoTxt(h){CTO_TXT.forEach(function(p){h=h.split(p[0]).join(p[1]);});return h.replace(/Hemadri/g,'CTO Revenue Share (25%)');}
 function render(){charts.forEach(function(c){c.destroy();});charts=[];
-  var v=document.getElementById('view');v.innerHTML=({overview:vOverview,pnl:vPnl,cash:vCash,gst:vGst,pay:vPay,fr:vFr,exp:vExp,plan:vPlan,rates:vRates,leads:vLeads,users:vUsers}[TAB])();
+  var v=document.getElementById('view');v.innerHTML=ctoTxt(({overview:vOverview,pnl:vPnl,cash:vCash,gst:vGst,pay:vPay,fr:vFr,exp:vExp,plan:vPlan,rates:vRates,leads:vLeads,users:vUsers}[TAB])());
   if(window._after){var f=window._after;window._after=null;f();}}
 
 function plabel(){return TYPE==='Op-Year'?'Op-Year '+String(PERIOD).slice(1):PERIOD;}
@@ -516,11 +524,14 @@ var EXP_GRP=[['Software & Tools',['Business Software']],
   ['People & Professional',['Professional Fees','Learning & Networking','Staff & Manpower']],
   ['Operations & Admin',['Travel & Conveyance','Telecom & Messaging','Office & Admin','Rent & Utilities']],
   ['Finance, Compliance & Other',['Bank & PG Charges','Statutory, Penalties & Fees','Other','Unmapped']]];
-var EXP_CTO=['CTO Share — 25% (Hemadri-borne)',['IT Infrastructure']];
+var EXP_CTO=['CTO Revenue Share (25%)',['IT Infrastructure']];
 var EXPO={};
 function expTog(i){EXPO[i]=!EXPO[i];var on=EXPO[i];
-  [].forEach.call(document.querySelectorAll('tr.ec'+i),function(r){r.style.display=on?'':'none';});
+  [].forEach.call(document.querySelectorAll('tr.ec'+i),function(r){var k=r.getAttribute('data-s');r.style.display=on&&(!k||EXPO[k])?'':'none';});
   var a=document.getElementById('ea'+i);if(a)a.textContent=on?'▾':'▸';}
+function expSub(i,k){EXPO[k]=!EXPO[k];var on=EXPO[k]&&EXPO[i];
+  [].forEach.call(document.querySelectorAll('tr.eh'+k),function(r){r.style.display=on?'':'none';});
+  var a=document.getElementById('ea'+k);if(a)a.textContent=EXPO[k]?'▾':'▸';}
 // Super-groups built from Expense_Summary columns. Any new column not listed above lands in "Finance, Compliance & Other".
 function expGroups(gi){var used={},G=EXP_GRP.map(function(g){var k=g[1].filter(function(x){return gi.indexOf(x)>=0;});k.forEach(function(x){used[x]=1;});return [g[0],k];});
   var cto=EXP_CTO[1].filter(function(x){return gi.indexOf(x)>=0;});cto.forEach(function(x){used[x]=1;});
@@ -535,26 +546,36 @@ function vExp(){
   var sel=rows.filter(function(r){return expKey(r)===PERIOD;});
   var tot=function(rs,h){var i=E.head.indexOf(h);return rs.reduce(function(a,r){return a+nz(r[i]);},0);};
   var totL=function(rs,list){return list.reduce(function(a,h){return a+tot(rs,h);},0);};
-  var h='<div class="grid">'+tile('Spend — '+esc(plabel()),inr(tot(sel,'GRAND TOTAL')),'LMI '+inr(tot(sel,'TOTAL (LMI-borne)'))+' · CTO share '+inr(tot(sel,'TOTAL (Hemadri-borne IT)')),'exp','hero')+
+  var h='<div class="grid">'+tile('Spend — '+esc(plabel()),inr(tot(sel,'GRAND TOTAL')),'LMI '+inr(tot(sel,'TOTAL (LMI-borne)'))+' · CTO Revenue Share (25%) '+inr(tot(sel,'TOTAL (Hemadri-borne IT)')),'exp','hero')+
     tile('Avg monthly (last 2)',inr(K('burn')),'','cash')+'</div>';
   var tg='<div class="vtg"><button class="'+(EXPV==='bar'?'on':'')+'" onclick="EXPV=\'bar\';render()">Bar chart</button><button class="'+(EXPV==='pie'?'on':'')+'" onclick="EXPV=\'pie\';render()">Pie chart</button></div>';
   h+=card('By group — '+esc(plabel()),sel.length?tg+'<div class="expc'+(EXPV==='pie'?' pie':'')+'"><canvas id="c4"></canvas></div>':'<div class="note">No actual expenses in this period yet.</div>',sel.length?'% = share of total spend in '+esc(plabel()):'');
   // grouped, expandable table
   var byK=keys.map(function(k){return rows.filter(function(x){return expKey(x)===k;});}), allR=[].concat.apply([],byK), GT=tot(allR,'GRAND TOTAL');
   var cells=function(list){return byK.map(function(rs){return '<td>'+inr(totL(rs,list))+'</td>';}).join('')+'<td class="esh">'+(GT?(totL(allR,list)/GT*100).toFixed(1)+'%':'—')+'</td>';};
-  var grpRows=function(g,i,cls){var open=!!EXPO[i],multi=g[1].length>1;
-    var kids=AC.length?AC.filter(function(x){return g[1].indexOf(x.g)>=0&&totL(allR,[x.h])!==0;}).sort(function(a,b){return totL(allR,[b.h])-totL(allR,[a.h]);}).map(function(x){return [x.h,esc(x.a)+(multi?' <span class="en">'+esc(x.g)+'</span>':'')];})
-      :g[1].filter(function(x){return totL(allR,[x])!==0;}).map(function(x){return [x,esc(x)];});
-    var r='<tr class="eg click '+(cls||'')+'" onclick="expTog('+i+')"><td><span class="ea" id="ea'+i+'">'+(open?'▾':'▸')+'</span>'+esc(g[0])+(kids.length?' <span class="en">'+kids.length+'</span>':'')+'</td>'+cells(g[1])+'</tr>';
-    kids.forEach(function(x){r+='<tr class="ec ec'+i+'" style="'+(open?'':'display:none')+'"><td class="ei">'+x[1]+'</td>'+cells([x[0]])+'</tr>';});return r;};
+  var grpRows=function(g,i,cls){var open=!!EXPO[i],subs=g[1].filter(function(x){return totL(allR,[x])!==0;});
+    var heads=function(sg){return AC.filter(function(x){return sg.indexOf(x.g)>=0&&totL(allR,[x.h])!==0;}).sort(function(a,b){return totL(allR,[b.h])-totL(allR,[a.h]);});};
+    var nk=AC.length?heads(g[1]).length:subs.length;
+    var r='<tr class="eg click '+(cls||'')+'" onclick="expTog(\''+i+'\')"><td><span class="ea" id="ea'+i+'">'+(open?'▾':'▸')+'</span>'+esc(g[0])+(nk?' <span class="en">'+nk+'</span>':'')+'</td>'+cells(g[1])+'</tr>';
+    var hide=function(on){return on?'':' style="display:none"';};
+    if(AC.length&&subs.length>1){
+      // three levels: group → sub-group with subtotal → Zoho Books expense heads
+      subs.forEach(function(sg,k){var key=i+'_'+k,so=!!EXPO[key],hs=heads([sg]);
+        r+='<tr class="es click ec'+i+'" onclick="expSub(\''+i+'\',\''+key+'\')"'+hide(open)+'><td class="esn"><span class="ea" id="ea'+key+'">'+(so?'▾':'▸')+'</span>'+esc(sg)+' <span class="en">'+hs.length+'</span></td>'+cells([sg])+'</tr>';
+        hs.forEach(function(x){r+='<tr class="ec ec'+i+' eh'+key+'" data-s="'+key+'"'+hide(open&&so)+'><td class="ei2">'+esc(x.a)+'</td>'+cells([x.h])+'</tr>';});});
+    } else {
+      var kids=AC.length?heads(g[1]).map(function(x){return [x.h,esc(x.a)];}):subs.map(function(x){return [x,esc(x)];});
+      kids.forEach(function(x){r+='<tr class="ec ec'+i+'"'+hide(open)+'><td class="ei">'+x[1]+'</td>'+cells([x[0]])+'</tr>';});
+    }
+    return r;};
   var lmiAll=[].concat.apply([],GR.lmi.map(function(g){return g[1];}));
   var body=GR.lmi.filter(function(g){return totL(allR,g[1])!==0;}).map(function(g,i){return grpRows(g,i);}).join('')+
     '<tr class="tot"><td>TOTAL — LMI operating costs</td>'+cells(lmiAll)+'</tr>'+
-    (GR.cto[1].length?grpRows(GR.cto,99,'cto'):'')+
+    (GR.cto[1].length?grpRows(GR.cto,'c','cto'):'')+
     '<tr class="tot gt"><td>GRAND TOTAL</td>'+cells(lmiAll.concat(GR.cto[1]))+'</tr>';
   h+=card('Actual spend by '+TYPE.toLowerCase(),'<div class="tbl tw ext"><div class="swipe">Swipe sideways for more →</div><table><thead><tr><th>Group <span class="note">(tap ▸ to open)</span></th>'+keys.map(function(k){return '<th>'+esc(k)+'</th>';}).join('')+'<th>Share</th></tr></thead><tbody>'+body+'</tbody></table></div>',
-    'From Zoho Books. Tap a group to see the Zoho Books expense heads booked under it. CTO Share = everything marked Hemadri-borne in Category_Map (recovered from his 25% share). Share = % of grand total across the columns shown.');
-  h+=card('Recent transactions',table(['Date','Account','Vendor','Amount','Borne by'],D.recent.slice(0,40).map(function(x){return [dt(x.date,1),esc(x.account),esc(x.vendor),inr(x.amount,1),'<span class="chip '+(x.bearer==='HEMADRI'?'a':'n')+'">'+esc(x.bearer==='HEMADRI'?'CTO share':x.bearer)+'</span>'];})));
+    'From Zoho Books. Tap a group to see the Zoho Books expense heads booked under it. CTO Revenue Share (25%) = everything marked HEMADRI in Category_Map (recovered from the CTO Revenue Share). Share = % of grand total across the columns shown.');
+  h+=card('Recent transactions',table(['Date','Account','Vendor','Amount','Borne by'],D.recent.slice(0,40).map(function(x){return [dt(x.date,1),esc(x.account),esc(x.vendor),inr(x.amount,1),'<span class="chip '+(x.bearer==='HEMADRI'?'a':'n')+'">'+esc(x.bearer==='HEMADRI'?'CTO Revenue Share (25%)':x.bearer)+'</span>'];})));
   window._after=function(){if(!sel.length)return;
     var z=GR.lmi.map(function(g){return [g[0],totL(sel,g[1])];}).concat(GR.cto[1].length?[[GR.cto[0],totL(sel,GR.cto[1])]]:[]).filter(function(x){return x[1]>0;}).sort(function(a,b){return b[1]-a[1];});
     var T=z.reduce(function(a,x){return a+x[1];},0),pc=function(v){return T?(v/T*100).toFixed(1)+'%':'—';};
