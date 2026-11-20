@@ -181,7 +181,7 @@ canvas{max-height:300px}
 }
 .vtg{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;margin:0 0 10px}.vtg button{border:0;background:none;font:600 12.5px Poppins,system-ui,sans-serif;padding:6px 14px;border-radius:8px;color:var(--mute);cursor:pointer}.vtg button.on{background:var(--blue);color:#fff}
 .expc{position:relative;height:340px}.expc.pie{height:360px}.expc canvas{max-height:none}@media(max-width:759px){.expc.pie{height:560px}}
-.ext tr.eg td{font-weight:600}.ext tr.eg td:first-child{color:var(--navy)}.ext .ea{display:inline-block;width:18px;color:var(--blue)}.ext .en{font-size:10.5px;font-weight:600;color:var(--mute);background:var(--soft);border-radius:8px;padding:0 6px}.ext tr.ec td{color:var(--mute);font-size:12px;background:#FCFDFF}.ext td.ei{padding-left:34px}.ext tr.es td{font-weight:600;color:var(--ink);background:#F7F9FF;font-size:12.5px}.ext td.esn{padding-left:30px}.ext td.ei2{padding-left:56px}.ext tr.fra td{background:#EEF8F1}.ext tr.cto td{background:#FFF4EC}.ext tr.cto td:first-child{background:#FFF4EC}.ext tr.gt td{background:#E8EEFB}.ext .esh{color:var(--blue);font-weight:600}
+.ext tr.eg td{font-weight:600}.ext tr.eg td:first-child{color:var(--navy)}.ext .ea{display:inline-block;width:18px;color:var(--blue)}.ext .en{font-size:10.5px;font-weight:600;color:var(--mute);background:var(--soft);border-radius:8px;padding:0 6px}.ext tr.ec td{color:var(--mute);font-size:12px;background:#FCFDFF}.ext td.ei{padding-left:34px}.ext tr.es td{font-weight:600;color:var(--ink);background:#F7F9FF;font-size:12.5px}.ext td.esn{padding-left:30px}.ext td.ei2{padding-left:56px}.ext tr.fra td{background:#EEF8F1}.ext tr.ee td{font-size:11.5px;color:var(--mute);background:#fff}.ext td.ei3{padding-left:80px;white-space:normal;min-width:320px}.ext a.zl{color:var(--blue);text-decoration:none}.ext a.zl:hover{text-decoration:underline}.ext tr.ee i{color:var(--ink);font-style:normal}.ext tr.cto td{background:#FFF4EC}.ext tr.cto td:first-child{background:#FFF4EC}.ext tr.gt td{background:#E8EEFB}.ext .esh{color:var(--blue);font-weight:600}
 .extx td:nth-child(-n+4),.extx th:nth-child(-n+4){text-align:left}.extx td.xd{white-space:normal;min-width:200px;max-width:320px;font-size:12px;color:var(--mute)}.extx td.xd b.zd{color:var(--ink);font-size:12.5px;font-weight:600}.extx tr.ec td{color:var(--ink)}.extx tr.ec td.xd{color:var(--mute)}.extx td:first-child{white-space:nowrap}
 </style>
 </head>
@@ -576,6 +576,8 @@ var EXP_GRP=[['Software & Tools',['Business Software']],
 var EXP_CTO=['CTO Revenue Share (25%)',['IT Infrastructure']];
 var EXPO={};
 var EXP_FRG='Franchise Expenses (PIN-wise)';
+function expT(k){EXPO[k]=!EXPO[k];[].forEach.call(document.querySelectorAll('.ext tr[data-p]'),function(r){r.style.display=r.getAttribute('data-p').split(' ').every(function(x){return EXPO[x];})?'':'none';});
+  var a=document.getElementById('ea'+k);if(a)a.textContent=EXPO[k]?'▾':'▸';}
 // Moves every expense/bill line tagged with a franchise PIN (D.expTags, from the Zoho "Franchise" tag) out of its normal
 // Zoho account / group column and into virtual 'FR ▸ PIN' and 'FR ▸ PIN ▸ account' columns. Works on a copy of D.exp.
 function expFranchise(E,AC){var T=(D.expTags||[]).filter(function(r){return r[5]&&nz(r[4])>0;});if(!T.length)return {E:E,pins:[]};
@@ -646,35 +648,49 @@ function vExp(){
   // grouped, expandable table
   var byK=keys.map(function(k){return rows.filter(function(x){return expKey(x)===k;});}), allR=[].concat.apply([],byK), GT=tot(allR,'GRAND TOTAL');
   var cells=function(list){return byK.map(function(rs){return '<td>'+inr(totL(rs,list))+'</td>';}).join('')+'<td class="esh">'+(GT?(totL(allR,list)/GT*100).toFixed(1)+'%':'—')+'</td>';};
-  var grpRows=function(g,i,cls){var open=!!EXPO[i],subs=g[1].filter(function(x){return totL(allR,[x])!==0;});
+  // Every level opens down to the individual Zoho Books entries (from D.expTags), each linked to the booking in Zoho Books.
+  var hide=function(p){return p.every(function(k){return EXPO[k];})?'':' style="display:none"';};
+  var dp=function(p){return ' data-p="'+p.join(' ')+'"'+hide(p);};
+  var arrow=function(k){return '<span class="ea" id="ea'+k+'">'+(EXPO[k]?'▾':'▸')+'</span>';};
+  var m2k={};rows.forEach(function(r){m2k[String(r[0]).slice(0,7)]=expKey(r);});
+  var ekey=function(e){return m2k[String(e[0]).slice(0,7)];};
+  var ents=function(acc,pin){acc=String(acc).toLowerCase();return (D.expTags||[]).filter(function(e){return String(e[2]).toLowerCase()===acc&&(pin==null?!e[5]:String(e[5])===pin)&&keys.indexOf(ekey(e))>=0;})
+    .sort(function(x,y){return String(y[0]).localeCompare(String(x[0]));});};
+  var headRows=function(x,p,key,cls,pin){var es=ents(x.a,pin),path=p.concat([key]);
+    var diffs=byK.map(function(rs,j){var s=es.filter(function(e){return ekey(e)===keys[j];}).reduce(function(t,e){return t+nz(e[4]);},0);return Math.round((totL(rs,[x.h])-s)*100)/100;});
+    var odd=diffs.some(function(d){return Math.abs(d)>=1;}),can=es.length||odd;
+    var r='<tr class="ec'+(can?' click':'')+'"'+dp(p)+(can?' onclick="expT(\''+key+'\')"':'')+'><td class="'+cls+'">'+(can?arrow(key):'')+esc(x.a)+(es.length?' <span class="en">'+es.length+' entr'+(es.length===1?'y':'ies')+'</span>':'')+'</td>'+cells([x.h])+'</tr>';
+    es.forEach(function(e){var u=String(e[9]||''),lab=dt(String(e[0]),1)+' · '+esc(e[1])+(e[3]?' · '+esc(e[3]):'')+(e[8]?' — <i>'+esc(e[8])+'</i>':'');
+      r+='<tr class="ee"'+dp(path)+'><td class="ei3">'+(u?'<a class="zl" href="'+esc(u)+'" target="_blank" rel="noopener">'+lab+'</a>':lab)+'</td>'+
+        keys.map(function(k){return '<td>'+(ekey(e)===k?inr(e[4],1):'')+'</td>';}).join('')+'<td>'+(u?'<a class="zl" href="'+esc(u)+'" target="_blank" rel="noopener">Open ↗</a>':'')+'</td></tr>';});
+    if(odd)r+='<tr class="ee"'+dp(path)+'><td class="ei3 note">Other Zoho entries (refunds, journals or not yet read)</td>'+diffs.map(function(d){return '<td>'+(Math.abs(d)>=1?inr(d,1):'')+'</td>';}).join('')+'<td></td></tr>';
+    return r;};
+  var grpRows=function(g,i,cls){var gk='g'+i,subs=g[1].filter(function(x){return totL(allR,[x])!==0;});
     var heads=function(sg){return AC.filter(function(x){return sg.indexOf(x.g)>=0&&totL(allR,[x.h])!==0;}).sort(function(a,b){return totL(allR,[b.h])-totL(allR,[a.h]);});};
     var nk=AC.length?heads(g[1]).length:subs.length;
-    var r='<tr class="eg click '+(cls||'')+'" onclick="expTog(\''+i+'\')"><td><span class="ea" id="ea'+i+'">'+(open?'▾':'▸')+'</span>'+esc(g[0])+(nk?' <span class="en">'+nk+'</span>':'')+'</td>'+cells(g[1])+'</tr>';
-    var hide=function(on){return on?'':' style="display:none"';};
+    var r='<tr class="eg click '+(cls||'')+'" onclick="expT(\''+gk+'\')"><td>'+arrow(gk)+esc(g[0])+(nk?' <span class="en">'+nk+'</span>':'')+'</td>'+cells(g[1])+'</tr>';
     if(AC.length&&subs.length>1){
-      // three levels: group → sub-group with subtotal → Zoho Books expense heads
-      subs.forEach(function(sg,k){var key=i+'_'+k,so=!!EXPO[key],hs=heads([sg]);
-        r+='<tr class="es click ec'+i+'" onclick="expSub(\''+i+'\',\''+key+'\')"'+hide(open)+'><td class="esn"><span class="ea" id="ea'+key+'">'+(so?'▾':'▸')+'</span>'+esc(sg)+' <span class="en">'+hs.length+'</span></td>'+cells([sg])+'</tr>';
-        hs.forEach(function(x){r+='<tr class="ec ec'+i+' eh'+key+'" data-s="'+key+'"'+hide(open&&so)+'><td class="ei2">'+esc(x.a)+'</td>'+cells([x.h])+'</tr>';});});
-    } else {
-      var kids=AC.length?heads(g[1]).map(function(x){return [x.h,esc(x.a)];}):subs.map(function(x){return [x,esc(x)];});
-      kids.forEach(function(x){r+='<tr class="ec ec'+i+'"'+hide(open)+'><td class="ei">'+x[1]+'</td>'+cells([x[0]])+'</tr>';});
-    }
+      // group → sub-group with subtotal → Zoho Books expense heads → entries
+      subs.forEach(function(sg,k){var sk=gk+'_'+k,hs=heads([sg]);
+        r+='<tr class="es click"'+dp([gk])+' onclick="expT(\''+sk+'\')"><td class="esn">'+arrow(sk)+esc(sg)+' <span class="en">'+hs.length+'</span></td>'+cells([sg])+'</tr>';
+        hs.forEach(function(x,n){r+=headRows(x,[gk,sk],sk+'_'+n,'ei2',null);});});
+    } else if(AC.length){heads(g[1]).forEach(function(x,n){r+=headRows(x,[gk],gk+'_'+n,'ei',null);});}
+    else subs.forEach(function(x){r+='<tr class="ec"'+dp([gk])+'><td class="ei">'+esc(x)+'</td>'+cells([x])+'</tr>';});
     return r;};
   var lmiAll=[].concat.apply([],GR.lmi.map(function(g){return g[1];}));
-  // Franchise group: PIN (with subtotal) → Zoho Books expense heads
-  var fraRows=function(g,i){var open=!!EXPO[i],hide=function(on){return on?'':' style="display:none"';},ps=FR.pins.filter(function(p){return totL(allR,[p.h])!==0;});
-    var r='<tr class="eg click fra" onclick="expTog(\''+i+'\')"><td><span class="ea" id="ea'+i+'">'+(open?'▾':'▸')+'</span>'+esc(g[0])+' <span class="en">'+ps.length+' PIN'+(ps.length===1?'':'s')+'</span></td>'+cells(g[1])+'</tr>';
-    ps.forEach(function(p,k){var key=i+'_'+k,so=!!EXPO[key],hs=p.heads.filter(function(x){return totL(allR,[x.h])!==0;}).sort(function(a,b){return totL(allR,[b.h])-totL(allR,[a.h]);});
-      r+='<tr class="es click ec'+i+'" onclick="expSub(\''+i+'\',\''+key+'\')"'+hide(open)+'><td class="esn"><span class="ea" id="ea'+key+'">'+(so?'▾':'▸')+'</span>'+esc(p.label)+' <span class="en">'+hs.length+'</span></td>'+cells([p.h])+'</tr>';
-      hs.forEach(function(x){r+='<tr class="ec ec'+i+' eh'+key+'" data-s="'+key+'"'+hide(open&&so)+'><td class="ei2">'+esc(x.a)+'</td>'+cells([x.h])+'</tr>';});});
+  // Franchise group: PIN (with subtotal) → Zoho Books expense heads → entries
+  var fraRows=function(g,i){var gk='g'+i,ps=FR.pins.filter(function(p){return totL(allR,[p.h])!==0;});
+    var r='<tr class="eg click fra" onclick="expT(\''+gk+'\')"><td>'+arrow(gk)+esc(g[0])+' <span class="en">'+ps.length+' PIN'+(ps.length===1?'':'s')+'</span></td>'+cells(g[1])+'</tr>';
+    ps.forEach(function(p,k){var sk=gk+'_'+k,hs=p.heads.filter(function(x){return totL(allR,[x.h])!==0;}).sort(function(a,b){return totL(allR,[b.h])-totL(allR,[a.h]);});
+      r+='<tr class="es click"'+dp([gk])+' onclick="expT(\''+sk+'\')"><td class="esn">'+arrow(sk)+esc(p.label)+' <span class="en">'+hs.length+'</span></td>'+cells([p.h])+'</tr>';
+      hs.forEach(function(x,n){r+=headRows(x,[gk,sk],sk+'_'+n,'ei2',p.pin);});});
     return r;};
   var body=GR.lmi.filter(function(g){return totL(allR,g[1])!==0;}).map(function(g,i){return g[0]===EXP_FRG?fraRows(g,i):grpRows(g,i);}).join('')+
     '<tr class="tot"><td>TOTAL — LMI operating costs</td>'+cells(lmiAll)+'</tr>'+
     (GR.cto[1].length?grpRows(GR.cto,'c','cto'):'')+
     '<tr class="tot gt"><td>GRAND TOTAL</td>'+cells(lmiAll.concat(GR.cto[1]))+'</tr>';
   h+=card('Actual spend by '+TYPE.toLowerCase(),'<div class="tbl tw ext"><div class="swipe">Swipe sideways for more →</div><table><thead><tr><th>Group <span class="note">(tap ▸ to open)</span></th>'+keys.map(function(k){return '<th>'+esc(k)+'</th>';}).join('')+'<th>Share</th></tr></thead><tbody>'+body+'</tbody></table></div>',
-    'From Zoho Books. Tap a group to see the Zoho Books expense heads booked under it. '+EXP_FRG+' = expenses and bills tagged with a franchise PIN in Zoho (Franchise tag); they are moved out of their normal group, so nothing is counted twice. CTO Revenue Share (25%) = everything marked HEMADRI in Category_Map (recovered from the CTO Revenue Share). Share = % of grand total across the columns shown.');
+    'From Zoho Books. Tap a group, then an expense head, to see every Zoho Books entry booked under it — tap an entry to open it in Zoho Books. '+EXP_FRG+' = expenses and bills tagged with a franchise PIN in Zoho (Franchise tag); they are moved out of their normal group, so nothing is counted twice. CTO Revenue Share (25%) = everything marked HEMADRI in Category_Map (recovered from the CTO Revenue Share). Share = % of grand total across the columns shown.');
   h+=expTxCard(AC,sel);
   window._after=function(){if(!sel.length)return;
     var z=GR.lmi.map(function(g){return [g[0],totL(sel,g[1])];}).concat(GR.cto[1].length?[[GR.cto[0],totL(sel,GR.cto[1])]]:[]).filter(function(x){return x[1]>0;}).sort(function(a,b){return b[1]-a[1];});
