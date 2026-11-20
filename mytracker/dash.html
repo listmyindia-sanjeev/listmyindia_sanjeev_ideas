@@ -513,6 +513,28 @@ function vPay(){
   return h;
 }
 
+// ── Franchise-wise revenue vs expenses (Zoho "Franchise" reporting tag on invoices, expenses and bills)
+var FRX={by:'Month'},FRO={};
+function frxTog(k){FRO[k]=!FRO[k];var on=FRO[k];[].forEach.call(document.querySelectorAll('tr.fx_'+k.replace(/\W/g,'_')),function(r){var s=r.getAttribute('data-s');r.style.display=on&&(!s||FRO[s])?'':'none';});var a=document.getElementById('fxa_'+k.replace(/\W/g,'_'));if(a)a.textContent=on?'▾':'▸';}
+function franchiseExpCard(){var T=D.expTags;
+  if(!T)return card('Franchise-wise revenue & expenses','<div class="note">Appears after the Apps Script update that reads the Zoho <b>Franchise</b> tag on expenses and bills.</div>');
+  var by=FRX.by,P={},add=function(pin){return P[pin]||(P[pin]={pin:pin,rev:0,exp:0,per:{}});},per=function(p,k){return p.per[k]||(p.per[k]={k:k,rev:0,exp:0,lines:[]});};
+  (D.inv||[]).forEach(function(r){if(/void|draft/i.test(r.status)||!r.pin)return;var d=pdate(r.date);if(!/^\d{4}-\d\d/.test(d))return;var p=add(r.pin),q=per(p,bkKey(d,by));p.rev+=nz(r.amt);q.rev+=nz(r.amt);});
+  var co=0;T.forEach(function(r){var a=nz(r[4]);if(!r[5]){co+=a;return;}var p=add(r[5]),q=per(p,bkKey(String(r[0]),by));p.exp+=a;q.exp+=a;q.lines.push(r);});
+  var pins=Object.keys(P).sort();
+  var sw='<div class="vtg">'+['Month','Quarter','FY'].map(function(v){return '<button class="'+(by===v?'on':'')+'" onclick="FRX.by=\''+v+'\';FRO={};render()">'+(v==='FY'?'Year (FY)':v)+'</button>';}).join('')+'</div>';
+  var h=sw+'<div class="tbl tw ext"><div class="swipe">Swipe sideways for more →</div><table><thead><tr><th>Franchise PIN / period</th><th>Revenue (ex-GST)</th><th>Franchise expenses</th><th>Net contribution</th></tr></thead><tbody>';
+  if(!pins.length)h+='<tr><td colspan="4" class="note">No invoices or expenses tagged to a franchise PIN yet.</td></tr>';
+  pins.forEach(function(pin){var p=P[pin],id=pin.replace(/\W/g,'_'),on=!!FRO[pin],net=p.rev-p.exp;
+    h+='<tr class="eg click" onclick="frxTog(\''+pin+'\')"><td><span class="ea" id="fxa_'+id+'">'+(on?'▾':'▸')+'</span>PIN '+esc(pin)+'</td><td>'+inr(p.rev,1)+'</td><td>'+inr(p.exp,1)+'</td><td class="'+vcls(net)+'"><b>'+inr(net,1)+'</b></td></tr>';
+    Object.keys(p.per).sort().reverse().forEach(function(k){var q=p.per[k],sk=pin+'|'+k,sid=sk.replace(/\W/g,'_'),so=!!FRO[sk],n=q.rev-q.exp;
+      h+='<tr class="es click fx_'+id+'" onclick="frxTog(\''+sk+'\')"'+(on?'':' style="display:none"')+'><td class="esn"><span class="ea" id="fxa_'+sid+'">'+(so?'▾':'▸')+'</span>'+esc(k)+(q.lines.length?' <span class="en">'+q.lines.length+' expense'+(q.lines.length>1?'s':'')+'</span>':'')+'</td><td>'+inr(q.rev,1)+'</td><td>'+inr(q.exp,1)+'</td><td class="'+vcls(n)+'">'+inr(n,1)+'</td></tr>';
+      q.lines.forEach(function(r){h+='<tr class="ec fx_'+id+' fx_'+sid+'" data-s="'+sk+'"'+(on&&so?'':' style="display:none"')+'><td class="ei2">'+dt(String(r[0]),1)+' · '+esc(r[2])+(r[3]?' · '+esc(r[3]):'')+'</td><td></td><td>'+inr(r[4],1)+'</td><td></td></tr>';});});});
+  var tr=pins.reduce(function(s,k){return s+P[k].rev;},0),te=pins.reduce(function(s,k){return s+P[k].exp;},0);
+  h+='<tr class="tot"><td>All franchises</td><td>'+inr(tr,1)+'</td><td>'+inr(te,1)+'</td><td>'+inr(tr-te,1)+'</td></tr>';
+  h+='<tr class="tot gt"><td>Company (LMI) — not tagged to a franchise</td><td></td><td>'+inr(co,1)+'</td><td></td></tr></tbody></table></div>';
+  return card('Franchise-wise revenue & expenses',h,'From the Zoho Books <b>Franchise</b> tag: invoices tagged with a PIN = revenue, expenses/bills tagged with a PIN = that franchise\'s costs. "Company (LMI)" or no tag = company. Revenue is before franchise revenue share.');}
+
 function vFr(){
   var s=D.score, I=function(h){return s.head.indexOf(h);};
   var h=card('Franchise scorecard','<div class="note">Paid listings are live from Zoho invoices (same count as Home → Paid listings). Targets, floor and revenue share are as of '+dt(s.asof)+' (last closed month). Red marker = Franchise Minimum floor.</div>'+
@@ -524,6 +546,7 @@ function vFr(){
         meter('Users',r[I('Users actual')],r[I('Users min')],null)+meter('Sponsorship (month)',r[I('Sponsorship — month')],r[I('Sponsorship target — month')],r[I('Sponsorship target — month')]/2)+
         '</div><div class="lk frl"></div><div class="detail">'+table(['Month','New paid','New free','Users','Territory rev.','Share','Notes'],hist)+'</div></div>';}).join(''));
   var ps=periods(), L=['New franchises','Active franchises','Active paid listings','Avg locked price / listing','TERRITORY REVENUE (franchise PINs)'];
+  h+=franchiseExpCard();
   h+=card('Network planned by '+TYPE.toLowerCase(),table(['Line'].concat(ps),L.map(function(l){return [esc(l)].concat(ps.map(function(p){var v=agg(D.proj,rowsIn(D.proj,p),l);return /REVENUE|price/.test(l)?inr(v):num(v);}));})));
   return h;
 }
