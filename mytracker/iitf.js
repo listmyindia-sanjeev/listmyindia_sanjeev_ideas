@@ -23,7 +23,8 @@
     '.iv details summary{font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;list-style:none}.iv details summary::-webkit-details-marker{display:none}' +
     '.ivmsg{white-space:pre-wrap;font-size:12.5px;line-height:1.5;background:#F7F9FF;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:6px;max-height:320px;overflow:auto}' +
     '.ivr{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font:13px Poppins,system-ui,sans-serif;background:#fff}.ivr:focus{outline:2px solid var(--blue);outline-offset:-1px}' +
-    '.ivchips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}.ivchips::-webkit-scrollbar{display:none}';
+    '.ivchips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}.ivchips::-webkit-scrollbar{display:none}' +
+    '@media(max-width:759px){.iva{gap:8px}.ivwa{flex:1 1 100%;justify-content:center;min-height:46px;font-size:15px;border-radius:12px}.ivc,.ivs{flex:1 1 0;white-space:nowrap;font-size:13px;padding:7px 8px;justify-content:center;min-height:42px;margin-left:0;border-radius:12px}.ivchips .lch{padding:9px 14px}.ivr{min-height:42px;font-size:16px}.iv details summary{padding:6px 0}.ivmsg{max-height:50vh}}';
   document.head.appendChild(css);
 
   var FIT = { 'Franchise Partner': '#6A3FC1', 'Business Owner': '#0E8A4B', 'Growth Partner': '#B76E00', 'User': '#0046BF' };
