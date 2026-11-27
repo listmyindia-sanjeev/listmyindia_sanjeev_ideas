@@ -1,7 +1,8 @@
 /* List My India™ — Founder Tracker add-on: IITF 2026 stall visitors (24–27 Nov 2026)
- * Loaded by one line before </body> in mytracker/dash.html:  <script src="iitf.js?v=3"></script>
+ * Loaded by one line before </body> in mytracker/dash.html:  <script src="iitf.js?v=4"></script>
  * Adds the "IITF Visitors" tab (desktop tab bar + phone "More" menu). Data = D.iitf from the IITF_Visitors sheet tab
  * (needs IITF.gs v3). Send = opens WhatsApp with the pre-filled message and ticks "Sent?" in the Sheet.
+ * v4 (28 Nov 2026): filter counts shown as green circles.
  * v3 (28 Nov 2026): edit the WhatsApp message from the card; follow-ups are a list of dated updates with Add / Edit / Delete.
  */
 (function () {
@@ -24,6 +25,7 @@
     '.iv details summary{font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;list-style:none}.iv details summary::-webkit-details-marker{display:none}' +
     '.ivmsg{white-space:pre-wrap;font-size:12.5px;line-height:1.5;background:#F7F9FF;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:6px;max-height:320px;overflow:auto;overflow-wrap:anywhere}' +
     '.ivchips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}.ivchips::-webkit-scrollbar{display:none}' +
+    '.lch .ivct{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;box-sizing:border-box;border-radius:11px;background:var(--good);color:#fff;font-size:11.5px;font-weight:700;margin-left:6px;line-height:1;vertical-align:middle}.lch.on .ivct{box-shadow:0 0 0 2px #fff}' +
     /* v2: message editor + follow-up list */
     '.ivta{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:13px/1.45 Poppins,system-ui,sans-serif;background:#fff;resize:vertical;min-height:40px;color:var(--ink)}.ivta:focus{outline:2px solid var(--blue);outline-offset:-1px}' +
     '.ivta.big{min-height:220px;margin-top:6px}' +
@@ -62,7 +64,7 @@
       return true;
     });
   }
-  function chip(lbl, n, on, js) { return '<button class="lch' + (on ? ' on' : '') + '" onclick="' + js + ';ivDraw()">' + esc(lbl) + (n != null ? ' <b>' + n + '</b>' : '') + '</button>'; }
+  function chip(lbl, n, on, js) { return '<button class="lch' + (on ? ' on' : '') + '" onclick="' + js + ';ivDraw()">' + esc(lbl) + (n != null ? ' <b class="ivct">' + n + '</b>' : '') + '</button>'; }
   function chips() {
     var R = rows(), cnt = function (f) { return R.filter(f).length; };
     var days = []; R.forEach(function (r) { if (r.date && days.indexOf(r.date) < 0) days.push(r.date); });
