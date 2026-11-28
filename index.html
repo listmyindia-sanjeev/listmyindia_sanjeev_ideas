@@ -4260,20 +4260,21 @@ let gpPinCount = {gp:1,sgp:50};
 // Income Calculator defaults both GP and SGP to 1 pin code, per its own spec.
 let incGpPinCount = {gp:1,sgp:1};
 
-// Current-quarter sponsorship anchor prices (Annexure B ladder: Homepage
-// Banner ₹9,999 Sep'26, +₹10,000/quarter, MRP ₹99,999; Search & Category
-// Banner ₹7,499 Sep'26, +₹7,500/quarter, MRP ₹74,999; Category Featured
-// ₹999/slot Sep'26, +₹1,000/quarter, MRP ₹9,999/slot). Recomputed from
-// today's real date against the Sep'26 launch quarter every time the page
-// loads, so these never go stale with the calendar the way a hardcoded
-// number would.
-const _SPONSOR_LAUNCH_Y=2026, _SPONSOR_LAUNCH_M=9;
-function _fyQIdx(y,m){ const fy=m>=4?y:y-1; return fy*4+Math.floor(((m-4+12)%12)/3); }
-const _sponsorNow=new Date();
-const _SPONSOR_Q_ELAPSED=Math.max(0,_fyQIdx(_sponsorNow.getFullYear(),_sponsorNow.getMonth()+1)-_fyQIdx(_SPONSOR_LAUNCH_Y,_SPONSOR_LAUNCH_M));
-const CUR_SPONSOR_HOMEPAGE=Math.min(99999,9999+10000*_SPONSOR_Q_ELAPSED);
-const CUR_SPONSOR_SEARCHCAT=Math.min(74999,7499+7500*_SPONSOR_Q_ELAPSED);
-const CUR_SPONSOR_CATFEAT=Math.min(9999,999+1000*_SPONSOR_Q_ELAPSED);
+// Current-quarter sponsorship anchor prices (Annexure B base row: Homepage
+// Banner ₹9,999, +₹10,000/quarter, MRP ₹99,999; Search & Category Banner
+// ₹7,499, +₹7,500/quarter, MRP ₹74,999; Category Featured ₹999/slot,
+// +₹1,000/quarter, MRP ₹9,999/slot). Per the "always relative to the real
+// viewing date" rule used throughout this calculator, whatever month the
+// page is opened in is quarter zero, so these sliders' defaults are simply
+// the flat Annexure B base rate — NOT a figure computed by counting elapsed
+// quarters since any fixed launch date (that was the earlier bug: it kept
+// showing the NEXT quarter's rate, e.g. ₹19,999, as if it were "today's").
+// The actual forward escalation across future months is handled entirely
+// by sponsorPriceFor()'s own quartersFromNow(), which is already anchored
+// to today's real fiscal quarter.
+const CUR_SPONSOR_HOMEPAGE=9999;
+const CUR_SPONSOR_SEARCHCAT=7499;
+const CUR_SPONSOR_CATFEAT=999;
 
 let _inc = {
   pop:100000,retailPct:1.25,homeBase:5,
