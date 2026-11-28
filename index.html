@@ -5881,14 +5881,16 @@ function renderPriceLadderReference(){
     return fyYear*4 + Math.floor(((month-4+12)%12)/3);
   }
   function quarterIdxForBizMonth(m){ const c=calendarForBizMonth(m); return fiscalQuarterIndex(c.year,c.month); }
-  // Price-ladder zero-point: the Oct–Dec 2026 fiscal quarter (₹99 base rate),
-  // matching the Franchise Agreement's Annexure B exactly — NOT whatever
-  // quarter "business Month 1" (Sep'26, used only for the subscriber/revenue
-  // growth model above) happens to fall in. Sep'26 sits in the Jul–Sep
-  // quarter, one quarter earlier than Annexure B's own Oct'26 anchor, which
-  // is why this must be pinned independently rather than derived from
-  // quarterIdxForBizMonth(1).
-  const LAUNCH_QIDX=fiscalQuarterIndex(2026,10);
+  // Price-ladder zero-point: NOT a fixed calendar quarter — always the real
+  // fiscal quarter in which this page is being viewed right now, so the
+  // "current month" row always starts at the ₹99 base rate (and the Setup
+  // Fee's own ₹99 base), whatever month that happens to be, with the next
+  // step-up landing on the 1st of the NEXT real fiscal quarter from today.
+  // (Independent of the Sep'26 "business Month 1" used only for the
+  // subscriber/revenue growth model above — that numbering is unrelated to
+  // this pricing ladder.)
+  const _todayForPricing=new Date();
+  const LAUNCH_QIDX=fiscalQuarterIndex(_todayForPricing.getFullYear(), _todayForPricing.getMonth()+1);
   function quartersSinceLaunch(m){ return quarterIdxForBizMonth(m)-LAUNCH_QIDX; }
   function newSignupPrice(m){ return Math.min(LISTING_MRP, s.startPrice+s.stepAmount*quartersSinceLaunch(m)); }
   function setupCharge(m){ return Math.min(SETUP_MRP, s.startPrice+s.stepAmount*quartersSinceLaunch(m)); }
@@ -6261,14 +6263,16 @@ function calculateIncome(){
     const c=calendarForBizMonth(m);
     return fiscalQuarterIndex(c.year,c.month);
   }
-  // Price-ladder zero-point: the Oct–Dec 2026 fiscal quarter (₹99 base rate),
-  // matching the Franchise Agreement's Annexure B exactly — NOT whatever
-  // quarter "business Month 1" (Sep'26, used only for the subscriber/revenue
-  // growth model above) happens to fall in. Sep'26 sits in the Jul–Sep
-  // quarter, one quarter earlier than Annexure B's own Oct'26 anchor, which
-  // is why this must be pinned independently rather than derived from
-  // quarterIdxForBizMonth(1).
-  const LAUNCH_QIDX=fiscalQuarterIndex(2026,10);
+  // Price-ladder zero-point: NOT a fixed calendar quarter — always the real
+  // fiscal quarter in which this page is being viewed right now, so the
+  // "current month" row always starts at the ₹99 base rate (and the Setup
+  // Fee's own ₹99 base), whatever month that happens to be, with the next
+  // step-up landing on the 1st of the NEXT real fiscal quarter from today.
+  // (Independent of the Sep'26 "business Month 1" used only for the
+  // subscriber/revenue growth model above — that numbering is unrelated to
+  // this pricing ladder.)
+  const _todayForPricing=new Date();
+  const LAUNCH_QIDX=fiscalQuarterIndex(_todayForPricing.getFullYear(), _todayForPricing.getMonth()+1);
   function quartersSinceLaunch(m){ return quarterIdxForBizMonth(m)-LAUNCH_QIDX; }
 
   function newSignupPrice(m){
