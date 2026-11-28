@@ -1,7 +1,8 @@
 /* List My India™ — Founder Tracker add-on: Paid Customers (from Zoho Books)
- * Loaded by one line before </body> in mytracker/dash.html:  <script src="paid.js?v=1"></script>
+ * Loaded by one line before </body> in mytracker/dash.html:  <script src="paid.js?v=2"></script>
  * Adds the "Paid Customers" tab (desktop tab bar + phone "More" menu). Data = D.paid (PaidCustomers.gs → Paid_Customers tab).
  * Every customer name and invoice number opens in Zoho Books; phone numbers are tap-to-call.
+ * v2 (29 Nov 2026): Razorpay subscription status chip + 'Paused / cancelled' filter.
  */
 (function () {
   if (typeof TABS === 'undefined' || typeof render !== 'function') return;
@@ -37,6 +38,9 @@
   function invsOf(c) { return (P().invs || []).filter(function (v) { return v.cid === c.id; }); }
   function invChips(c) { return invsOf(c).map(function (v) {
     return '<a class="inv' + (v.due > 0.5 ? ' due' : '') + '" href="' + esc(v.url) + '" target="_blank" rel="noopener" title="' + esc(dt(v.date, 1) + ' · ' + inr(v.total, 1) + ' · ' + v.status) + '">' + esc(v.no) + '</a>'; }).join(''); }
+  function subChip(c) { var t = String(c.sub || ''); if (!t) return '';
+    var bad = /paus|cancel|halt|expir|complet/i.test(t), cls = bad ? 'r' : (/active|authen/i.test(t) ? 'g' : 'n');
+    return ' <span class="chip ' + cls + '" title="Razorpay subscription">' + (bad ? '⏸ ' : '↻ ') + esc(t) + '</span>'; }
   function stOf(c) { return c.due > 0.5 ? (c.paid > 0.5 ? 'part' : 'due') : 'paid'; }
   function filtered() {
     var q = PCF.q.toLowerCase().trim();
@@ -44,6 +48,7 @@
       if (PCF.pin && (', ' + c.pins + ', ').indexOf(', ' + PCF.pin + ', ') < 0) return false;
       if (PCF.st === 'due' && !(c.due > 0.5)) return false;
       if (PCF.st === 'paid' && c.due > 0.5) return false;
+      if (PCF.st === 'sub' && !/paus|cancel|halt|expir|complet/i.test(c.sub || '')) return false;
       if (q && [c.name, c.pins, c.email, c.mobile, c.rzp].concat(invsOf(c).map(function (v) { return v.no + ' ' + v.items; })).join(' ').toLowerCase().indexOf(q) < 0) return false;
       return true;
     });
@@ -55,7 +60,8 @@
     var due = C.filter(function (c) { return c.due > 0.5; }).length;
     var b = function (lbl, n, on, js) { return '<button class="lch' + (on ? ' on' : '') + '" onclick="' + js + ';pcDraw()">' + esc(lbl) + (n != null ? ' <b>' + n + '</b>' : '') + '</button>'; };
     return '<div class="lchips">' + b('All', C.length, !PCF.st, "PCF.st=''") + b('✓ Fully paid', C.length - due, PCF.st === 'paid', "PCF.st='paid'") +
-      (due ? b('⚠ Payment due', due, PCF.st === 'due', "PCF.st='due'") : '') + '</div>' +
+      (due ? b('⚠ Payment due', due, PCF.st === 'due', "PCF.st='due'") : '') +
+      (function () { var k = C.filter(function (c) { return /paus|cancel|halt|expir|complet/i.test(c.sub || ''); }).length; return k ? b('⏸ Paused / cancelled', k, PCF.st === 'sub', "PCF.st='sub'") : ''; })() + '</div>' +
       (pl.length ? '<div class="lchips">' + b('All PINs', null, !PCF.pin, "PCF.pin=''") + pl.map(function (p) { return b('PIN ' + p, pc[p], PCF.pin === p, "PCF.pin='" + p + "'"); }).join('') + '</div>' : '');
   }
   function list() {
@@ -67,7 +73,7 @@
       h += '<div class="tbl pct"><table><thead><tr><th>Customer (opens Zoho)</th><th>PIN</th><th>Contact</th><th>Invoices (click to open)</th><th>Total incl. GST</th><th>Received</th><th>Due</th><th>Last invoice</th></tr></thead><tbody>';
       f.forEach(function (c, i) {
         var k = c.id, on = !!OPEN[k];
-        h += '<tr><td><button class="ex" onclick="pcTog(\'' + k + '\')" title="Show invoice details">' + (on ? '▾' : '▸') + '</button>' + zl(c.url, c.name) + '</td><td>' + pins(c.pins) + '</td><td class="ct">' + tel(c.mobile) +
+        h += '<tr><td><button class="ex" onclick="pcTog(\'' + k + '\')" title="Show invoice details">' + (on ? '▾' : '▸') + '</button>' + zl(c.url, c.name) + subChip(c) + '</td><td>' + pins(c.pins) + '</td><td class="ct">' + tel(c.mobile) +
           (c.email ? '<br><a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a>' : '') + '</td><td>' + invChips(c) + '</td><td><b>' + inr(c.total, 1) + '</b></td><td class="pos">' + inr(c.paid, 1) + '</td><td class="' + (c.due > 0.5 ? 'neg' : '') + '">' + (c.due > 0.5 ? '<b>' + inr(c.due, 1) + '</b>' : '—') + '</td><td>' + dt(c.last, 1) + '</td></tr>';
         if (on) invsOf(c).forEach(function (v) {
           h += '<tr class="sub"><td colspan="3">' + zl(v.url, v.no) + ' · ' + dt(v.date, 1) + (v.pin ? ' · PIN ' + esc(v.pin) : '') + ' · <span class="chip ' + (/paid/i.test(v.status) ? 'g' : 'r') + '">' + esc(v.status) + '</span></td><td>' + esc(v.items || '—') + '</td><td>' + inr(v.total, 1) + '</td><td>' + inr(v.total - v.due, 1) + '</td><td>' + (v.due > 0.5 ? inr(v.due, 1) : '—') + '</td><td class="note">GST ' + inr(v.tax, 1) + '</td></tr>';
@@ -76,7 +82,7 @@
       h += '</tbody></table></div>';
     } else {
       h += f.map(function (c) {
-        return '<div class="pcc"><div class="h"><b>' + zl(c.url, c.name) + '</b><div class="amt">' + inr(c.total, 1) + '<small class="' + (c.due > 0.5 ? 'neg' : 'pos') + '">' + (c.due > 0.5 ? 'Due ' + inr(c.due, 1) : 'Paid') + '</small></div></div>' +
+        return '<div class="pcc"><div class="h"><b>' + zl(c.url, c.name) + subChip(c) + '</b><div class="amt">' + inr(c.total, 1) + '<small class="' + (c.due > 0.5 ? 'neg' : 'pos') + '">' + (c.due > 0.5 ? 'Due ' + inr(c.due, 1) : 'Paid') + '</small></div></div>' +
           '<div class="m">' + pins(c.pins) + (c.mobile ? ' · 📞 ' + tel(c.mobile) : '') + (c.email ? '<br>✉️ <a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a>' : '') +
           '<br>' + c.n + ' invoice' + (c.n === 1 ? '' : 's') + ' · last ' + dt(c.last, 1) + '</div><div class="pciv">' + invChips(c) + '</div></div>';
       }).join('');
